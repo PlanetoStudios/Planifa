@@ -2,14 +2,17 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<!-- PWA -->
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#0f1c17">
-<link rel="apple-touch-icon" href="./icon-192.png">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Planifa 1</title>
+<meta name="description" content="Planifa 1 — sandbox de cartas de futebol: monte times, crie jogadores e dispute copas.">
+<meta name="theme-color" content="#081310">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Planifa 1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -30,6 +33,9 @@
   --tier-gold-a:#c98f22; --tier-gold-b:#ffd776;
   --tier-diamond-a:#1fa8c9; --tier-diamond-b:#a6f3ff;
   --tier-purple-a:#5a189a; --tier-purple-b:#c48bff;
+  --tier-white-a:#c7cdd3; --tier-white-b:#ffffff;
+  --tier-wine-a:#2b060c; --tier-wine-b:#7d1f30;
+  --tier-neon-a:#ff2079; --tier-neon-b:#18f7ff;
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -112,6 +118,23 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 .tier-diamond{background:linear-gradient(160deg,var(--tier-diamond-b),var(--tier-diamond-a));color:#022430;}
 .tier-purple{background:linear-gradient(160deg,var(--tier-purple-b),var(--tier-purple-a));color:#fff;box-shadow:0 0 22px rgba(162,91,255,.55);}
 .tier-purple::after{content:"";position:absolute;inset:0;border-radius:14px;border:1px solid rgba(255,255,255,.5);pointer-events:none;}
+.tier-white{background:linear-gradient(160deg,var(--tier-white-b),var(--tier-white-a));color:#1a2226;box-shadow:0 0 16px rgba(255,255,255,.5);}
+.tier-white::after{content:"";position:absolute;inset:0;border-radius:14px;border:1px solid rgba(0,0,0,.15);pointer-events:none;}
+.tier-wine{background:linear-gradient(160deg,var(--tier-wine-b),var(--tier-wine-a));color:#f3dbe0;box-shadow:0 0 18px rgba(125,31,48,.6);}
+.tier-neon{background:linear-gradient(135deg,var(--tier-neon-a),var(--tier-neon-b));color:#051014;
+  animation:neon-pulse 1.8s ease-in-out infinite;}
+.tier-rainbow{background:linear-gradient(135deg,#ff004c,#ff8c00,#ffee00,#2bff00,#00e5ff,#7a00ff,#ff00c8);
+  background-size:220% 220%;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.5);
+  animation:rainbow-shift 5s linear infinite;box-shadow:0 0 24px rgba(255,255,255,.4);}
+@keyframes neon-pulse{
+  0%,100%{box-shadow:0 0 12px rgba(255,32,121,.65),0 0 12px rgba(24,247,255,.45);}
+  50%{box-shadow:0 0 24px rgba(255,32,121,.95),0 0 24px rgba(24,247,255,.75);}
+}
+@keyframes rainbow-shift{
+  0%{background-position:0% 50%;}
+  50%{background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
 
 .legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
 .legend .chip{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);}
@@ -298,22 +321,31 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 
 <script>
 /* ============================= DATA / CONSTANTS ============================= */
+const MAX_OVR = 500;
 const TIERS = [
-  {max:29, key:'brown',   label:'Marrom Escuro'},
-  {max:69, key:'bronze',  label:'Bronze'},
-  {max:80, key:'silver',  label:'Prata'},
-  {max:89, key:'gold',    label:'Ouro'},
-  {max:95, key:'diamond', label:'Diamante'},
-  {max:250,key:'purple',  label:'Roxo'},
+  {max:29,  key:'brown',   label:'Marrom Escuro'},
+  {max:69,  key:'bronze',  label:'Bronze'},
+  {max:80,  key:'silver',  label:'Prata'},
+  {max:89,  key:'gold',    label:'Ouro'},
+  {max:95,  key:'diamond', label:'Diamante'},
+  {max:250, key:'purple',  label:'Roxo'},
+  {max:300, key:'white',   label:'Branco'},
+  {max:400, key:'wine',    label:'Vinho'},
+  {max:450, key:'neon',    label:'Neon'},
+  {max:500, key:'rainbow', label:'Arco-Íris'},
 ];
 function getTier(ovr){
-  ovr = Math.max(0, Math.min(250, ovr));
+  ovr = Math.max(0, Math.min(MAX_OVR, ovr));
   for(const t of TIERS){ if(ovr<=t.max) return t; }
   return TIERS[TIERS.length-1];
 }
 
 const POSITIONS = ['GOL','ZAG','LAT','VOL','MEI','PON','ATA'];
-const TEAM_COLORS = ['#e8b34a','#29d398','#a25bff','#e2544a','#4a90e2','#f2a65a','#5ad1c9','#d65fa0','#c9d15a','#7b8cff'];
+const TEAM_COLORS = [
+  '#e8b34a','#29d398','#a25bff','#e2544a','#4a90e2','#f2a65a','#5ad1c9','#d65fa0','#c9d15a','#7b8cff',
+  '#ff6b6b','#1fbf75','#3f51b5','#ff9f43','#2ec4b6','#c0392b','#8e44ad','#16a085','#e67e22','#34495e',
+  '#ff4d8d','#6ab04c','#487eb0','#eccc68','#30336b','#ff7675','#00b894','#fdcb6e','#6c5ce7','#b33939',
+];
 
 const FORMATIONS = {
   '4-4-2':   [{p:'GK',n:1},{p:'DEF',n:4},{p:'MID',n:4},{p:'FWD',n:2}],
@@ -355,19 +387,20 @@ function randomName(){return pick(FIRST_NAMES)+' '+pick(LAST_NAMES);}
 function uid(){return 'p'+Math.random().toString(36).slice(2,10);}
 
 function makePlayer(name,pos,ovr){
-  return {id:uid(), name, pos, ovr:Math.max(0,Math.min(250,Math.round(ovr)))};
+  return {id:uid(), name, pos, ovr:Math.max(0,Math.min(MAX_OVR,Math.round(ovr)))};
 }
 function randomPlayer(qualityBias){
   let base = 45 + qualityBias*40;
   let ovr = base + rnd(-10,10);
   let roll = Math.random();
-  if(roll>0.985) ovr = rnd(96,130);
-  else if(roll>0.93) ovr = rnd(90,95);
-  else if(roll>0.75) ovr = rnd(81,89);
+  if(roll>0.998) ovr = rnd(251,500);     // card lendária raríssima (Branco a Arco-Íris)
+  else if(roll>0.985) ovr = rnd(96,130); // Roxo
+  else if(roll>0.93) ovr = rnd(90,95);   // Diamante
+  else if(roll>0.75) ovr = rnd(81,89);   // Ouro
   return makePlayer(randomName(), pick(POSITIONS), ovr);
 }
 
-const CATALOG_TEAM_NAMES = ['Falcões FC','Trovão EC','União Atlético','Fênix Clube','Lobos United','Coroa Dourada FC','Vendaval SC','Monarcas FC'];
+const CATALOG_TEAM_NAMES = ['Astra United','Les Bleus','Verde-Amarela','Liverpul Red Unidos','Inter Toronto','Claude FC','Laranja Mecânica','Azzurra'];
 
 const CLUB_PREFIXES = ['Tigres','Águias','Leões','Furacão','Estrela','União','Atlético','Real','Dragões','Panteras','Falcões','Titãs','Vulcão','Fênix','Lobos','Trovão','Cometas','Guerreiros','Corsários','Vikings'];
 const CLUB_SUFFIXES = ['FC','United','Clube','SC','Esporte Clube','AC','City','do Norte','do Sul','Rovers','Atlético','Sporting'];
@@ -415,11 +448,35 @@ function seedData(){
 }
 
 /* ============================= PERSISTENCE ============================= */
+/* Camada de armazenamento dupla:
+   - Dentro do preview de artefatos da Claude, usa window.storage (por usuário, entre sessões).
+   - Rodando como PWA instalado/hospedado fora da Claude (onde window.storage não existe),
+     usa localStorage do navegador — que é o que de fato persiste num PWA. */
+const STORAGE_KEY = 'planifa1-data';
+const AppStorage = {
+  async get(key){
+    if(window.storage && typeof window.storage.get === 'function'){
+      try{
+        const r = await window.storage.get(key, false);
+        if(r && typeof r.value === 'string') return r.value;
+      }catch(e){ /* cai para localStorage */ }
+    }
+    try{ return localStorage.getItem(key); }catch(e){ return null; }
+  },
+  async set(key, value){
+    let ok = false;
+    if(window.storage && typeof window.storage.set === 'function'){
+      try{ await window.storage.set(key, value, false); ok = true; }catch(e){ /* cai para localStorage */ }
+    }
+    try{ localStorage.setItem(key, value); ok = true; }catch(e){ /* localStorage pode falhar em modo privado */ }
+    return ok;
+  }
+};
 async function loadState(){
   try{
-    const res = await window.storage.get('planifa1-data', false);
-    if(res && res.value){
-      const data = JSON.parse(res.value);
+    const raw = await AppStorage.get(STORAGE_KEY);
+    if(raw){
+      const data = JSON.parse(raw);
       state.teams = Array.isArray(data.teams) ? data.teams : [];
       state.freeAgents = Array.isArray(data.freeAgents) ? data.freeAgents : [];
       state.categories = Array.isArray(data.categories) ? data.categories : [];
@@ -444,7 +501,7 @@ async function saveState(){
       categories: state.categories,
       worldCup: (state.worldCup && state.worldCup.rounds) ? state.worldCup : null,
     };
-    await window.storage.set('planifa1-data', JSON.stringify(payload), false);
+    await AppStorage.set(STORAGE_KEY, JSON.stringify(payload));
     if(toast){
       toast.classList.add('show');
       clearTimeout(saveTimer);
@@ -491,9 +548,13 @@ function slotCardHTML(team, slot, idx){
   </div>`;
 }
 function legendHTML(){
-  return `<div class="legend">${TIERS.map(t=>`
-    <div class="chip"><span class="sw tier-${t.key}"></span>${t.label} ${t.key==='brown'?'(0-29)':t.key==='bronze'?'(30-69)':t.key==='silver'?'(70-80)':t.key==='gold'?'(81-89)':t.key==='diamond'?'(90-95)':'(96-250)'}</div>
-  `).join('')}</div>`;
+  let prevMax = -1;
+  const chips = TIERS.map(t=>{
+    const min = prevMax+1;
+    prevMax = t.max;
+    return `<div class="chip"><span class="sw tier-${t.key}"></span>${t.label} (${min}-${t.max})</div>`;
+  }).join('');
+  return `<div class="legend">${chips}</div>`;
 }
 
 /* ============================= RENDER ROOT ============================= */
@@ -544,7 +605,7 @@ function homeView(){
   <div class="grid teams" style="margin-top:6px;">
     ${quickCard('Times', `${state.teams.length} times salvos — veja escalações e formações.`, 'teams', state.teams.length+' times')}
     ${quickCard('Catálogo de Jogadores', 'Jogadores livres prontos para entrar em qualquer time.', 'catalog', state.freeAgents.length+' agentes livres')}
-    ${quickCard('Criar Jogador', 'Defina nome, posição e OVR (até 250) e gere a carta.', 'createPlayer', 'Marrom → Roxo')}
+    ${quickCard('Criar Jogador', 'Defina nome, posição e OVR (até 500) e gere a carta.', 'createPlayer', 'Marrom → Arco-Íris')}
     ${quickCard('Criar Time', 'Escolha nome, cor, formação e escale seus 11 titulares.', 'createTeam', 'Times ilimitados')}
     ${quickCard('Copa do Mundo', 'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', 'worldcup', 'Mata-mata completo')}
     ${quickCard('Categorias', 'Agrupe seus times em categorias personalizadas.', 'categories', state.categories.length+' categorias')}
@@ -754,7 +815,7 @@ function createPlayerView(){
   const tier = getTier(draftPlayer.ovr);
   return `
   <h2 class="section-title">Criar Jogador</h2>
-  <p class="section-sub">Defina o nome, a posição e o OVR (0 a 250). A raridade da carta muda automaticamente.</p>
+  <p class="section-sub">Defina o nome, a posição e o OVR (0 a 500). A raridade da carta muda automaticamente.</p>
   <div class="row">
     <div class="panel" style="flex:2;min-width:280px;">
       <div class="field">
@@ -770,7 +831,7 @@ function createPlayerView(){
         </div>
         <div class="field">
           <label>OVR: <b style="color:var(--gold);">${draftPlayer.ovr}</b></label>
-          <input type="range" min="0" max="250" value="${draftPlayer.ovr}" oninput="draftPlayer.ovr=parseInt(this.value);render();">
+          <input type="range" min="0" max="500" value="${draftPlayer.ovr}" oninput="draftPlayer.ovr=parseInt(this.value);render();">
         </div>
       </div>
       <div class="btn-row">
@@ -929,7 +990,7 @@ function modalNewPlayerForSlotHTML(t, idx){
         <select onchange="modalDraftPlayer.pos=this.value">${POSITIONS.map(p=>`<option ${modalDraftPlayer.pos===p?'selected':''}>${p}</option>`).join('')}</select>
       </div>
       <div class="field"><label>OVR: <b style="color:var(--gold)">${modalDraftPlayer.ovr}</b></label>
-        <input type="range" min="0" max="250" value="${modalDraftPlayer.ovr}" oninput="modalDraftPlayer.ovr=parseInt(this.value);render();">
+        <input type="range" min="0" max="500" value="${modalDraftPlayer.ovr}" oninput="modalDraftPlayer.ovr=parseInt(this.value);render();">
       </div>
     </div>
     <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:modalDraftPlayer.name||'Novo Jogador',pos:modalDraftPlayer.pos,ovr:modalDraftPlayer.ovr})}</div>
@@ -1024,7 +1085,7 @@ function modalEditPlayerHTML(){
           <select onchange="state.modal.draft.pos=this.value">${POSITIONS.map(p=>`<option ${m.draft.pos===p?'selected':''}>${p}</option>`).join('')}</select>
         </div>
         <div class="field"><label>OVR: <b style="color:var(--gold)">${m.draft.ovr}</b></label>
-          <input type="range" min="0" max="250" value="${m.draft.ovr}" oninput="state.modal.draft.ovr=parseInt(this.value);render();">
+          <input type="range" min="0" max="500" value="${m.draft.ovr}" oninput="state.modal.draft.ovr=parseInt(this.value);render();">
         </div>
       </div>
       <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:m.draft.name||'Jogador', pos:m.draft.pos, ovr:m.draft.ovr})}</div>
@@ -1040,7 +1101,7 @@ function saveEditPlayer(){
   if(!m.draft.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
   let p;
   if(m.source==='team'){ p = findTeam(m.a).players[m.b]; } else { p = state.freeAgents.find(x=>x.id===m.a); }
-  p.name = m.draft.name.trim(); p.pos = m.draft.pos; p.ovr = Math.max(0,Math.min(250, m.draft.ovr));
+  p.name = m.draft.name.trim(); p.pos = m.draft.pos; p.ovr = Math.max(0,Math.min(MAX_OVR, m.draft.ovr));
   saveState();
   closeModal();
 }
@@ -1158,7 +1219,7 @@ function worldCupView(){
   const selected = wc.selected;
   return `
   <h2 class="section-title">Copa do Mundo</h2>
-  <p class="section-sub">Escolha o tamanho da copa e os times participantes. Vagas restantes são preenchidas com times aleatórios ao iniciar.</p>
+  <p class="section-sub">Escolha o tamanho da copa e selecione exatamente essa quantidade de times participantes.</p>
   <div class="size-row">
     <span class="hint">Tamanho da copa:</span>
     ${WC_SIZES.map(s=>`<button class="speed-btn ${wc.size===s?'active':''}" onclick="setWCSize(${s})">${s}</button>`).join('')}
@@ -1167,9 +1228,9 @@ function worldCupView(){
     ${state.teams.map(t=>checkboxTeamHTML(t, selected.includes(t.id), `toggleWCTeam('${t.id}')`)).join('')}
   </div>
   <div class="btn-row" style="margin-top:18px;">
-    <button class="btn gold" ${!wc.size?'disabled':''} onclick="startWorldCup()">Iniciar Copa (${selected.length}/${wc.size||'?'})</button>
+    <button class="btn gold" ${(!wc.size || selected.length!==wc.size)?'disabled':''} onclick="startWorldCup()">Iniciar Copa (${selected.length}/${wc.size||'?'})</button>
   </div>
-  ${wc.size && selected.length<wc.size ? `<p class="hint">Faltam ${wc.size-selected.length} vaga(s) — serão preenchidas com times aleatórios ao iniciar.</p>` : ''}
+  ${wc.size && selected.length<wc.size ? `<p class="hint">Faltam ${wc.size-selected.length} vaga(s). Selecione mais times da lista acima (ou crie novos em "Times").</p>` : ''}
   ${wc.size && selected.length>wc.size ? `<p class="hint" style="color:var(--red);">Você selecionou mais times do que o tamanho escolhido. Desmarque alguns ou aumente o tamanho.</p>` : ''}`;
 }
 function setWCSize(size){
@@ -1190,11 +1251,9 @@ function startWorldCup(){
   const size = wc.size;
   if(!size) return;
   let ids = [...wc.selected];
-  if(ids.length>size){ showAlert('Você selecionou mais times do que o tamanho escolhido.'); return; }
-  while(ids.length<size){
-    const t = generateRandomTeamObject();
-    state.teams.push(t);
-    ids.push(t.id);
+  if(ids.length !== size){
+    showAlert(`Selecione exatamente ${size} time(s) para iniciar esta copa (você tem ${ids.length}).`);
+    return;
   }
   for(let i=ids.length-1;i>0;i--){ const j=rnd(0,i); [ids[i],ids[j]]=[ids[j],ids[i]]; }
 
@@ -1496,22 +1555,15 @@ function finishMatch(){
 /* ============================= INIT ============================= */
 render();
 loadState();
-</script>
 
-<!-- Registro do Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js')
-      .then(registration => {
-        console.log('Planifa 1: Service Worker registrado!', registration.scope);
-      })
-      .catch(error => {
-        console.error('Planifa 1: erro ao registrar o Service Worker:', error);
-      });
+/* Registro do Service Worker (PWA) — só funciona quando os arquivos são hospedados via
+   http(s) (GitHub Pages, Netlify, Vercel, etc.). Em file:// ou dentro do preview da
+   Claude, o navegador bloqueia Service Workers; o try/catch evita que isso quebre o app. */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{ /* sem suporte neste ambiente, ignora */ });
   });
 }
 </script>
-
 </body>
 </html>
