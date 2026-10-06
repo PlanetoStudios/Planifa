@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- PWA -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#0f1c17">
+<link rel="apple-touch-icon" href="./icon-192.png">
+
+<title>Planifa 1</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#081310;
+  --panel:#0f1c17;
+  --panel2:#132720;
+  --line:#1e352b;
+  --text:#eaf2ec;
+  --sub:#8fa89c;
+  --gold:#e8b34a;
+  --emerald:#29d398;
+  --violet:#a25bff;
+  --red:#e2544a;
+  --tier-brown-a:#2b1c12; --tier-brown-b:#4a2f1a;
+  --tier-bronze-a:#7a4a22; --tier-bronze-b:#a66a34;
+  --tier-silver-a:#9aa4ab; --tier-silver-b:#e3e9ec;
+  --tier-gold-a:#c98f22; --tier-gold-b:#ffd776;
+  --tier-diamond-a:#1fa8c9; --tier-diamond-b:#a6f3ff;
+  --tier-purple-a:#5a189a; --tier-purple-b:#c48bff;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse 900px 500px at 20% -10%, rgba(41,211,152,.10), transparent 60%),
+    radial-gradient(ellipse 700px 500px at 100% 0%, rgba(232,179,74,.08), transparent 55%),
+    var(--ink);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 18px 80px;}
+
+/* ---- topbar ---- */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;margin-bottom:22px;border-radius:14px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);flex-wrap:wrap;gap:10px;
+}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand .dot{width:12px;height:12px;border-radius:50%;background:var(--emerald);box-shadow:0 0 12px var(--emerald);}
+.brand h1{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:26px;letter-spacing:.5px;margin:0;text-transform:uppercase;}
+.brand h1 span{color:var(--gold);}
+.brand small{display:block;color:var(--sub);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:-2px;}
+nav{display:flex;gap:6px;flex-wrap:wrap;}
+nav button{
+  background:transparent;border:1px solid var(--line);color:var(--sub);
+  padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;
+  letter-spacing:.3px;transition:.15s;
+}
+nav button:hover{color:var(--text);border-color:var(--emerald);}
+nav button.active{background:var(--emerald);color:#052018;border-color:var(--emerald);}
+
+h2.section-title{
+  font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:30px;
+  text-transform:uppercase;letter-spacing:.5px;margin:6px 0 16px;
+}
+p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
+
+.grid{display:grid;gap:14px;}
+.grid.teams{grid-template-columns:repeat(auto-fill,minmax(210px,1fr));}
+.grid.players{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));}
+
+/* ---- team tile ---- */
+.team-tile{
+  background:linear-gradient(160deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;
+  transition:.15s;position:relative;overflow:hidden;
+}
+.team-tile:hover{border-color:var(--gold);transform:translateY(-2px);}
+.team-tile .crest{
+  width:46px;height:46px;border-radius:10px;display:flex;align-items:center;justify-content:center;
+  font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:18px;color:#04140f;margin-bottom:10px;
+}
+.team-tile h3{margin:0 0 4px;font-size:16px;}
+.team-tile .meta{color:var(--sub);font-size:12px;}
+.team-tile .custom-badge{position:absolute;top:12px;right:12px;font-size:10px;background:var(--violet);color:#fff;padding:2px 8px;border-radius:999px;letter-spacing:.5px;}
+
+/* ---- player card (grids / catalog / modals) ---- */
+.card{
+  position:relative;border-radius:14px;padding:12px 10px 10px;text-align:center;
+  min-height:190px;display:flex;flex-direction:column;justify-content:space-between;
+  border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:.15s;
+  box-shadow:0 6px 16px rgba(0,0,0,.35);
+}
+.card:hover{transform:translateY(-4px) scale(1.02);}
+.card .ovr{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;line-height:1;}
+.card .pos{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;opacity:.85;}
+.card .name{font-weight:700;font-size:13px;margin-top:6px;line-height:1.2;min-height:32px;}
+.card .tier-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:.75;margin-top:2px;}
+.card .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:4px;}
+.card .rm{background:rgba(0,0,0,.35);border:none;color:inherit;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;flex-shrink:0;}
+
+.tier-brown{background:linear-gradient(160deg,var(--tier-brown-b),var(--tier-brown-a));color:#e7d8c9;}
+.tier-bronze{background:linear-gradient(160deg,var(--tier-bronze-b),var(--tier-bronze-a));color:#2c1806;}
+.tier-silver{background:linear-gradient(160deg,var(--tier-silver-b),var(--tier-silver-a));color:#1a2226;}
+.tier-gold{background:linear-gradient(160deg,var(--tier-gold-b),var(--tier-gold-a));color:#2c1c00;}
+.tier-diamond{background:linear-gradient(160deg,var(--tier-diamond-b),var(--tier-diamond-a));color:#022430;}
+.tier-purple{background:linear-gradient(160deg,var(--tier-purple-b),var(--tier-purple-a));color:#fff;box-shadow:0 0 22px rgba(162,91,255,.55);}
+.tier-purple::after{content:"";position:absolute;inset:0;border-radius:14px;border:1px solid rgba(255,255,255,.5);pointer-events:none;}
+
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
+.legend .chip{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);}
+.legend .sw{width:14px;height:14px;border-radius:4px;}
+
+/* ---- forms / panels ---- */
+.panel{background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:18px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;color:var(--sub);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.field input[type=text],.field select,.field input[type=number]{
+  width:100%;background:var(--ink);border:1px solid var(--line);color:var(--text);
+  padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit;
+}
+.field input[type=range]{width:100%;accent-color:var(--gold);}
+.row{display:flex;gap:14px;flex-wrap:wrap;}
+.row .field{flex:1;min-width:160px;}
+.btn{
+  background:var(--emerald);color:#052018;border:none;padding:10px 18px;border-radius:8px;
+  font-weight:700;font-size:13px;cursor:pointer;letter-spacing:.3px;
+}
+.btn.secondary{background:transparent;border:1px solid var(--line);color:var(--text);}
+.btn.gold{background:var(--gold);color:#2c1c00;}
+.btn.danger{background:var(--red);color:#fff;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;}
+
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;}
+.color-swatches div{width:28px;height:28px;border-radius:8px;cursor:pointer;border:2px solid transparent;}
+.color-swatches div.sel{border-color:#fff;}
+
+.modal-bg{position:fixed;inset:0;background:rgba(3,8,6,.7);display:flex;align-items:center;justify-content:center;z-index:50;padding:16px;}
+.modal{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:22px;max-width:640px;width:100%;max-height:85vh;overflow-y:auto;}
+.modal h3{margin-top:0;font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;font-size:22px;}
+
+/* ---- pitch (shared base) ---- */
+.pitch{
+  position:relative;border-radius:14px;overflow:hidden;margin-bottom:16px;
+  background:
+   repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 2px, transparent 2px 60px),
+   linear-gradient(180deg,#0e3d27,#0a2a1b);
+  border:1px solid var(--line);
+}
+.pitch.match-pitch{height:270px;}
+.pitch.lineup{height:500px;}
+.midline{position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.25);}
+.circle{position:absolute;left:50%;top:50%;width:80px;height:80px;margin:-40px 0 0 -40px;border:2px solid rgba(255,255,255,.25);border-radius:50%;}
+.goal-net{position:absolute;top:22%;bottom:22%;width:9px;background:repeating-linear-gradient(0deg, rgba(255,255,255,.55) 0 4px, transparent 4px 9px);}
+.goal-net.left{left:0;}
+.goal-net.right{right:0;}
+.ball{position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);
+  box-shadow:0 0 8px rgba(255,255,255,.8);z-index:3;
+  transition:left .9s ease-in-out, top .9s ease-in-out;}
+.dot{position:absolute;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);
+  box-shadow:0 0 5px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.5);z-index:2;
+  transition:left .9s ease-in-out, top .9s ease-in-out;}
+.flash{position:absolute;top:0;bottom:0;width:32%;opacity:0;pointer-events:none;transition:opacity .3s;}
+.flash.side-left{left:0;background:radial-gradient(ellipse at left, rgba(232,179,74,.55), transparent 70%);}
+.flash.side-right{right:0;background:radial-gradient(ellipse at right, rgba(232,179,74,.55), transparent 70%);}
+.flash.on{opacity:1;}
+.goal-banner{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.6);
+  font-family:'Big Shoulders Display',sans-serif;font-size:38px;font-weight:800;color:var(--gold);
+  text-shadow:0 0 20px rgba(232,179,74,.9);opacity:0;pointer-events:none;letter-spacing:1px;
+  transition:opacity .25s, transform .25s;text-align:center;z-index:4;text-transform:uppercase;
+}
+.goal-banner.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+
+/* ---- lineup slots ---- */
+.pitch-slot{position:absolute;transform:translate(-50%,-50%);width:70px;padding:6px 4px;border-radius:10px;
+  text-align:center;cursor:pointer;font-size:11px;transition:transform .15s;z-index:2;}
+.pitch-slot:hover{transform:translate(-50%,-50%) scale(1.08);}
+.pitch-slot.empty{border:1.5px dashed rgba(255,255,255,.4);background:rgba(255,255,255,.06);color:#dce8e2;}
+.pitch-slot.empty .slot-plus{font-size:20px;line-height:1;}
+.pitch-slot.filled{border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 10px rgba(0,0,0,.45);}
+.pitch-slot .slot-ovr{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;line-height:1.15;}
+.pitch-slot .slot-name{font-weight:700;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pitch-slot .slot-pos{font-size:8px;letter-spacing:1px;opacity:.85;text-transform:uppercase;margin-top:1px;}
+
+.empty-slot{
+  border:1.5px dashed var(--line);border-radius:14px;min-height:190px;
+  display:flex;align-items:center;justify-content:center;color:var(--sub);
+  cursor:pointer;font-size:28px;transition:.15s;
+}
+.empty-slot:hover{border-color:var(--emerald);color:var(--emerald);}
+
+/* ---- world cup ---- */
+.bracket-round{margin-bottom:22px;}
+.bracket-round h4{font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-size:16px;margin-bottom:10px;}
+.match-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;
+}
+.match-row .side{display:flex;align-items:center;gap:8px;flex:1;font-weight:600;font-size:14px;}
+.match-row .side.right{justify-content:flex-end;}
+.match-row .crest-mini{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#04140f;flex-shrink:0;}
+.match-row .score{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:16px;min-width:60px;text-align:center;color:var(--gold);}
+.match-row .vs{color:var(--sub);font-size:11px;}
+
+/* ---- match viewer ---- */
+.scoreboard{
+  display:flex;align-items:center;justify-content:space-between;background:var(--ink);
+  border:1px solid var(--line);border-radius:14px;padding:18px 24px;margin-bottom:14px;
+}
+.scoreboard .team-name{font-family:'Big Shoulders Display',sans-serif;font-size:20px;text-transform:uppercase;font-weight:800;flex:1;}
+.scoreboard .team-name.right{text-align:right;}
+.scoreboard .score-big{font-family:'JetBrains Mono',monospace;font-size:44px;font-weight:700;color:var(--gold);letter-spacing:4px;padding:0 22px;}
+.scoreboard .clock{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--emerald);text-align:center;display:block;margin-top:4px;}
+
+.speed-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.speed-btn{background:transparent;border:1px solid var(--line);color:var(--sub);padding:6px 14px;border-radius:8px;
+  cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;}
+.speed-btn.active{background:var(--gold);color:#2c1c00;border-color:var(--gold);}
+
+.ticker{
+  background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:12px 16px;
+  height:190px;overflow-y:auto;display:flex;flex-direction:column-reverse;font-size:13px;
+}
+.ticker .ev{padding:5px 0;border-bottom:1px dashed var(--line);color:var(--sub);}
+.ticker .ev b{color:var(--text);}
+.ticker .ev.goal{color:var(--gold);}
+.ticker .ev.goal b{color:var(--gold);}
+
+.tabs-mini{display:flex;gap:8px;margin-bottom:14px;}
+.tabs-mini button{background:transparent;border:1px solid var(--line);color:var(--sub);padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;}
+.tabs-mini button.active{background:var(--panel2);color:var(--text);border-color:var(--gold);}
+
+.hint{color:var(--sub);font-size:12.5px;line-height:1.5;}
+.checkbox-team{display:flex;align-items:center;gap:8px;background:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 12px;cursor:pointer;font-size:13px;}
+.checkbox-team.sel{border-color:var(--emerald);}
+.checkbox-team .crest-mini{width:20px;height:20px;border-radius:5px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#04140f;flex-shrink:0;}
+
+.champion-banner{
+  text-align:center;padding:40px 20px;background:linear-gradient(160deg,var(--tier-purple-b),var(--tier-purple-a));
+  border-radius:16px;color:#fff;box-shadow:0 0 40px rgba(162,91,255,.5);
+}
+.champion-banner h2{font-family:'Big Shoulders Display',sans-serif;font-size:40px;text-transform:uppercase;margin:6px 0;}
+.champion-banner .trophy{font-size:52px;}
+
+.size-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.catalog-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;}
+.catalog-controls .field{margin-bottom:0;min-width:150px;}
+.catalog-controls .field.search{flex:2;min-width:200px;}
+.catalog-count{color:var(--sub);font-size:12.5px;margin-bottom:14px;}
+
+/* ---- team selection mode ---- */
+.team-tile.tile-selected{border-color:var(--emerald);box-shadow:0 0 0 2px var(--emerald);}
+.sel-check{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;
+  border:1.5px solid var(--line);background:rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:var(--emerald);font-weight:800;}
+
+/* ---- real bracket tree ---- */
+.bracket-scroll{overflow-x:auto;overflow-y:hidden;padding:36px 4px 16px;margin-bottom:10px;}
+.bracket-canvas{position:relative;}
+.bracket-roundlabel{position:absolute;top:-28px;font-family:'Big Shoulders Display',sans-serif;
+  text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-size:14px;text-align:center;}
+.bracket-match{position:absolute;transform:translateY(-50%);background:var(--ink);border:1px solid var(--line);
+  border-radius:8px;overflow:hidden;z-index:2;}
+.bracket-match.playable{cursor:pointer;border-color:var(--gold);}
+.bracket-match.playable:hover{box-shadow:0 0 0 2px var(--gold);}
+.row-team{display:flex;align-items:center;gap:6px;padding:4px 8px;font-size:11.5px;font-weight:600;height:50%;}
+.row-team:first-child{border-bottom:1px solid var(--line);}
+.row-team.tbd{color:var(--sub);font-style:italic;font-weight:400;justify-content:center;}
+.row-team.winner{background:rgba(41,211,152,.14);color:var(--emerald);}
+.crest-tiny{width:16px;height:16px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#04140f;}
+.row-team .rt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.row-team .sc{font-family:'JetBrains Mono',monospace;font-weight:700;}
+.play-hint{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.6);
+  color:var(--gold);font-size:11px;font-weight:700;opacity:0;transition:opacity .15s;}
+.bracket-match.playable:hover .play-hint{opacity:1;}
+.conn-h{position:absolute;height:2px;background:var(--line);}
+.conn-v{position:absolute;width:2px;background:var(--line);}
+
+.save-toast{position:fixed;bottom:16px;right:16px;background:var(--panel2);border:1px solid var(--emerald);color:var(--emerald);
+  padding:8px 14px;border-radius:8px;font-size:12px;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;}
+.save-toast.show{opacity:1;}
+
+::-webkit-scrollbar{width:8px;}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="save-toast" id="saveToast">Progresso salvo</div>
+
+<script>
+/* ============================= DATA / CONSTANTS ============================= */
+const TIERS = [
+  {max:29, key:'brown',   label:'Marrom Escuro'},
+  {max:69, key:'bronze',  label:'Bronze'},
+  {max:80, key:'silver',  label:'Prata'},
+  {max:89, key:'gold',    label:'Ouro'},
+  {max:95, key:'diamond', label:'Diamante'},
+  {max:250,key:'purple',  label:'Roxo'},
+];
+function getTier(ovr){
+  ovr = Math.max(0, Math.min(250, ovr));
+  for(const t of TIERS){ if(ovr<=t.max) return t; }
+  return TIERS[TIERS.length-1];
+}
+
+const POSITIONS = ['GOL','ZAG','LAT','VOL','MEI','PON','ATA'];
+const TEAM_COLORS = ['#e8b34a','#29d398','#a25bff','#e2544a','#4a90e2','#f2a65a','#5ad1c9','#d65fa0','#c9d15a','#7b8cff'];
+
+const FORMATIONS = {
+  '4-4-2':   [{p:'GK',n:1},{p:'DEF',n:4},{p:'MID',n:4},{p:'FWD',n:2}],
+  '4-3-3':   [{p:'GK',n:1},{p:'DEF',n:4},{p:'MID',n:3},{p:'FWD',n:3}],
+  '3-5-2':   [{p:'GK',n:1},{p:'DEF',n:3},{p:'MID',n:5},{p:'FWD',n:2}],
+  '4-2-3-1': [{p:'GK',n:1},{p:'DEF',n:4},{p:'DM',n:2},{p:'MID',n:3},{p:'FWD',n:1}],
+  '5-3-2':   [{p:'GK',n:1},{p:'DEF',n:5},{p:'MID',n:3},{p:'FWD',n:2}],
+  '3-4-3':   [{p:'GK',n:1},{p:'DEF',n:3},{p:'MID',n:4},{p:'FWD',n:3}],
+};
+function labelForRow(purpose,count,i){
+  if(purpose==='GK') return 'GOL';
+  if(purpose==='DEF'){ if(count>=4 && (i===0||i===count-1)) return 'LAT'; return 'ZAG'; }
+  if(purpose==='DM') return 'VOL';
+  if(purpose==='MID') return 'MEI';
+  if(purpose==='FWD'){ if(count===3 && (i===0||i===count-1)) return 'PON'; return 'ATA'; }
+  return 'MEI';
+}
+function buildFormationSlots(key){
+  const rows = FORMATIONS[key] || FORMATIONS['4-3-3'];
+  const n = rows.length;
+  const slots = [];
+  rows.forEach((row,ri)=>{
+    const y = n===1 ? 50 : 92 - (ri*(82/(n-1)));
+    for(let i=0;i<row.n;i++){
+      const x = row.n===1 ? 50 : 12 + i*((88-12)/(row.n-1));
+      slots.push({label:labelForRow(row.p,row.n,i), x, y});
+    }
+  });
+  return slots;
+}
+
+const FIRST_NAMES = ['Lucas','Thiago','Gabriel','Rafael','Bruno','Diego','Enzo','Kaique','Matheus','Vitor','André','Caio','Igor','Leo','Rian','Yuri','Davi','Nicolas','Pedro','Otávio',
+  'Marco','Luca','Milan','Kevin','Sven','Jonas','Erik','Ivo','Adrian','Nikola','Mateo','Iker','Xavi','Rui','Tiago','Amir','Karim','Sadio','Kwame','Femi','Chidi','Yusuf'];
+const LAST_NAMES = ['Silva','Souza','Costa','Pereira','Oliveira','Ramos','Nascimento','Barbosa','Cardoso','Teixeira','Moraes','Farias','Aguiar','Rocha','Vidal','Novak','Keller','Petrov',
+  'Ferrara','Moretti','Dubois','Lefevre','Fischer','Bauer','Van Dijk','De Boer','Almeida','Santana','Reyes','Herrera','Diallo','Traoré','Mensah','Okafor','Haddad','Nasser'];
+function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function pick(arr){return arr[rnd(0,arr.length-1)];}
+function randomName(){return pick(FIRST_NAMES)+' '+pick(LAST_NAMES);}
+function uid(){return 'p'+Math.random().toString(36).slice(2,10);}
+
+function makePlayer(name,pos,ovr){
+  return {id:uid(), name, pos, ovr:Math.max(0,Math.min(250,Math.round(ovr)))};
+}
+function randomPlayer(qualityBias){
+  let base = 45 + qualityBias*40;
+  let ovr = base + rnd(-10,10);
+  let roll = Math.random();
+  if(roll>0.985) ovr = rnd(96,130);
+  else if(roll>0.93) ovr = rnd(90,95);
+  else if(roll>0.75) ovr = rnd(81,89);
+  return makePlayer(randomName(), pick(POSITIONS), ovr);
+}
+
+const CATALOG_TEAM_NAMES = ['Falcões FC','Trovão EC','União Atlético','Fênix Clube','Lobos United','Coroa Dourada FC','Vendaval SC','Monarcas FC'];
+
+const CLUB_PREFIXES = ['Tigres','Águias','Leões','Furacão','Estrela','União','Atlético','Real','Dragões','Panteras','Falcões','Titãs','Vulcão','Fênix','Lobos','Trovão','Cometas','Guerreiros','Corsários','Vikings'];
+const CLUB_SUFFIXES = ['FC','United','Clube','SC','Esporte Clube','AC','City','do Norte','do Sul','Rovers','Atlético','Sporting'];
+function randomTeamName(){ return pick(CLUB_PREFIXES)+' '+pick(CLUB_SUFFIXES); }
+function generateRandomTeamObject(){
+  const fKeys = Object.keys(FORMATIONS);
+  const formation = pick(fKeys);
+  const total = buildFormationSlots(formation).length;
+  const bias = Math.random();
+  const players = [];
+  for(let i=0;i<total;i++) players.push(randomPlayer(bias));
+  return {id:uid(), name:randomTeamName(), color:pick(TEAM_COLORS), custom:true, formation, players};
+}
+
+/* ============================= STATE ============================= */
+let state = {
+  view:'loading',
+  teams: [],
+  freeAgents: [],
+  categories: [],
+  currentTeamId:null,
+  currentCategoryId:null,
+  teamSelectMode:false,
+  selectedTeamIds:[],
+  modal:null,
+  worldCup:null,
+  matchCtx:null,
+  catalogFilter:{search:'', pos:'ALL', tier:'ALL', sort:'ovr-desc'},
+};
+
+function seedData(){
+  const fKeys = Object.keys(FORMATIONS);
+  state.teams = CATALOG_TEAM_NAMES.map((name,i)=>{
+    const bias = 0.5 + (i%3)*0.2;
+    const formation = fKeys[i % fKeys.length];
+    const total = buildFormationSlots(formation).length;
+    const players = [];
+    for(let k=0;k<total;k++) players.push(randomPlayer(bias));
+    players[Math.floor(total/2)] = makePlayer(randomName(), 'ATA', rnd(84,97));
+    return {id:'t'+i, name, color:TEAM_COLORS[i%TEAM_COLORS.length], custom:false, formation, players};
+  });
+  state.freeAgents = [];
+  for(let i=0;i<60;i++){ state.freeAgents.push(randomPlayer(Math.random())); }
+  state.categories = [];
+}
+
+/* ============================= PERSISTENCE ============================= */
+async function loadState(){
+  try{
+    const res = await window.storage.get('planifa1-data', false);
+    if(res && res.value){
+      const data = JSON.parse(res.value);
+      state.teams = Array.isArray(data.teams) ? data.teams : [];
+      state.freeAgents = Array.isArray(data.freeAgents) ? data.freeAgents : [];
+      state.categories = Array.isArray(data.categories) ? data.categories : [];
+      state.worldCup = data.worldCup || null;
+      if(!state.teams.length && !state.freeAgents.length) seedData();
+    } else {
+      seedData();
+    }
+  } catch(e){
+    seedData();
+  }
+  state.view='home';
+  render();
+}
+let saveTimer=null;
+async function saveState(){
+  const toast = document.getElementById('saveToast');
+  try{
+    const payload = {
+      teams: state.teams,
+      freeAgents: state.freeAgents,
+      categories: state.categories,
+      worldCup: (state.worldCup && state.worldCup.rounds) ? state.worldCup : null,
+    };
+    await window.storage.set('planifa1-data', JSON.stringify(payload), false);
+    if(toast){
+      toast.classList.add('show');
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(()=>toast.classList.remove('show'), 1200);
+    }
+  } catch(e){ console.error('Falha ao salvar progresso', e); }
+}
+
+/* ============================= HELPERS ============================= */
+function findTeam(id){return state.teams.find(t=>t.id===id);}
+function crestLetters(name){return name.split(' ').map(w=>w[0]).join('').slice(0,3).toUpperCase();}
+function teamFilled(t){return t.players.filter(Boolean);}
+function teamStrength(t){
+  const filled = teamFilled(t);
+  if(!filled.length) return 40;
+  return filled.reduce((a,p)=>a+p.ovr,0)/filled.length;
+}
+
+function playerCardHTML(pl, opts={}){
+  const tier = getTier(pl.ovr);
+  const editBtn = opts.onEdit ? `<button class="rm" title="Editar" onclick="event.stopPropagation();${opts.onEdit}">✎</button>` : '';
+  const rmBtn = opts.onRemove ? `<button class="rm" title="Remover" onclick="event.stopPropagation();${opts.onRemove}">✕</button>` : '';
+  return `<div class="card tier-${tier.key}" ${opts.onClick?`onclick="${opts.onClick}"`:''}>
+    <div class="top-row"><span>${editBtn}</span><span>${rmBtn}</span></div>
+    <div class="ovr">${pl.ovr}</div>
+    <div class="pos">${pl.pos}</div>
+    <div>
+      <div class="name">${pl.name}</div>
+      <div class="tier-label">${tier.label}</div>
+    </div>
+  </div>`;
+}
+function slotCardHTML(team, slot, idx){
+  const p = team.players[idx];
+  if(!p){
+    return `<div class="pitch-slot empty" style="left:${slot.x}%; top:${slot.y}%;" onclick="openSlotModal('${team.id}',${idx})">
+      <div class="slot-plus">+</div><div class="slot-pos">${slot.label}</div></div>`;
+  }
+  const tier = getTier(p.ovr);
+  return `<div class="pitch-slot filled tier-${tier.key}" style="left:${slot.x}%; top:${slot.y}%;" onclick="openSlotModal('${team.id}',${idx})">
+    <div class="slot-ovr">${p.ovr}</div>
+    <div class="slot-name">${p.name.split(' ')[0]}</div>
+    <div class="slot-pos">${slot.label}</div>
+  </div>`;
+}
+function legendHTML(){
+  return `<div class="legend">${TIERS.map(t=>`
+    <div class="chip"><span class="sw tier-${t.key}"></span>${t.label} ${t.key==='brown'?'(0-29)':t.key==='bronze'?'(30-69)':t.key==='silver'?'(70-80)':t.key==='gold'?'(81-89)':t.key==='diamond'?'(90-95)':'(96-250)'}</div>
+  `).join('')}</div>`;
+}
+
+/* ============================= RENDER ROOT ============================= */
+function render(){
+  const app = document.getElementById('app');
+  app.innerHTML = topbarHTML() + viewHTML() + (state.modal ? modalHTML() : '');
+}
+function setView(v, extra={}){
+  state.view=v; Object.assign(state, extra); render();
+}
+function topbarHTML(){
+  const items = [
+    ['home','Início'],['teams','Times'],['catalog','Catálogo de Jogadores'],
+    ['categories','Categorias'],['createPlayer','Criar Jogador'],['createTeam','Criar Time'],['worldcup','Copa do Mundo']
+  ];
+  return `<div class="topbar">
+    <div class="brand">
+      <div class="dot"></div>
+      <div><h1>PLANI<span>FA</span> 1</h1><small>Sandbox de Cartas de Futebol</small></div>
+    </div>
+    <nav>${items.map(([k,l])=>`<button class="${state.view===k?'active':''}" onclick="setView('${k}')">${l}</button>`).join('')}</nav>
+  </div>`;
+}
+function viewHTML(){
+  switch(state.view){
+    case 'loading': return `<div class="panel" style="text-align:center;padding:60px;"><h2 class="section-title">Carregando Planifa 1...</h2><p class="hint">Recuperando seus times salvos.</p></div>`;
+    case 'home': return homeView();
+    case 'teams': return teamsView();
+    case 'teamDetail': return teamDetailView();
+    case 'catalog': return catalogView();
+    case 'createPlayer': return createPlayerView();
+    case 'createTeam': return createTeamView();
+    case 'worldcup': return worldCupView();
+    case 'categories': return categoriesView();
+    case 'categoryDetail': return categoryDetailView();
+    case 'createCategory': return createCategoryView();
+    case 'match': return matchView();
+    default: return homeView();
+  }
+}
+
+/* ============================= HOME ============================= */
+function homeView(){
+  return `
+  <h2 class="section-title">Bem-vindo ao Planifa 1</h2>
+  <p class="section-sub">Monte seus times, crie jogadores lendários e dispute uma Copa do Mundo simulada. Tudo é salvo automaticamente.</p>
+  ${legendHTML()}
+  <div class="grid teams" style="margin-top:6px;">
+    ${quickCard('Times', `${state.teams.length} times salvos — veja escalações e formações.`, 'teams', state.teams.length+' times')}
+    ${quickCard('Catálogo de Jogadores', 'Jogadores livres prontos para entrar em qualquer time.', 'catalog', state.freeAgents.length+' agentes livres')}
+    ${quickCard('Criar Jogador', 'Defina nome, posição e OVR (até 250) e gere a carta.', 'createPlayer', 'Marrom → Roxo')}
+    ${quickCard('Criar Time', 'Escolha nome, cor, formação e escale seus 11 titulares.', 'createTeam', 'Times ilimitados')}
+    ${quickCard('Copa do Mundo', 'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', 'worldcup', 'Mata-mata completo')}
+    ${quickCard('Categorias', 'Agrupe seus times em categorias personalizadas.', 'categories', state.categories.length+' categorias')}
+  </div>`;
+}
+function quickCard(title, desc, view, meta){
+  return `<div class="team-tile" onclick="setView('${view}')">
+    <div class="crest" style="background:var(--gold);">▶</div>
+    <h3>${title}</h3>
+    <div class="meta">${desc}</div>
+    <div class="meta" style="margin-top:8px;color:var(--emerald);">${meta}</div>
+  </div>`;
+}
+
+/* ============================= TEAMS LIST ============================= */
+function teamsView(){
+  const selMode = state.teamSelectMode;
+  return `
+  <h2 class="section-title">Times</h2>
+  <p class="section-sub">Clique num time para ver a formação no campo, editar jogadores ou trocar peças.</p>
+  <div class="btn-row" style="margin-bottom:16px;">
+    <button class="btn gold" onclick="setView('createTeam')">+ Criar novo time</button>
+    <button class="btn secondary" onclick="generateRandomTeam()">🎲 Time Aleatório</button>
+    <button class="btn secondary" onclick="toggleTeamSelectMode()">${selMode ? 'Cancelar seleção' : 'Selecionar times'}</button>
+    ${selMode ? `<button class="btn danger" ${state.selectedTeamIds.length?'':'disabled'} onclick="bulkDeleteTeams()">Remover selecionados (${state.selectedTeamIds.length})</button>` : ''}
+  </div>
+  <div class="grid teams">
+    ${state.teams.map(t=>teamTileHTML(t)).join('')}
+  </div>`;
+}
+function teamTileHTML(t){
+  const filled = teamFilled(t);
+  const avgOvr = filled.length ? Math.round(filled.reduce((a,p)=>a+p.ovr,0)/filled.length) : 0;
+  const selMode = state.teamSelectMode;
+  const isSel = state.selectedTeamIds.includes(t.id);
+  return `<div class="team-tile ${isSel?'tile-selected':''}" onclick="${selMode ? `toggleTeamSelected('${t.id}')` : `openTeam('${t.id}')`}">
+    ${t.custom?'<div class="custom-badge">CUSTOM</div>':''}
+    ${selMode?`<div class="sel-check">${isSel?'✓':''}</div>`:''}
+    <div class="crest" style="background:${t.color};">${crestLetters(t.name)}</div>
+    <h3>${t.name}</h3>
+    <div class="meta">${filled.length}/11 jogadores · ${t.formation}</div>
+    <div class="meta" style="margin-top:6px;color:var(--gold);">OVR médio: ${avgOvr||'-'}</div>
+  </div>`;
+}
+function generateRandomTeam(){
+  const t = generateRandomTeamObject();
+  state.teams.push(t);
+  saveState();
+  setView('teamDetail',{currentTeamId:t.id});
+}
+function openTeam(id){ setView('teamDetail', {currentTeamId:id}); }
+function toggleTeamSelectMode(){ state.teamSelectMode=!state.teamSelectMode; state.selectedTeamIds=[]; render(); }
+function toggleTeamSelected(id){
+  const idx = state.selectedTeamIds.indexOf(id);
+  if(idx>-1) state.selectedTeamIds.splice(idx,1); else state.selectedTeamIds.push(id);
+  render();
+}
+function bulkDeleteTeams(){
+  if(!state.selectedTeamIds.length) return;
+  const count = state.selectedTeamIds.length;
+  showConfirm(`Remover ${count} time(s) selecionado(s)? Os jogadores voltam ao catálogo de agentes livres.`, ()=>{
+    const removedSet = new Set(state.selectedTeamIds);
+    state.selectedTeamIds.forEach(id=>{
+      const t = findTeam(id);
+      if(t) state.freeAgents.push(...teamFilled(t));
+    });
+    state.teams = state.teams.filter(t=>!removedSet.has(t.id));
+    state.categories.forEach(cat=>{ cat.teamIds = cat.teamIds.filter(id=>!removedSet.has(id)); });
+    if(state.worldCup && state.worldCup.selected){ state.worldCup.selected = state.worldCup.selected.filter(id=>!removedSet.has(id)); }
+    state.selectedTeamIds = [];
+    state.teamSelectMode = false;
+    saveState();
+    setView('teams');
+  });
+}
+
+/* ============================= TEAM DETAIL (formação no campo) ============================= */
+function teamDetailView(){
+  const t = findTeam(state.currentTeamId);
+  if(!t) return `<p>Time não encontrado.</p>`;
+  const slots = buildFormationSlots(t.formation);
+  const filled = teamFilled(t).length;
+  return `
+  <div class="btn-row" style="margin-bottom:10px;"><button class="btn secondary" onclick="setView('teams')">← Voltar</button></div>
+  <div class="panel" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between;">
+    <div style="display:flex;align-items:center;gap:14px;">
+      <div class="crest" style="background:${t.color};width:56px;height:56px;font-size:22px;">${crestLetters(t.name)}</div>
+      <div>
+        <h2 class="section-title" style="margin:0;">${t.name}</h2>
+        <div class="hint">${filled}/11 escalados · ${t.custom?'Time personalizado':'Time de catálogo'}</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
+      <div class="field" style="margin:0;min-width:150px;">
+        <label>Formação</label>
+        <select onchange="changeFormation('${t.id}', this.value)">
+          ${Object.keys(FORMATIONS).map(f=>`<option value="${f}" ${t.formation===f?'selected':''}>${f}</option>`).join('')}
+        </select>
+      </div>
+      ${t.custom?`<button class="btn danger" onclick="deleteTeam('${t.id}')">Excluir time</button>`:''}
+    </div>
+  </div>
+  <div class="pitch lineup">
+    ${slots.map((s,i)=>slotCardHTML(t,s,i)).join('')}
+  </div>
+  <p class="hint">Clique em qualquer posição para escalar, trocar, editar ou remover o jogador.</p>
+  ${legendHTML()}
+  `;
+}
+function deleteTeam(id){
+  const t = findTeam(id);
+  if(!t) return;
+  showConfirm(`Excluir o time "${t.name}"? Os jogadores voltarão ao catálogo de agentes livres.`, ()=>{
+    state.freeAgents.push(...teamFilled(t));
+    state.teams = state.teams.filter(x=>x.id!==id);
+    saveState();
+    setView('teams');
+  });
+}
+function changeFormation(teamId, newKey){
+  const t = findTeam(teamId);
+  const current = teamFilled(t);
+  t.formation = newKey;
+  const total = buildFormationSlots(newKey).length;
+  t.players = Array(total).fill(null);
+  current.slice(0,total).forEach((p,i)=>{ t.players[i]=p; });
+  if(current.length>total) state.freeAgents.push(...current.slice(total));
+  saveState();
+  render();
+}
+function openSlotModal(teamId, idx){
+  const t = findTeam(teamId);
+  state.modal = {type:'slot', teamId, slotIndex:idx, tab: t.players[idx] ? 'view' : 'agents'};
+  render();
+}
+
+/* ============================= CATALOG (free agents) ============================= */
+function filteredAgents(){
+  let list = [...state.freeAgents];
+  const f = state.catalogFilter;
+  if(f.search.trim()) list = list.filter(p=>p.name.toLowerCase().includes(f.search.trim().toLowerCase()));
+  if(f.pos!=='ALL') list = list.filter(p=>p.pos===f.pos);
+  if(f.tier!=='ALL') list = list.filter(p=>getTier(p.ovr).key===f.tier);
+  if(f.sort==='ovr-desc') list.sort((a,b)=>b.ovr-a.ovr);
+  else if(f.sort==='ovr-asc') list.sort((a,b)=>a.ovr-b.ovr);
+  else if(f.sort==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
+  return list;
+}
+function catalogView(){
+  const f = state.catalogFilter;
+  const list = filteredAgents();
+  return `
+  <h2 class="section-title">Catálogo de Jogadores</h2>
+  <p class="section-sub">Jogadores livres, sem time. Crie novos, edite, filtre por posição/raridade ou gere lotes aleatórios.</p>
+  ${legendHTML()}
+  <div class="catalog-controls">
+    <div class="field search">
+      <label>Buscar por nome</label>
+      <input type="text" placeholder="Ex: Silva" value="${f.search}" oninput="state.catalogFilter.search=this.value;render();">
+    </div>
+    <div class="field">
+      <label>Posição</label>
+      <select onchange="state.catalogFilter.pos=this.value;render();">
+        <option value="ALL" ${f.pos==='ALL'?'selected':''}>Todas</option>
+        ${POSITIONS.map(p=>`<option value="${p}" ${f.pos===p?'selected':''}>${p}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>Raridade</label>
+      <select onchange="state.catalogFilter.tier=this.value;render();">
+        <option value="ALL" ${f.tier==='ALL'?'selected':''}>Todas</option>
+        ${TIERS.map(t=>`<option value="${t.key}" ${f.tier===t.key?'selected':''}>${t.label}</option>`).join('')}
+      </select>
+    </div>
+    <div class="field">
+      <label>Ordenar</label>
+      <select onchange="state.catalogFilter.sort=this.value;render();">
+        <option value="ovr-desc" ${f.sort==='ovr-desc'?'selected':''}>Maior OVR</option>
+        <option value="ovr-asc" ${f.sort==='ovr-asc'?'selected':''}>Menor OVR</option>
+        <option value="name" ${f.sort==='name'?'selected':''}>Nome (A-Z)</option>
+      </select>
+    </div>
+  </div>
+  <div class="btn-row" style="margin-bottom:10px;">
+    <button class="btn gold" onclick="bulkGenerateAgents(1)">🎲 Gerar 1 jogador</button>
+    <button class="btn secondary" onclick="bulkGenerateAgents(10)">🎲 Gerar 10 jogadores</button>
+    <button class="btn secondary" onclick="setView('createPlayer')">✎ Criar jogador específico</button>
+  </div>
+  <p class="catalog-count">Mostrando ${list.length} de ${state.freeAgents.length} agentes livres.</p>
+  <div class="grid players">
+    ${list.length? list.map(p=>playerCardHTML(p,{
+        onClick:`openAssignModal('${p.id}')`,
+        onEdit:`openEditPlayer('freeAgent','${p.id}')`
+      })).join(''): '<p class="hint">Nenhum jogador encontrado com esses filtros.</p>'}
+  </div>`;
+}
+function bulkGenerateAgents(n){
+  for(let i=0;i<n;i++) state.freeAgents.push(randomPlayer(Math.random()));
+  saveState();
+  render();
+}
+function openAssignModal(playerId){ state.modal = {type:'assign', playerId}; render(); }
+
+/* ============================= CREATE PLAYER ============================= */
+let draftPlayer = {name:'', pos:'ATA', ovr:75};
+function createPlayerView(){
+  const tier = getTier(draftPlayer.ovr);
+  return `
+  <h2 class="section-title">Criar Jogador</h2>
+  <p class="section-sub">Defina o nome, a posição e o OVR (0 a 250). A raridade da carta muda automaticamente.</p>
+  <div class="row">
+    <div class="panel" style="flex:2;min-width:280px;">
+      <div class="field">
+        <label>Nome do jogador</label>
+        <input type="text" value="${draftPlayer.name}" placeholder="Ex: Rafael Duarte" oninput="draftPlayer.name=this.value">
+      </div>
+      <div class="row">
+        <div class="field">
+          <label>Posição</label>
+          <select onchange="draftPlayer.pos=this.value">
+            ${POSITIONS.map(p=>`<option value="${p}" ${draftPlayer.pos===p?'selected':''}>${p}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>OVR: <b style="color:var(--gold);">${draftPlayer.ovr}</b></label>
+          <input type="range" min="0" max="250" value="${draftPlayer.ovr}" oninput="draftPlayer.ovr=parseInt(this.value);render();">
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="confirmCreatePlayer()">Salvar no catálogo</button>
+        <button class="btn secondary" onclick="draftPlayer={name:'',pos:'ATA',ovr:75};render();">Limpar</button>
+        <button class="btn gold" onclick="draftPlayer={name:randomName(),pos:pick(POSITIONS),ovr:rnd(0,99)};render();">🎲 Aleatório</button>
+      </div>
+    </div>
+    <div style="flex:1;min-width:170px;display:flex;justify-content:center;align-items:flex-start;">
+      ${playerCardHTML({name:draftPlayer.name||'Novo Jogador', pos:draftPlayer.pos, ovr:draftPlayer.ovr})}
+    </div>
+  </div>
+  <p class="hint">Faixa atual: <b>${tier.label}</b></p>`;
+}
+function confirmCreatePlayer(){
+  if(!draftPlayer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
+  state.freeAgents.push(makePlayer(draftPlayer.name.trim(), draftPlayer.pos, draftPlayer.ovr));
+  draftPlayer = {name:'', pos:'ATA', ovr:75};
+  saveState();
+  setView('catalog');
+}
+
+/* ============================= CREATE TEAM ============================= */
+let draftTeam = {name:'', color:TEAM_COLORS[0], formation:'4-3-3'};
+function createTeamView(){
+  return `
+  <h2 class="section-title">Criar Time</h2>
+  <p class="section-sub">Escolha nome, cor e formação. Depois você escala os 11 jogadores diretamente no campo.</p>
+  <div class="panel" style="max-width:480px;">
+    <div class="field">
+      <label>Nome do time</label>
+      <input type="text" value="${draftTeam.name}" placeholder="Ex: Tigres FC" oninput="draftTeam.name=this.value">
+    </div>
+    <div class="field">
+      <label>Cor do time</label>
+      <div class="color-swatches">
+        ${TEAM_COLORS.map(c=>`<div style="background:${c};" class="${draftTeam.color===c?'sel':''}" onclick="draftTeam.color='${c}';render();"></div>`).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>Formação</label>
+      <select onchange="draftTeam.formation=this.value">
+        ${Object.keys(FORMATIONS).map(f=>`<option value="${f}" ${draftTeam.formation===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="confirmCreateTeam()">Criar time</button>
+      <button class="btn secondary" onclick="generateRandomTeam()">🎲 Ou gerar time aleatório</button>
+    </div>
+  </div>`;
+}
+function confirmCreateTeam(){
+  if(!draftTeam.name.trim()){ showAlert('Dê um nome ao time.'); return; }
+  const total = buildFormationSlots(draftTeam.formation).length;
+  const t = {id:uid(), name:draftTeam.name.trim(), color:draftTeam.color, custom:true, formation:draftTeam.formation, players:Array(total).fill(null)};
+  state.teams.push(t);
+  draftTeam = {name:'', color:TEAM_COLORS[0], formation:'4-3-3'};
+  saveState();
+  setView('teamDetail', {currentTeamId:t.id});
+}
+
+/* ============================= MODALS ============================= */
+function modalHTML(){
+  const m = state.modal;
+  if(m.type==='slot') return modalSlotHTML();
+  if(m.type==='assign') return modalAssignHTML();
+  if(m.type==='editPlayer') return modalEditPlayerHTML();
+  if(m.type==='confirm') return modalConfirmHTML();
+  if(m.type==='alertbox') return modalAlertHTML();
+  return '';
+}
+/* ---- confirm/alert próprios do app (diálogos nativos do navegador podem ser bloqueados
+   em visualizações embutidas/sandboxed, então não dependemos de confirm()/alert()) ---- */
+let pendingConfirmAction = null;
+function showConfirm(message, onYes){
+  pendingConfirmAction = onYes;
+  state.modal = {type:'confirm', message};
+  render();
+}
+function confirmYes(){
+  const action = pendingConfirmAction;
+  pendingConfirmAction = null;
+  state.modal = null;
+  if(action) action();
+  render();
+}
+function confirmNo(){
+  pendingConfirmAction = null;
+  closeModal();
+}
+function modalConfirmHTML(){
+  const m = state.modal;
+  return `<div class="modal-bg">
+    <div class="modal" style="max-width:420px;">
+      <h3>Confirmar ação</h3>
+      <p style="font-size:14px;color:var(--text);line-height:1.5;">${m.message}</p>
+      <div class="btn-row" style="justify-content:flex-end;margin-top:10px;">
+        <button class="btn secondary" onclick="confirmNo()">Cancelar</button>
+        <button class="btn danger" onclick="confirmYes()">Confirmar</button>
+      </div>
+    </div>
+  </div>`;
+}
+function showAlert(message){
+  state.modal = {type:'alertbox', message};
+  render();
+}
+function modalAlertHTML(){
+  const m = state.modal;
+  return `<div class="modal-bg">
+    <div class="modal" style="max-width:420px;">
+      <p style="font-size:14px;color:var(--text);line-height:1.5;margin-top:0;">${m.message}</p>
+      <div class="btn-row" style="justify-content:flex-end;">
+        <button class="btn" onclick="closeModal()">OK</button>
+      </div>
+    </div>
+  </div>`;
+}
+function modalSlotHTML(){
+  const m = state.modal;
+  const t = findTeam(m.teamId);
+  const slots = buildFormationSlots(t.formation);
+  const slot = slots[m.slotIndex];
+  const p = t.players[m.slotIndex];
+  let inner;
+  if(m.tab==='view' && p){
+    inner = `<div style="display:flex;justify-content:center;margin-bottom:14px;">${playerCardHTML(p)}</div>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn" onclick="openEditPlayer('team','${t.id}',${m.slotIndex})">Editar jogador</button>
+        <button class="btn secondary" onclick="state.modal.tab='agents';render();">Trocar jogador</button>
+        <button class="btn danger" onclick="removeFromSlot('${t.id}',${m.slotIndex})">Remover do time</button>
+      </div>`;
+  } else {
+    inner = `<div class="tabs-mini">
+        <button class="${m.tab==='agents'?'active':''}" onclick="state.modal.tab='agents';render();">Agentes livres</button>
+        <button class="${m.tab==='new'?'active':''}" onclick="state.modal.tab='new';render();">Criar novo</button>
+      </div>` + (m.tab==='new' ? modalNewPlayerForSlotHTML(t,m.slotIndex) : modalAgentsListForSlotHTML(t,m.slotIndex));
+  }
+  return `<div class="modal-bg" onclick="if(event.target===this) closeModal();">
+    <div class="modal">
+      <h3>${slot.label} · ${t.name}</h3>
+      ${inner}
+      <div class="btn-row" style="margin-top:14px;"><button class="btn secondary" onclick="closeModal()">Fechar</button></div>
+    </div></div>`;
+}
+function modalAgentsListForSlotHTML(t, idx){
+  if(!state.freeAgents.length) return `<p class="hint">Nenhum agente livre. Crie um novo na aba "Criar novo".</p>`;
+  return `<div class="grid players">${state.freeAgents.map(p=>playerCardHTML(p,{onClick:`assignAgentToSlot('${t.id}',${idx},'${p.id}')`})).join('')}</div>`;
+}
+let modalDraftPlayer = {name:'', pos:'ATA', ovr:75};
+function modalNewPlayerForSlotHTML(t, idx){
+  return `
+    <div class="field"><label>Nome</label><input type="text" value="${modalDraftPlayer.name}" oninput="modalDraftPlayer.name=this.value"></div>
+    <div class="row">
+      <div class="field"><label>Posição</label>
+        <select onchange="modalDraftPlayer.pos=this.value">${POSITIONS.map(p=>`<option ${modalDraftPlayer.pos===p?'selected':''}>${p}</option>`).join('')}</select>
+      </div>
+      <div class="field"><label>OVR: <b style="color:var(--gold)">${modalDraftPlayer.ovr}</b></label>
+        <input type="range" min="0" max="250" value="${modalDraftPlayer.ovr}" oninput="modalDraftPlayer.ovr=parseInt(this.value);render();">
+      </div>
+    </div>
+    <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:modalDraftPlayer.name||'Novo Jogador',pos:modalDraftPlayer.pos,ovr:modalDraftPlayer.ovr})}</div>
+    <button class="btn" onclick="createAndAddToSlot('${t.id}',${idx})">Criar e escalar</button>
+  `;
+}
+function assignAgentToSlot(teamId, idx, playerId){
+  const t = findTeam(teamId);
+  const ai = state.freeAgents.findIndex(p=>p.id===playerId);
+  if(ai<0) return;
+  const removed = t.players[idx];
+  t.players[idx] = state.freeAgents[ai];
+  state.freeAgents.splice(ai,1);
+  if(removed) state.freeAgents.push(removed);
+  saveState();
+  closeModal();
+}
+function createAndAddToSlot(teamId, idx){
+  if(!modalDraftPlayer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
+  const t = findTeam(teamId);
+  const removed = t.players[idx];
+  t.players[idx] = makePlayer(modalDraftPlayer.name.trim(), modalDraftPlayer.pos, modalDraftPlayer.ovr);
+  if(removed) state.freeAgents.push(removed);
+  modalDraftPlayer = {name:'', pos:'ATA', ovr:75};
+  saveState();
+  closeModal();
+}
+function removeFromSlot(teamId, idx){
+  const t = findTeam(teamId);
+  const p = t.players[idx];
+  if(p) state.freeAgents.push(p);
+  t.players[idx] = null;
+  saveState();
+  closeModal();
+}
+function modalAssignHTML(){
+  const m = state.modal;
+  const p = state.freeAgents.find(x=>x.id===m.playerId);
+  if(!p){ state.modal=null; return ''; }
+  return `<div class="modal-bg" onclick="if(event.target===this) closeModal();">
+    <div class="modal">
+      <h3>${p.name}</h3>
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">${playerCardHTML(p)}</div>
+      <div class="field">
+        <label>Adicionar a qual time?</label>
+        <select id="assign-team-select">
+          ${state.teams.map(t=>{
+            const full = t.players.every(Boolean);
+            return `<option value="${t.id}" ${full?'disabled':''}>${t.name} (${teamFilled(t).length}/${t.players.length})${full?' — cheio':''}</option>`;
+          }).join('')}
+        </select>
+      </div>
+      <div class="btn-row">
+        <button class="btn" onclick="assignFreeAgent('${p.id}')">Adicionar ao time</button>
+        <button class="btn danger" onclick="deleteFreeAgent('${p.id}')">Excluir jogador</button>
+        <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div>
+  </div>`;
+}
+function assignFreeAgent(playerId){
+  const sel = document.getElementById('assign-team-select');
+  const t = findTeam(sel.value);
+  const idx = t.players.findIndex(p=>!p);
+  if(idx<0){ showAlert('Esse time já está completo.'); return; }
+  const ai = state.freeAgents.findIndex(p=>p.id===playerId);
+  t.players[idx] = state.freeAgents[ai];
+  state.freeAgents.splice(ai,1);
+  saveState();
+  closeModal();
+}
+function deleteFreeAgent(playerId){
+  state.freeAgents = state.freeAgents.filter(p=>p.id!==playerId);
+  saveState();
+  closeModal();
+}
+function openEditPlayer(source, a, b){
+  let p;
+  if(source==='team'){ p = findTeam(a).players[b]; } else { p = state.freeAgents.find(x=>x.id===a); }
+  if(!p) return;
+  state.modal = {type:'editPlayer', source, a, b, draft:{name:p.name, pos:p.pos, ovr:p.ovr}};
+  render();
+}
+function modalEditPlayerHTML(){
+  const m = state.modal;
+  return `<div class="modal-bg" onclick="if(event.target===this) closeModal();">
+    <div class="modal">
+      <h3>Editar Jogador</h3>
+      <div class="field"><label>Nome</label><input type="text" value="${m.draft.name}" oninput="state.modal.draft.name=this.value"></div>
+      <div class="row">
+        <div class="field"><label>Posição</label>
+          <select onchange="state.modal.draft.pos=this.value">${POSITIONS.map(p=>`<option ${m.draft.pos===p?'selected':''}>${p}</option>`).join('')}</select>
+        </div>
+        <div class="field"><label>OVR: <b style="color:var(--gold)">${m.draft.ovr}</b></label>
+          <input type="range" min="0" max="250" value="${m.draft.ovr}" oninput="state.modal.draft.ovr=parseInt(this.value);render();">
+        </div>
+      </div>
+      <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:m.draft.name||'Jogador', pos:m.draft.pos, ovr:m.draft.ovr})}</div>
+      <div class="btn-row">
+        <button class="btn" onclick="saveEditPlayer()">Salvar alterações</button>
+        <button class="btn danger" onclick="deleteEditingPlayer()">Excluir jogador</button>
+        <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div></div>`;
+}
+function saveEditPlayer(){
+  const m = state.modal;
+  if(!m.draft.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
+  let p;
+  if(m.source==='team'){ p = findTeam(m.a).players[m.b]; } else { p = state.freeAgents.find(x=>x.id===m.a); }
+  p.name = m.draft.name.trim(); p.pos = m.draft.pos; p.ovr = Math.max(0,Math.min(250, m.draft.ovr));
+  saveState();
+  closeModal();
+}
+function deleteEditingPlayer(){
+  const m = state.modal;
+  showConfirm('Excluir este jogador definitivamente?', ()=>{
+    if(m.source==='team'){ findTeam(m.a).players[m.b] = null; } else { state.freeAgents = state.freeAgents.filter(x=>x.id!==m.a); }
+    saveState();
+  });
+}
+function closeModal(){ state.modal=null; render(); }
+
+/* ============================= CATEGORIAS ============================= */
+let draftCategory = {name:'', teamIds:[]};
+function categoriesView(){
+  return `
+  <h2 class="section-title">Categorias</h2>
+  <p class="section-sub">Agrupe seus times em categorias personalizadas (ex: divisões, regiões, torneios caseiros).</p>
+  <div class="btn-row" style="margin-bottom:16px;"><button class="btn gold" onclick="draftCategory={name:'',teamIds:[]};setView('createCategory')">+ Criar categoria</button></div>
+  <div class="grid teams">
+    ${state.categories.length ? state.categories.map(c=>`
+      <div class="team-tile" onclick="openCategory('${c.id}')">
+        <div class="crest" style="background:var(--violet);">${crestLetters(c.name)}</div>
+        <h3>${c.name}</h3>
+        <div class="meta">${c.teamIds.length} time(s)</div>
+      </div>`).join('') : '<p class="hint">Nenhuma categoria criada ainda.</p>'}
+  </div>`;
+}
+function openCategory(id){ setView('categoryDetail', {currentCategoryId:id}); }
+function categoryDetailView(){
+  const cat = state.categories.find(c=>c.id===state.currentCategoryId);
+  if(!cat) return `<p>Categoria não encontrada.</p>`;
+  const memberIds = new Set(cat.teamIds);
+  return `
+  <div class="btn-row" style="margin-bottom:10px;"><button class="btn secondary" onclick="setView('categories')">← Voltar</button></div>
+  <div class="panel" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+    <h2 class="section-title" style="margin:0;">${cat.name}</h2>
+    <button class="btn danger" onclick="deleteCategory('${cat.id}')">Excluir categoria</button>
+  </div>
+  <p class="section-sub">Marque os times que fazem parte desta categoria (${cat.teamIds.length} selecionado(s)).</p>
+  <div class="grid teams">
+    ${state.teams.map(t=>`
+      <div class="checkbox-team ${memberIds.has(t.id)?'sel':''}" onclick="toggleCategoryTeam('${cat.id}','${t.id}')">
+        <div class="crest-mini" style="background:${t.color};">${crestLetters(t.name)}</div>${t.name}
+      </div>`).join('')}
+  </div>`;
+}
+function toggleCategoryTeam(catId, teamId){
+  const cat = state.categories.find(c=>c.id===catId);
+  const i = cat.teamIds.indexOf(teamId);
+  if(i>-1) cat.teamIds.splice(i,1); else cat.teamIds.push(teamId);
+  saveState();
+  render();
+}
+function deleteCategory(id){
+  showConfirm('Excluir esta categoria? Os times não serão apagados, só deixam de pertencer a ela.', ()=>{
+    state.categories = state.categories.filter(c=>c.id!==id);
+    saveState();
+    setView('categories');
+  });
+}
+function createCategoryView(){
+  return `
+  <h2 class="section-title">Criar Categoria</h2>
+  <p class="section-sub">Dê um nome e selecione quais times vão fazer parte dela.</p>
+  <div class="panel">
+    <div class="field"><label>Nome da categoria</label><input type="text" value="${draftCategory.name}" placeholder="Ex: Divisão Principal" oninput="draftCategory.name=this.value"></div>
+    <div class="field"><label>Times (${draftCategory.teamIds.length} selecionado(s))</label>
+      <div class="grid teams">
+        ${state.teams.map(t=>`
+          <div class="checkbox-team ${draftCategory.teamIds.includes(t.id)?'sel':''}" onclick="toggleDraftCategoryTeam('${t.id}')">
+            <div class="crest-mini" style="background:${t.color};">${crestLetters(t.name)}</div>${t.name}
+          </div>`).join('')}
+      </div>
+    </div>
+    <div class="btn-row"><button class="btn" onclick="confirmCreateCategory()">Criar categoria</button></div>
+  </div>`;
+}
+function toggleDraftCategoryTeam(id){
+  const i = draftCategory.teamIds.indexOf(id);
+  if(i>-1) draftCategory.teamIds.splice(i,1); else draftCategory.teamIds.push(id);
+  render();
+}
+function confirmCreateCategory(){
+  if(!draftCategory.name.trim()){ showAlert('Dê um nome à categoria.'); return; }
+  state.categories.push({id:uid(), name:draftCategory.name.trim(), teamIds:[...draftCategory.teamIds]});
+  draftCategory = {name:'', teamIds:[]};
+  saveState();
+  setView('categories');
+}
+
+/* ============================= SHARED BRACKET HELPERS ============================= */
+function checkboxTeamHTML(t, selected, onClick){
+  return `<div class="checkbox-team ${selected?'sel':''}" onclick="${onClick}">
+    <div class="crest-mini" style="background:${t.color};">${crestLetters(t.name)}</div>
+    <div>${t.name}<br><span class="hint">OVR ${Math.round(teamStrength(t))} · ${teamFilled(t).length}/${t.players.length}</span></div>
+  </div>`;
+}
+function roundName(numMatches){
+  if(numMatches===1) return 'Final';
+  if(numMatches===2) return 'Semifinal';
+  if(numMatches===4) return 'Quartas de Final';
+  if(numMatches===8) return 'Oitavas de Final';
+  if(numMatches===16) return '16-avos de Final';
+  if(numMatches===32) return '32-avos de Final';
+  return numMatches*2+'ª de Final';
+}
+
+/* ============================= WORLD CUP ============================= */
+const WC_SIZES = [2,4,8,16,32,64];
+function worldCupView(){
+  if(state.worldCup && state.worldCup.rounds) return worldCupBracketView();
+  if(!state.worldCup) state.worldCup = {selected:[], size:null};
+  const wc = state.worldCup;
+  const selected = wc.selected;
+  return `
+  <h2 class="section-title">Copa do Mundo</h2>
+  <p class="section-sub">Escolha o tamanho da copa e os times participantes. Vagas restantes são preenchidas com times aleatórios ao iniciar.</p>
+  <div class="size-row">
+    <span class="hint">Tamanho da copa:</span>
+    ${WC_SIZES.map(s=>`<button class="speed-btn ${wc.size===s?'active':''}" onclick="setWCSize(${s})">${s}</button>`).join('')}
+  </div>
+  <div class="grid teams">
+    ${state.teams.map(t=>checkboxTeamHTML(t, selected.includes(t.id), `toggleWCTeam('${t.id}')`)).join('')}
+  </div>
+  <div class="btn-row" style="margin-top:18px;">
+    <button class="btn gold" ${!wc.size?'disabled':''} onclick="startWorldCup()">Iniciar Copa (${selected.length}/${wc.size||'?'})</button>
+  </div>
+  ${wc.size && selected.length<wc.size ? `<p class="hint">Faltam ${wc.size-selected.length} vaga(s) — serão preenchidas com times aleatórios ao iniciar.</p>` : ''}
+  ${wc.size && selected.length>wc.size ? `<p class="hint" style="color:var(--red);">Você selecionou mais times do que o tamanho escolhido. Desmarque alguns ou aumente o tamanho.</p>` : ''}`;
+}
+function setWCSize(size){
+  if(!state.worldCup || state.worldCup.rounds) state.worldCup = {selected:[], size:null};
+  state.worldCup.size = size;
+  render();
+}
+function toggleWCTeam(id){
+  if(!state.worldCup || state.worldCup.rounds) state.worldCup = {selected:[], size:null};
+  if(!state.worldCup.selected) state.worldCup.selected=[];
+  const s = state.worldCup.selected;
+  const i = s.indexOf(id);
+  if(i>-1) s.splice(i,1); else s.push(id);
+  render();
+}
+function startWorldCup(){
+  const wc = state.worldCup;
+  const size = wc.size;
+  if(!size) return;
+  let ids = [...wc.selected];
+  if(ids.length>size){ showAlert('Você selecionou mais times do que o tamanho escolhido.'); return; }
+  while(ids.length<size){
+    const t = generateRandomTeamObject();
+    state.teams.push(t);
+    ids.push(t.id);
+  }
+  for(let i=ids.length-1;i>0;i--){ const j=rnd(0,i); [ids[i],ids[j]]=[ids[j],ids[i]]; }
+
+  // monta o chaveamento inteiro de uma vez (rodadas futuras ficam "a definir" até os jogos anteriores serem simulados)
+  const rounds = [];
+  let count = ids.length;
+  let current = ids;
+  while(count>=2){
+    const matches = [];
+    for(let i=0;i<count;i+=2){
+      matches.push({
+        a: current ? current[i] : null,
+        b: current ? current[i+1] : null,
+        scoreA:null, scoreB:null, played:false, winner:null
+      });
+    }
+    rounds.push(matches);
+    count = count/2;
+    current = null;
+  }
+  state.worldCup = {selected:ids, size, rounds, champion:null};
+  saveState();
+  setView('worldcup');
+}
+function worldCupBracketView(){
+  const wc = state.worldCup;
+  let html = `<h2 class="section-title">Copa do Mundo</h2>`;
+  if(wc.champion){
+    const champ = findTeam(wc.champion);
+    html += `<div class="champion-banner">
+      <div class="trophy">🏆</div>
+      <div>CAMPEÃO</div>
+      <h2>${champ.name}</h2>
+      <div class="hint" style="color:#fff;opacity:.85;">Parabéns! Time invicto na Planifa 1.</div>
+    </div>
+    <div class="btn-row" style="margin-top:18px;justify-content:center;"><button class="btn secondary" onclick="resetWorldCup()">Nova Copa</button></div>`;
+    return html;
+  }
+  html += `<p class="hint" style="margin-bottom:10px;">Arraste para o lado para ver todas as fases. Clique numa partida destacada para simular.</p>`;
+  html += renderBracketTree(wc.rounds);
+  return html;
+}
+function renderBracketTree(rounds){
+  const BASE_UNIT=96, MATCH_H=64, COL_W=210, COL_GAP=44;
+  const positions = [];
+  const n0 = rounds[0].length;
+  positions[0] = rounds[0].map((_,i)=> i*BASE_UNIT + BASE_UNIT/2);
+  for(let r=1;r<rounds.length;r++){
+    positions[r] = rounds[r].map((_,i)=>{
+      const c1 = positions[r-1][2*i], c2 = positions[r-1][2*i+1];
+      return (c1+c2)/2;
+    });
+  }
+  const totalHeight = n0*BASE_UNIT;
+  const totalWidth = rounds.length*COL_W + (rounds.length-1)*COL_GAP;
+
+  let labels='', boxes='', connectors='';
+  rounds.forEach((round,ri)=>{
+    const left = ri*(COL_W+COL_GAP);
+    labels += `<div class="bracket-roundlabel" style="left:${left}px;width:${COL_W}px;">${roundName(round.length)}</div>`;
+    round.forEach((m,mi)=>{
+      boxes += matchBoxHTML(m, ri, mi, left, positions[ri][mi], COL_W, MATCH_H);
+    });
+  });
+  for(let r=0;r<rounds.length-1;r++){
+    const colRight = r*(COL_W+COL_GAP)+COL_W;
+    const midX = colRight + COL_GAP/2;
+    const pairs = rounds[r].length/2;
+    for(let p=0;p<pairs;p++){
+      const y1 = positions[r][2*p], y2 = positions[r][2*p+1];
+      const yTop = Math.min(y1,y2), yBot = Math.max(y1,y2);
+      connectors += `<div class="conn-h" style="left:${colRight}px; top:${y1}px; width:${COL_GAP/2}px;"></div>`;
+      connectors += `<div class="conn-h" style="left:${colRight}px; top:${y2}px; width:${COL_GAP/2}px;"></div>`;
+      connectors += `<div class="conn-v" style="left:${midX}px; top:${yTop}px; height:${yBot-yTop}px;"></div>`;
+      connectors += `<div class="conn-h" style="left:${midX}px; top:${(y1+y2)/2}px; width:${COL_GAP/2}px;"></div>`;
+    }
+  }
+  return `<div class="bracket-scroll"><div class="bracket-canvas" style="width:${totalWidth}px;height:${totalHeight+20}px;">
+    ${connectors}${boxes}${labels}
+  </div></div>`;
+}
+function matchBoxHTML(m, ri, mi, left, y, colW, matchH){
+  const ta = m.a ? findTeam(m.a) : null;
+  const tb = m.b ? findTeam(m.b) : null;
+  const canPlay = ta && tb && !m.played;
+  const rowTeam = (t, score, isWinner)=>{
+    if(!t) return `<div class="row-team tbd">A definir</div>`;
+    return `<div class="row-team ${isWinner?'winner':''}">
+      <div class="crest-tiny" style="background:${t.color};">${crestLetters(t.name)}</div>
+      <span class="rt-name">${t.name}</span>
+      ${score!==null ? `<span class="sc">${score}</span>` : ''}
+    </div>`;
+  };
+  const winnerA = m.played && m.winner===m.a;
+  const winnerB = m.played && m.winner===m.b;
+  return `<div class="bracket-match ${canPlay?'playable':''}" style="left:${left}px; top:${y}px; width:${colW}px; height:${matchH}px;" ${canPlay?`onclick="openMatch(${ri},${mi})"`:''}>
+    ${rowTeam(ta, m.played?m.scoreA:null, winnerA)}
+    ${rowTeam(tb, m.played?m.scoreB:null, winnerB)}
+    ${canPlay?`<div class="play-hint">▶ Simular</div>`:''}
+  </div>`;
+}
+function resetWorldCup(){ state.worldCup=null; saveState(); setView('worldcup'); }
+function openMatch(roundIdx, matchIdx){
+  const wc = state.worldCup;
+  const m = wc.rounds[roundIdx][matchIdx];
+  openMatchGeneric(m.a, m.b, {roundIdx, matchIdx});
+}
+
+/* ============================= MATCH SIMULATION ============================= */
+function openMatchGeneric(aId, bId, source){
+  const ta = findTeam(aId), tb = findTeam(bId);
+  state.matchCtx = {
+    source, teamA:ta, teamB:tb,
+    scoreA:0, scoreB:0, minute:0, events:[], finished:false,
+    ballX:50, ballY:50, speed:1, timerId:null, tickFn:null, tickBaseMs:220,
+    dotsA:Array.from({length:5},()=>({x:rnd(6,58),y:rnd(10,90)})),
+    dotsB:Array.from({length:5},()=>({x:rnd(42,94),y:rnd(10,90)})),
+    strA: teamStrength(ta), strB: teamStrength(tb),
+  };
+  setView('match');
+  runMatchSimulation();
+}
+function matchView(){
+  const c = state.matchCtx;
+  if(!c) return '';
+  const speeds = [0.5,1,2,4];
+  return `
+  <h2 class="section-title">Simulação de Partida</h2>
+  <div class="scoreboard">
+    <div class="team-name">${c.teamA.name}</div>
+    <div style="text-align:center;">
+      <span class="score-big">${c.scoreA} - ${c.scoreB}</span>
+      <span class="clock" id="clockDisplay">${c.minute}'</span>
+    </div>
+    <div class="team-name right">${c.teamB.name}</div>
+  </div>
+  <div class="speed-row">
+    <span class="hint">Velocidade da simulação:</span>
+    ${speeds.map(s=>`<button class="speed-btn ${c.speed===s?'active':''}" onclick="changeSpeed(${s})">${s}x</button>`).join('')}
+  </div>
+  <div class="pitch match-pitch" id="pitchEl">
+    <div class="midline"></div><div class="circle"></div>
+    <div class="goal-net left"></div><div class="goal-net right"></div>
+    <div class="flash side-left" id="flashLeft"></div>
+    <div class="flash side-right" id="flashRight"></div>
+    <div class="goal-banner" id="goalBanner"></div>
+    ${c.dotsA.map((d,i)=>`<div class="dot" id="dotA${i}" style="left:${d.x}%;top:${d.y}%;background:${c.teamA.color};"></div>`).join('')}
+    ${c.dotsB.map((d,i)=>`<div class="dot" id="dotB${i}" style="left:${d.x}%;top:${d.y}%;background:${c.teamB.color};"></div>`).join('')}
+    <div class="ball" id="ballEl" style="left:${c.ballX}%; top:${c.ballY}%;"></div>
+  </div>
+  <div class="ticker" id="tickerEl">${renderTickerEvents(c)}</div>
+  <div class="btn-row" id="matchBtnRow" style="margin-top:14px;justify-content:center;">
+    ${c.finished ? `<button class="btn gold" onclick="finishMatch()">Confirmar resultado e voltar</button>` : `<span class="hint">Simulando... aguarde o apito final.</span>`}
+  </div>`;
+}
+function renderTickerEvents(c){
+  return c.events.slice().reverse().map(e=>`<div class="ev ${e.goal?'goal':''}">${e.min}' — ${e.goal?'⚽ <b>GOL!</b> ':''}${e.text}</div>`).join('');
+}
+function scheduleTicker(c, fn, baseMs){
+  c.tickFn = fn; c.tickBaseMs = baseMs;
+  if(c.timerId) clearInterval(c.timerId);
+  c.timerId = setInterval(fn, baseMs / c.speed);
+}
+function changeSpeed(spd){
+  const c = state.matchCtx; if(!c) return;
+  c.speed = spd;
+  if(c.timerId && c.tickFn){ clearInterval(c.timerId); c.timerId = setInterval(c.tickFn, c.tickBaseMs / c.speed); }
+  render();
+}
+function updateDom(c){
+  const ballEl = document.getElementById('ballEl');
+  if(ballEl){ ballEl.style.left=c.ballX+'%'; ballEl.style.top=c.ballY+'%'; }
+  c.dotsA.forEach((d,i)=>{ const el=document.getElementById('dotA'+i); if(el){el.style.left=d.x+'%';el.style.top=d.y+'%';} });
+  c.dotsB.forEach((d,i)=>{ const el=document.getElementById('dotB'+i); if(el){el.style.left=d.x+'%';el.style.top=d.y+'%';} });
+  const clockEl = document.getElementById('clockDisplay');
+  if(clockEl) clockEl.textContent = c.minute+"'";
+  const sb = document.querySelector('.score-big');
+  if(sb) sb.textContent = `${c.scoreA} - ${c.scoreB}`;
+  updateTicker(c);
+}
+function updateTicker(c){
+  const t = document.getElementById('tickerEl');
+  if(t) t.innerHTML = renderTickerEvents(c);
+}
+function showFinishButton(){
+  const holder = document.getElementById('matchBtnRow');
+  if(holder) holder.innerHTML = `<button class="btn gold" onclick="finishMatch()">Confirmar resultado e voltar</button>`;
+}
+function flashGoal(side, text){
+  const el = document.getElementById(side==='A' ? 'flashRight' : 'flashLeft');
+  if(el){ el.classList.add('on'); setTimeout(()=>el.classList.remove('on'), 550); }
+  const banner = document.getElementById('goalBanner');
+  if(banner){
+    banner.textContent = text;
+    banner.classList.add('show');
+    setTimeout(()=>banner.classList.remove('show'), 1300);
+  }
+}
+function runMatchSimulation(){
+  const c = state.matchCtx;
+  const total = 90;
+  const diff = c.strA - c.strB;
+  const tick = ()=>{
+    if(!state.matchCtx || state.matchCtx!==c){ clearInterval(c.timerId); return; }
+    c.minute += 2;
+    c.ballX = rnd(8,92); c.ballY = rnd(12,88);
+    c.dotsA = c.dotsA.map(()=>({x:rnd(5,60),y:rnd(8,92)}));
+    c.dotsB = c.dotsB.map(()=>({x:rnd(40,95),y:rnd(8,92)}));
+    updateDom(c);
+
+    const baseChance = 0.05;
+    const chanceA = baseChance + Math.max(0, diff)/900 + (c.strA/4000);
+    const chanceB = baseChance + Math.max(0, -diff)/900 + (c.strB/4000);
+    const roll = Math.random();
+    let scored = null;
+    if(roll < chanceA) scored='A';
+    else if(roll < chanceA+chanceB) scored='B';
+
+    if(scored){
+      const scorerTeam = scored==='A' ? c.teamA : c.teamB;
+      const roster = teamFilled(scorerTeam);
+      const scorer = roster.length ? roster[rnd(0,roster.length-1)] : {name:'Artilheiro'};
+      if(scored==='A') c.scoreA++; else c.scoreB++;
+      c.events.push({min:c.minute, goal:true, text:`${scorer.name} (${scorerTeam.name}) balança as redes!`});
+      c.ballX = scored==='A' ? 96 : 4; c.ballY = 50;
+      updateDom(c);
+      flashGoal(scored, `⚽ GOL DE ${scorerTeam.name.toUpperCase()}!`);
+    } else if(Math.random() < 0.12){
+      const msgs = ['chute para fora','boa defesa do goleiro','cartão amarelo aplicado','cobrança de escanteio','falta perigosa perto da área','substituição tática'];
+      c.events.push({min:c.minute, goal:false, text:pick(msgs)});
+      updateTicker(c);
+    }
+    if(c.minute===45 && !c._ht){ c._ht=true; c.events.push({min:45,goal:false,text:'Fim do primeiro tempo — intervalo.'}); updateTicker(c); }
+
+    if(c.minute>=total){
+      clearInterval(c.timerId);
+      if(c.scoreA===c.scoreB){
+        c.events.push({min:90,goal:false,text:'Empate! Vai para os pênaltis.'});
+        updateTicker(c);
+        setTimeout(()=>runPenalties(c), 500/c.speed);
+      } else {
+        c.finished = true;
+        c.events.push({min:90,goal:false,text:'Apito final!'});
+        updateTicker(c);
+        showFinishButton();
+      }
+    }
+  };
+  scheduleTicker(c, tick, 220);
+}
+function runPenalties(c){
+  c.events.push({min:'PEN', goal:false, text:'Início da disputa de pênaltis.'});
+  updateTicker(c);
+  let pa=0, pb=0, round=0;
+  const tick = ()=>{
+    round++;
+    const scoreProbA = 0.65 + (c.strA-c.strB)/500;
+    const scoreProbB = 0.65 + (c.strB-c.strA)/500;
+    const inA = Math.random() < Math.max(0.3, Math.min(0.9, scoreProbA));
+    const inB = Math.random() < Math.max(0.3, Math.min(0.9, scoreProbB));
+    if(inA) pa++; if(inB) pb++;
+    c.events.push({min:'PEN', goal:inA, text:`${c.teamA.name} ${inA?'converte':'perde'} a cobrança (${pa})`});
+    c.events.push({min:'PEN', goal:inB, text:`${c.teamB.name} ${inB?'converte':'perde'} a cobrança (${pb})`});
+    updateTicker(c);
+    if(round>=5 && pa!==pb){
+      clearInterval(c.timerId);
+      c.penA=pa; c.penB=pb; c.finished=true;
+      c.events.push({min:'PEN', goal:false, text:`Fim dos pênaltis: ${pa} x ${pb}.`});
+      updateTicker(c);
+      showFinishButton();
+    }
+  };
+  scheduleTicker(c, tick, 550);
+}
+function finishMatch(){
+  const c = state.matchCtx;
+  const src = c.source;
+  let winnerId;
+  if(c.scoreA!==c.scoreB) winnerId = c.scoreA>c.scoreB ? c.teamA.id : c.teamB.id;
+  else winnerId = (c.penA>c.penB) ? c.teamA.id : c.teamB.id;
+
+  const wc = state.worldCup;
+  const m = wc.rounds[src.roundIdx][src.matchIdx];
+  m.scoreA = c.scoreA; m.scoreB = c.scoreB; m.played = true; m.winner = winnerId;
+
+  if(src.roundIdx === wc.rounds.length-1){
+    wc.champion = winnerId;
+  } else {
+    const nextRound = wc.rounds[src.roundIdx+1];
+    const pairIdx = Math.floor(src.matchIdx/2);
+    const slot = src.matchIdx%2===0 ? 'a' : 'b';
+    nextRound[pairIdx][slot] = winnerId;
+  }
+  state.matchCtx = null;
+  saveState();
+  setView('worldcup');
+}
+
+/* ============================= INIT ============================= */
+render();
+loadState();
+</script>
+
+<!-- Registro do Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(registration => {
+        console.log('Planifa 1: Service Worker registrado!', registration.scope);
+      })
+      .catch(error => {
+        console.error('Planifa 1: erro ao registrar o Service Worker:', error);
+      });
+  });
+}
+</script>
+
+</body>
+</html>
