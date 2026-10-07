@@ -11,8 +11,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Planifa 1">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="icon.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
@@ -149,6 +147,10 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
   padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit;
 }
 .field input[type=range]{width:100%;accent-color:var(--gold);}
+.ovr-input-row{display:flex;gap:10px;align-items:center;}
+.ovr-input-row input[type=range]{flex:1;}
+.ovr-number{width:84px;flex-shrink:0;text-align:center;}
+.ovr-warning{color:var(--red);font-size:12px;margin:6px 0 0;}
 .row{display:flex;gap:14px;flex-wrap:wrap;}
 .row .field{flex:1;min-width:160px;}
 .btn{
@@ -279,6 +281,12 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 .catalog-controls .field.search{flex:2;min-width:200px;}
 .catalog-count{color:var(--sub);font-size:12.5px;margin-bottom:14px;}
 
+table.standings{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:4px;}
+table.standings th{text-align:left;color:var(--sub);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;font-size:10.5px;letter-spacing:.5px;}
+table.standings td{padding:7px 8px;border-bottom:1px dashed var(--line);}
+table.standings tr.qualified{background:rgba(41,211,152,.08);}
+table.standings tr.qualified td:first-child{color:var(--emerald);font-weight:700;}
+
 /* ---- team selection mode ---- */
 .team-tile.tile-selected{border-color:var(--emerald);box-shadow:0 0 0 2px var(--emerald);}
 .sel-check{position:absolute;top:12px;right:12px;width:22px;height:22px;border-radius:50%;
@@ -338,6 +346,28 @@ function getTier(ovr){
   ovr = Math.max(0, Math.min(MAX_OVR, ovr));
   for(const t of TIERS){ if(ovr<=t.max) return t; }
   return TIERS[TIERS.length-1];
+}
+/* Usado pelo campo numérico de OVR: deixa digitar o valor direto. Se passar de MAX_OVR,
+   trava em MAX_OVR e acende um aviso explicando o limite (em vez de simplesmente ignorar). */
+function setOvrFromInput(rawValue, draftObj){
+  let n = parseInt(rawValue, 10);
+  if(isNaN(n)) n = 0;
+  if(n > MAX_OVR){
+    draftObj.ovr = MAX_OVR;
+    draftObj.ovrWarning = true;
+  } else {
+    draftObj.ovr = Math.max(0, n);
+    draftObj.ovrWarning = false;
+  }
+  render();
+}
+function ovrFieldHTML(draftObj, onRangeExtra){
+  return `<label>OVR (0 a ${MAX_OVR}): <b style="color:var(--gold);">${draftObj.ovr}</b></label>
+    <div class="ovr-input-row">
+      <input type="range" min="0" max="${MAX_OVR}" value="${draftObj.ovr}" oninput="${onRangeExtra}.ovr=parseInt(this.value);${onRangeExtra}.ovrWarning=false;render();">
+      <input type="number" min="0" class="ovr-number" value="${draftObj.ovr}" oninput="setOvrFromInput(this.value, ${onRangeExtra})">
+    </div>
+    ${draftObj.ovrWarning ? `<p class="ovr-warning">⚠ O limite máximo é ${MAX_OVR} OVR. O valor foi ajustado para ${MAX_OVR}.</p>` : ''}`;
 }
 
 const POSITIONS = ['GOL','ZAG','LAT','VOL','MEI','PON','ATA'];
@@ -738,7 +768,7 @@ function changeFormation(teamId, newKey){
 }
 function openSlotModal(teamId, idx){
   const t = findTeam(teamId);
-  state.modal = {type:'slot', teamId, slotIndex:idx, tab: t.players[idx] ? 'view' : 'agents'};
+  state.modal = {type:'slot', teamId, slotIndex:idx, tab: t.players[idx] ? 'view' : 'agents', posFilter:'ALL', tierFilter:'ALL'};
   render();
 }
 
@@ -810,12 +840,12 @@ function bulkGenerateAgents(n){
 function openAssignModal(playerId){ state.modal = {type:'assign', playerId}; render(); }
 
 /* ============================= CREATE PLAYER ============================= */
-let draftPlayer = {name:'', pos:'ATA', ovr:75};
+let draftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
 function createPlayerView(){
   const tier = getTier(draftPlayer.ovr);
   return `
   <h2 class="section-title">Criar Jogador</h2>
-  <p class="section-sub">Defina o nome, a posição e o OVR (0 a 500). A raridade da carta muda automaticamente.</p>
+  <p class="section-sub">Defina o nome, a posição e o OVR (0 a ${MAX_OVR}). A raridade da carta muda automaticamente.</p>
   <div class="row">
     <div class="panel" style="flex:2;min-width:280px;">
       <div class="field">
@@ -830,14 +860,13 @@ function createPlayerView(){
           </select>
         </div>
         <div class="field">
-          <label>OVR: <b style="color:var(--gold);">${draftPlayer.ovr}</b></label>
-          <input type="range" min="0" max="500" value="${draftPlayer.ovr}" oninput="draftPlayer.ovr=parseInt(this.value);render();">
+          ${ovrFieldHTML(draftPlayer, 'draftPlayer')}
         </div>
       </div>
       <div class="btn-row">
         <button class="btn" onclick="confirmCreatePlayer()">Salvar no catálogo</button>
-        <button class="btn secondary" onclick="draftPlayer={name:'',pos:'ATA',ovr:75};render();">Limpar</button>
-        <button class="btn gold" onclick="draftPlayer={name:randomName(),pos:pick(POSITIONS),ovr:rnd(0,99)};render();">🎲 Aleatório</button>
+        <button class="btn secondary" onclick="draftPlayer={name:'',pos:'ATA',ovr:75,ovrWarning:false};render();">Limpar</button>
+        <button class="btn gold" onclick="draftPlayer={name:randomName(),pos:pick(POSITIONS),ovr:rnd(0,99),ovrWarning:false};render();">🎲 Aleatório</button>
       </div>
     </div>
     <div style="flex:1;min-width:170px;display:flex;justify-content:center;align-items:flex-start;">
@@ -849,7 +878,7 @@ function createPlayerView(){
 function confirmCreatePlayer(){
   if(!draftPlayer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
   state.freeAgents.push(makePlayer(draftPlayer.name.trim(), draftPlayer.pos, draftPlayer.ovr));
-  draftPlayer = {name:'', pos:'ATA', ovr:75};
+  draftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
   saveState();
   setView('catalog');
 }
@@ -979,9 +1008,35 @@ function modalSlotHTML(){
 }
 function modalAgentsListForSlotHTML(t, idx){
   if(!state.freeAgents.length) return `<p class="hint">Nenhum agente livre. Crie um novo na aba "Criar novo".</p>`;
-  return `<div class="grid players">${state.freeAgents.map(p=>playerCardHTML(p,{onClick:`assignAgentToSlot('${t.id}',${idx},'${p.id}')`})).join('')}</div>`;
+  const m = state.modal;
+  let list = [...state.freeAgents];
+  if(m.posFilter && m.posFilter!=='ALL') list = list.filter(p=>p.pos===m.posFilter);
+  if(m.tierFilter && m.tierFilter!=='ALL') list = list.filter(p=>getTier(p.ovr).key===m.tierFilter);
+  list.sort((a,b)=>b.ovr-a.ovr);
+  return `
+    <div class="row" style="margin-bottom:10px;">
+      <div class="field" style="margin-bottom:0;">
+        <label>Posição</label>
+        <select onchange="state.modal.posFilter=this.value;render();">
+          <option value="ALL" ${(!m.posFilter||m.posFilter==='ALL')?'selected':''}>Todas</option>
+          ${POSITIONS.map(p=>`<option value="${p}" ${m.posFilter===p?'selected':''}>${p}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <label>Raridade</label>
+        <select onchange="state.modal.tierFilter=this.value;render();">
+          <option value="ALL" ${(!m.tierFilter||m.tierFilter==='ALL')?'selected':''}>Todas</option>
+          ${TIERS.map(tr=>`<option value="${tr.key}" ${m.tierFilter===tr.key?'selected':''}>${tr.label}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <p class="hint" style="margin-bottom:8px;">Mostrando ${list.length} de ${state.freeAgents.length} agente(s) livre(s).</p>
+    ${list.length
+      ? `<div class="grid players">${list.map(p=>playerCardHTML(p,{onClick:`assignAgentToSlot('${t.id}',${idx},'${p.id}')`})).join('')}</div>`
+      : `<p class="hint">Nenhum jogador encontrado com esses filtros.</p>`}
+  `;
 }
-let modalDraftPlayer = {name:'', pos:'ATA', ovr:75};
+let modalDraftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
 function modalNewPlayerForSlotHTML(t, idx){
   return `
     <div class="field"><label>Nome</label><input type="text" value="${modalDraftPlayer.name}" oninput="modalDraftPlayer.name=this.value"></div>
@@ -989,8 +1044,8 @@ function modalNewPlayerForSlotHTML(t, idx){
       <div class="field"><label>Posição</label>
         <select onchange="modalDraftPlayer.pos=this.value">${POSITIONS.map(p=>`<option ${modalDraftPlayer.pos===p?'selected':''}>${p}</option>`).join('')}</select>
       </div>
-      <div class="field"><label>OVR: <b style="color:var(--gold)">${modalDraftPlayer.ovr}</b></label>
-        <input type="range" min="0" max="500" value="${modalDraftPlayer.ovr}" oninput="modalDraftPlayer.ovr=parseInt(this.value);render();">
+      <div class="field">
+        ${ovrFieldHTML(modalDraftPlayer, 'modalDraftPlayer')}
       </div>
     </div>
     <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:modalDraftPlayer.name||'Novo Jogador',pos:modalDraftPlayer.pos,ovr:modalDraftPlayer.ovr})}</div>
@@ -1014,7 +1069,7 @@ function createAndAddToSlot(teamId, idx){
   const removed = t.players[idx];
   t.players[idx] = makePlayer(modalDraftPlayer.name.trim(), modalDraftPlayer.pos, modalDraftPlayer.ovr);
   if(removed) state.freeAgents.push(removed);
-  modalDraftPlayer = {name:'', pos:'ATA', ovr:75};
+  modalDraftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
   saveState();
   closeModal();
 }
@@ -1071,7 +1126,7 @@ function openEditPlayer(source, a, b){
   let p;
   if(source==='team'){ p = findTeam(a).players[b]; } else { p = state.freeAgents.find(x=>x.id===a); }
   if(!p) return;
-  state.modal = {type:'editPlayer', source, a, b, draft:{name:p.name, pos:p.pos, ovr:p.ovr}};
+  state.modal = {type:'editPlayer', source, a, b, draft:{name:p.name, pos:p.pos, ovr:p.ovr, ovrWarning:false}};
   render();
 }
 function modalEditPlayerHTML(){
@@ -1084,8 +1139,8 @@ function modalEditPlayerHTML(){
         <div class="field"><label>Posição</label>
           <select onchange="state.modal.draft.pos=this.value">${POSITIONS.map(p=>`<option ${m.draft.pos===p?'selected':''}>${p}</option>`).join('')}</select>
         </div>
-        <div class="field"><label>OVR: <b style="color:var(--gold)">${m.draft.ovr}</b></label>
-          <input type="range" min="0" max="500" value="${m.draft.ovr}" oninput="state.modal.draft.ovr=parseInt(this.value);render();">
+        <div class="field">
+          ${ovrFieldHTML(m.draft, 'state.modal.draft')}
         </div>
       </div>
       <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:m.draft.name||'Jogador', pos:m.draft.pos, ovr:m.draft.ovr})}</div>
@@ -1213,16 +1268,32 @@ function roundName(numMatches){
 /* ============================= WORLD CUP ============================= */
 const WC_SIZES = [2,4,8,16,32,64];
 function worldCupView(){
+  if(state.worldCup && state.worldCup.phase==='groups') return worldCupGroupStageView(state.worldCup);
   if(state.worldCup && state.worldCup.rounds) return worldCupBracketView();
-  if(!state.worldCup) state.worldCup = {selected:[], size:null};
+  if(!state.worldCup) state.worldCup = {selected:[], size:null, groupStage:false, thirdPlace:false};
   const wc = state.worldCup;
   const selected = wc.selected;
+  const knockoutSize = wc.groupStage ? (wc.size ? wc.size/2 : 0) : (wc.size||0);
+  const groupStageAvailable = !!wc.size && wc.size>=4;
+  const thirdPlaceAvailable = knockoutSize>=4;
   return `
   <h2 class="section-title">Copa do Mundo</h2>
   <p class="section-sub">Escolha o tamanho da copa e selecione exatamente essa quantidade de times participantes.</p>
   <div class="size-row">
     <span class="hint">Tamanho da copa:</span>
     ${WC_SIZES.map(s=>`<button class="speed-btn ${wc.size===s?'active':''}" onclick="setWCSize(${s})">${s}</button>`).join('')}
+  </div>
+  <div class="panel" style="padding:14px 18px;">
+    <label style="display:flex;align-items:center;gap:10px;cursor:${groupStageAvailable?'pointer':'not-allowed'};opacity:${groupStageAvailable?'1':'.5'};" onclick="${groupStageAvailable?'toggleWCGroupStage()':''}">
+      <input type="checkbox" ${wc.groupStage?'checked':''} ${groupStageAvailable?'':'disabled'} style="width:16px;height:16px;">
+      <span><b>Fase de grupos</b> (opcional) — grupos de 4, os 2 melhores de cada grupo avançam ao mata-mata</span>
+    </label>
+    ${!groupStageAvailable?'<p class="hint" style="margin:6px 0 0 26px;">Escolha um tamanho a partir de 4 times pra liberar.</p>':''}
+    <label style="display:flex;align-items:center;gap:10px;cursor:${thirdPlaceAvailable?'pointer':'not-allowed'};opacity:${thirdPlaceAvailable?'1':'.5'};margin-top:12px;" onclick="${thirdPlaceAvailable?'toggleWCThirdPlace()':''}">
+      <input type="checkbox" ${wc.thirdPlace?'checked':''} ${thirdPlaceAvailable?'':'disabled'} style="width:16px;height:16px;">
+      <span><b>Disputa de 3º lugar</b> (opcional) — os perdedores das semifinais se enfrentam</span>
+    </label>
+    ${!thirdPlaceAvailable?'<p class="hint" style="margin:6px 0 0 26px;">Disponível quando o mata-mata tem semifinais (pelo menos 4 times nessa fase).</p>':''}
   </div>
   <div class="grid teams">
     ${state.teams.map(t=>checkboxTeamHTML(t, selected.includes(t.id), `toggleWCTeam('${t.id}')`)).join('')}
@@ -1234,17 +1305,37 @@ function worldCupView(){
   ${wc.size && selected.length>wc.size ? `<p class="hint" style="color:var(--red);">Você selecionou mais times do que o tamanho escolhido. Desmarque alguns ou aumente o tamanho.</p>` : ''}`;
 }
 function setWCSize(size){
-  if(!state.worldCup || state.worldCup.rounds) state.worldCup = {selected:[], size:null};
+  if(!state.worldCup || state.worldCup.rounds || state.worldCup.phase) state.worldCup = {selected:[], size:null, groupStage:false, thirdPlace:false};
   state.worldCup.size = size;
+  sanitizeWCOptions();
   render();
 }
 function toggleWCTeam(id){
-  if(!state.worldCup || state.worldCup.rounds) state.worldCup = {selected:[], size:null};
+  if(!state.worldCup || state.worldCup.rounds || state.worldCup.phase) state.worldCup = {selected:[], size:null, groupStage:false, thirdPlace:false};
   if(!state.worldCup.selected) state.worldCup.selected=[];
   const s = state.worldCup.selected;
   const i = s.indexOf(id);
   if(i>-1) s.splice(i,1); else s.push(id);
   render();
+}
+function toggleWCGroupStage(){
+  if(!state.worldCup) return;
+  state.worldCup.groupStage = !state.worldCup.groupStage;
+  sanitizeWCOptions();
+  render();
+}
+function toggleWCThirdPlace(){
+  if(!state.worldCup) return;
+  state.worldCup.thirdPlace = !state.worldCup.thirdPlace;
+  sanitizeWCOptions();
+  render();
+}
+function sanitizeWCOptions(){
+  const wc = state.worldCup;
+  if(!wc) return;
+  if(!wc.size || wc.size<4) wc.groupStage = false;
+  const knockoutSize = wc.groupStage ? (wc.size?wc.size/2:0) : (wc.size||0);
+  if(knockoutSize<4) wc.thirdPlace = false;
 }
 function startWorldCup(){
   const wc = state.worldCup;
@@ -1257,10 +1348,27 @@ function startWorldCup(){
   }
   for(let i=ids.length-1;i>0;i--){ const j=rnd(0,i); [ids[i],ids[j]]=[ids[j],ids[i]]; }
 
-  // monta o chaveamento inteiro de uma vez (rodadas futuras ficam "a definir" até os jogos anteriores serem simulados)
+  const groupStage = !!wc.groupStage;
+  const thirdPlace = !!wc.thirdPlace;
+
+  if(groupStage){
+    const groups = [];
+    for(let i=0;i<ids.length;i+=4){
+      const teamIds = ids.slice(i,i+4);
+      groups.push({ id:'g'+groups.length, teamIds, matches: generateGroupMatches(teamIds) });
+    }
+    state.worldCup = { selected:ids, size, groupStage, thirdPlace, phase:'groups', groups, rounds:null, thirdPlaceMatch:null, champion:null };
+  } else {
+    const rounds = buildKnockoutRounds(ids);
+    state.worldCup = { selected:ids, size, groupStage, thirdPlace, phase:'knockout', groups:null, rounds, thirdPlaceMatch:null, champion:null };
+  }
+  saveState();
+  setView('worldcup');
+}
+function buildKnockoutRounds(flatIds){
   const rounds = [];
-  let count = ids.length;
-  let current = ids;
+  let count = flatIds.length;
+  let current = flatIds;
   while(count>=2){
     const matches = [];
     for(let i=0;i<count;i+=2){
@@ -1274,9 +1382,83 @@ function startWorldCup(){
     count = count/2;
     current = null;
   }
-  state.worldCup = {selected:ids, size, rounds, champion:null};
+  return rounds;
+}
+function generateGroupMatches(teamIds){
+  const matches = [];
+  for(let i=0;i<teamIds.length;i++){
+    for(let j=i+1;j<teamIds.length;j++){
+      matches.push({ id:uid(), a:teamIds[i], b:teamIds[j], scoreA:null, scoreB:null, played:false });
+    }
+  }
+  return matches;
+}
+function computeGroupStandings(group){
+  const stats = {};
+  group.teamIds.forEach(id=>{ stats[id] = {id, played:0, wins:0, draws:0, losses:0, gf:0, ga:0, pts:0}; });
+  group.matches.forEach(m=>{
+    if(!m.played) return;
+    const sa=stats[m.a], sb=stats[m.b];
+    sa.played++; sb.played++;
+    sa.gf+=m.scoreA; sa.ga+=m.scoreB;
+    sb.gf+=m.scoreB; sb.ga+=m.scoreA;
+    if(m.scoreA>m.scoreB){ sa.wins++; sa.pts+=3; sb.losses++; }
+    else if(m.scoreA<m.scoreB){ sb.wins++; sb.pts+=3; sa.losses++; }
+    else { sa.draws++; sb.draws++; sa.pts++; sb.pts++; }
+  });
+  return Object.values(stats).sort((x,y)=> y.pts-x.pts || (y.gf-y.ga)-(x.gf-x.ga) || y.gf-x.gf);
+}
+function worldCupGroupStageView(wc){
+  let html = `<h2 class="section-title">Copa do Mundo — Fase de Grupos</h2>`;
+  const allPlayed = wc.groups.every(g=>g.matches.every(m=>m.played));
+  wc.groups.forEach((g,gi)=>{
+    const standings = computeGroupStandings(g);
+    html += `<div class="panel">
+      <h4 style="margin-top:0;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Grupo ${String.fromCharCode(65+gi)}</h4>
+      <table class="standings">
+        <thead><tr><th>#</th><th>Time</th><th>PJ</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th></tr></thead>
+        <tbody>${standings.map((s,i)=>{
+          const t=findTeam(s.id);
+          return `<tr class="${i<2?'qualified':''}"><td>${i+1}</td><td>${t.name}</td><td>${s.played}</td><td>${s.wins}</td><td>${s.draws}</td><td>${s.losses}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gf-s.ga}</td><td><b>${s.pts}</b></td></tr>`;
+        }).join('')}</tbody>
+      </table>
+      <div style="margin-top:10px;">
+      ${g.matches.map(m=>{
+        const ta=findTeam(m.a), tb=findTeam(m.b);
+        return `<div class="match-row">
+          <div class="side"><div class="crest-mini" style="background:${ta.color};">${crestLetters(ta.name)}</div>${ta.name}</div>
+          ${m.played ? `<div class="score">${m.scoreA} — ${m.scoreB}</div>` : `<button class="btn gold" onclick="openGroupMatch('${g.id}','${m.id}')">Simular ⚽</button>`}
+          <div class="side right">${tb.name}<div class="crest-mini" style="background:${tb.color};">${crestLetters(tb.name)}</div></div>
+        </div>`;
+      }).join('')}
+      </div>
+    </div>`;
+  });
+  if(allPlayed){
+    html += `<div class="btn-row" style="margin-top:10px;"><button class="btn gold" onclick="advanceFromGroups()">Avançar para o mata-mata</button></div>`;
+  } else {
+    html += `<p class="hint">Complete todas as partidas da fase de grupos pra liberar o mata-mata.</p>`;
+  }
+  return html;
+}
+function openGroupMatch(groupId, matchId){
+  const wc = state.worldCup;
+  const g = wc.groups.find(x=>x.id===groupId);
+  const m = g.matches.find(x=>x.id===matchId);
+  openMatchGeneric(m.a, m.b, {groupId, matchId});
+}
+function advanceFromGroups(){
+  const wc = state.worldCup;
+  let advancing = [];
+  wc.groups.forEach(g=>{
+    const standings = computeGroupStandings(g);
+    advancing.push(standings[0].id, standings[1].id);
+  });
+  for(let i=advancing.length-1;i>0;i--){ const j=rnd(0,i); [advancing[i],advancing[j]]=[advancing[j],advancing[i]]; }
+  wc.rounds = buildKnockoutRounds(advancing);
+  wc.phase = 'knockout';
   saveState();
-  setView('worldcup');
+  render();
 }
 function worldCupBracketView(){
   const wc = state.worldCup;
@@ -1288,13 +1470,43 @@ function worldCupBracketView(){
       <div>CAMPEÃO</div>
       <h2>${champ.name}</h2>
       <div class="hint" style="color:#fff;opacity:.85;">Parabéns! Time invicto na Planifa 1.</div>
-    </div>
-    <div class="btn-row" style="margin-top:18px;justify-content:center;"><button class="btn secondary" onclick="resetWorldCup()">Nova Copa</button></div>`;
+    </div>`;
+    if(wc.thirdPlace && wc.thirdPlaceMatch && wc.thirdPlaceMatch.played){
+      const third = findTeam(wc.thirdPlaceMatch.winner);
+      html += `<p class="hint" style="text-align:center;margin-top:10px;">🥉 3º lugar: <b style="color:var(--text);">${third.name}</b></p>`;
+    }
+    html += `<div class="btn-row" style="margin-top:18px;justify-content:center;"><button class="btn secondary" onclick="resetWorldCup()">Nova Copa</button></div>`;
     return html;
   }
   html += `<p class="hint" style="margin-bottom:10px;">Arraste para o lado para ver todas as fases. Clique numa partida destacada para simular.</p>`;
   html += renderBracketTree(wc.rounds);
+  if(wc.thirdPlace) html += thirdPlaceHTML(wc);
   return html;
+}
+function thirdPlaceHTML(wc){
+  const m = wc.thirdPlaceMatch;
+  if(!m){
+    return `<div class="panel" style="margin-top:6px;">
+      <h4 style="margin:0 0 6px;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Disputa de 3º Lugar</h4>
+      <p class="hint" style="margin:0;">Disponível assim que as duas semifinais forem simuladas.</p>
+    </div>`;
+  }
+  const ta = findTeam(m.a), tb = findTeam(m.b);
+  return `<div class="panel" style="margin-top:6px;">
+    <h4 style="margin:0 0 10px;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Disputa de 3º Lugar</h4>
+    <div class="match-row">
+      <div class="side"><div class="crest-mini" style="background:${ta.color};">${crestLetters(ta.name)}</div>${ta.name}</div>
+      ${m.played ? `<div class="score">${m.scoreA} — ${m.scoreB}</div>` : `<button class="btn gold" onclick="openThirdPlaceMatch()">Simular ⚽</button>`}
+      <div class="side right">${tb.name}<div class="crest-mini" style="background:${tb.color};">${crestLetters(tb.name)}</div></div>
+    </div>
+    ${m.played ? `<p class="hint" style="margin:8px 0 0;">🥉 ${findTeam(m.winner).name} fica com o 3º lugar.</p>` : ''}
+  </div>`;
+}
+function openThirdPlaceMatch(){
+  const wc = state.worldCup;
+  const m = wc.thirdPlaceMatch;
+  if(!m || m.played) return;
+  openMatchGeneric(m.a, m.b, {thirdPlace:true});
 }
 function renderBracketTree(rounds){
   const BASE_UNIT=96, MATCH_H=64, COL_W=210, COL_GAP=44;
@@ -1536,6 +1748,29 @@ function finishMatch(){
   else winnerId = (c.penA>c.penB) ? c.teamA.id : c.teamB.id;
 
   const wc = state.worldCup;
+
+  // partida da fase de grupos
+  if(src.groupId){
+    const g = wc.groups.find(x=>x.id===src.groupId);
+    const m = g.matches.find(x=>x.id===src.matchId);
+    m.scoreA = c.scoreA; m.scoreB = c.scoreB; m.played = true;
+    state.matchCtx = null;
+    saveState();
+    setView('worldcup');
+    return;
+  }
+
+  // disputa de 3º lugar
+  if(src.thirdPlace){
+    const m = wc.thirdPlaceMatch;
+    m.scoreA = c.scoreA; m.scoreB = c.scoreB; m.played = true; m.winner = winnerId;
+    state.matchCtx = null;
+    saveState();
+    setView('worldcup');
+    return;
+  }
+
+  // chaveamento normal (mata-mata)
   const m = wc.rounds[src.roundIdx][src.matchIdx];
   m.scoreA = c.scoreA; m.scoreB = c.scoreB; m.played = true; m.winner = winnerId;
 
@@ -1546,6 +1781,15 @@ function finishMatch(){
     const pairIdx = Math.floor(src.matchIdx/2);
     const slot = src.matchIdx%2===0 ? 'a' : 'b';
     nextRound[pairIdx][slot] = winnerId;
+
+    // a disputa de 3º lugar nasce assim que a semifinal (penúltima rodada) termina
+    if(wc.thirdPlace && !wc.thirdPlaceMatch && src.roundIdx === wc.rounds.length-2){
+      const semis = wc.rounds[src.roundIdx];
+      if(semis.every(x=>x.played)){
+        const loserOf = (mm)=> mm.winner===mm.a ? mm.b : mm.a;
+        wc.thirdPlaceMatch = { a: loserOf(semis[0]), b: loserOf(semis[1]), scoreA:null, scoreB:null, played:false, winner:null };
+      }
+    }
   }
   state.matchCtx = null;
   saveState();
