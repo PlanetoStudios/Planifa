@@ -147,9 +147,7 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
   padding:10px 12px;border-radius:8px;font-size:14px;font-family:inherit;
 }
 .field input[type=range]{width:100%;accent-color:var(--gold);}
-.ovr-input-row{display:flex;gap:10px;align-items:center;}
-.ovr-input-row input[type=range]{flex:1;}
-.ovr-number{width:84px;flex-shrink:0;text-align:center;}
+.ovr-number-full{width:100%;font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;}
 .ovr-warning{color:var(--red);font-size:12px;margin:6px 0 0;}
 .row{display:flex;gap:14px;flex-wrap:wrap;}
 .row .field{flex:1;min-width:160px;}
@@ -347,9 +345,11 @@ function getTier(ovr){
   for(const t of TIERS){ if(ovr<=t.max) return t; }
   return TIERS[TIERS.length-1];
 }
-/* Usado pelo campo numérico de OVR: deixa digitar o valor direto. Se passar de MAX_OVR,
-   trava em MAX_OVR e acende um aviso explicando o limite (em vez de simplesmente ignorar). */
-function setOvrFromInput(rawValue, draftObj){
+/* Campo numérico de OVR. IMPORTANTE: nunca chama render() aqui — um render() a cada tecla
+   digitada recria o <input> inteiro e faz o campo perder o foco (era o bug relatado).
+   Em vez disso, atualizamos só os elementos específicos (label, aviso, carta de prévia)
+   diretamente pelo id, mantendo o campo de texto intacto e com o foco. */
+function updateOvrDraft(rawValue, draftObj, ctxKey){
   let n = parseInt(rawValue, 10);
   if(isNaN(n)) n = 0;
   if(n > MAX_OVR){
@@ -359,15 +359,18 @@ function setOvrFromInput(rawValue, draftObj){
     draftObj.ovr = Math.max(0, n);
     draftObj.ovrWarning = false;
   }
-  render();
+  const valueEl = document.getElementById('ovr-value-'+ctxKey);
+  if(valueEl) valueEl.textContent = draftObj.ovr;
+  const warnEl = document.getElementById('ovr-warning-'+ctxKey);
+  if(warnEl) warnEl.style.display = draftObj.ovrWarning ? '' : 'none';
+  const cardEl = document.getElementById('ovr-card-'+ctxKey);
+  if(cardEl) cardEl.innerHTML = playerCardHTML({name: draftObj.name || 'Jogador', pos: draftObj.pos, ovr: draftObj.ovr});
 }
-function ovrFieldHTML(draftObj, onRangeExtra){
-  return `<label>OVR (0 a ${MAX_OVR}): <b style="color:var(--gold);">${draftObj.ovr}</b></label>
-    <div class="ovr-input-row">
-      <input type="range" min="0" max="${MAX_OVR}" value="${draftObj.ovr}" oninput="${onRangeExtra}.ovr=parseInt(this.value);${onRangeExtra}.ovrWarning=false;render();">
-      <input type="number" min="0" class="ovr-number" value="${draftObj.ovr}" oninput="setOvrFromInput(this.value, ${onRangeExtra})">
-    </div>
-    ${draftObj.ovrWarning ? `<p class="ovr-warning">⚠ O limite máximo é ${MAX_OVR} OVR. O valor foi ajustado para ${MAX_OVR}.</p>` : ''}`;
+function ovrFieldHTML(draftObj, refExpr, ctxKey){
+  return `<label>OVR (0 a ${MAX_OVR}): <b id="ovr-value-${ctxKey}" style="color:var(--gold);">${draftObj.ovr}</b></label>
+    <input type="number" min="0" max="${MAX_OVR}" step="1" class="ovr-number-full" value="${draftObj.ovr}"
+      oninput="updateOvrDraft(this.value, ${refExpr}, '${ctxKey}')" placeholder="Digite o OVR">
+    <p id="ovr-warning-${ctxKey}" class="ovr-warning" style="${draftObj.ovrWarning ? '' : 'display:none;'}">⚠ O limite máximo é ${MAX_OVR} OVR. O valor foi ajustado para ${MAX_OVR}.</p>`;
 }
 
 const POSITIONS = ['GOL','ZAG','LAT','VOL','MEI','PON','ATA'];
@@ -407,10 +410,42 @@ function buildFormationSlots(key){
   return slots;
 }
 
-const FIRST_NAMES = ['Lucas','Thiago','Gabriel','Rafael','Bruno','Diego','Enzo','Kaique','Matheus','Vitor','André','Caio','Igor','Leo','Rian','Yuri','Davi','Nicolas','Pedro','Otávio',
-  'Marco','Luca','Milan','Kevin','Sven','Jonas','Erik','Ivo','Adrian','Nikola','Mateo','Iker','Xavi','Rui','Tiago','Amir','Karim','Sadio','Kwame','Femi','Chidi','Yusuf'];
-const LAST_NAMES = ['Silva','Souza','Costa','Pereira','Oliveira','Ramos','Nascimento','Barbosa','Cardoso','Teixeira','Moraes','Farias','Aguiar','Rocha','Vidal','Novak','Keller','Petrov',
-  'Ferrara','Moretti','Dubois','Lefevre','Fischer','Bauer','Van Dijk','De Boer','Almeida','Santana','Reyes','Herrera','Diallo','Traoré','Mensah','Okafor','Haddad','Nasser'];
+const FIRST_NAMES = [
+  // Brasil / Portugal
+  'Lucas','Thiago','Gabriel','Rafael','Bruno','Diego','Enzo','Kaique','Matheus','Vitor','André','Caio','Igor','Leo','Rian','Yuri','Davi','Nicolas','Pedro','Otávio',
+  'Gustavo','Felipe','Renato','Wesley','Anderson','Everton','Douglas','Jefferson','Robson','Cristiano','Rodrigo','Fábio','Hugo','João','Miguel','Tomás','Afonso','Duarte','Bernardo','Gonçalo',
+  // Espanha / América Latina
+  'Marco','Mateo','Iker','Xavi','Diego','Santiago','Emiliano','Alejandro','Nicolás','Joaquín','Sebastián','Agustín','Franco','Matías','Lautaro','Gonzalo','Ezequiel','Facundo','Maximiliano','Ramiro',
+  // Europa (geral)
+  'Milan','Kevin','Sven','Jonas','Erik','Ivo','Adrian','Nikola','Luca','Marco','Giovanni','Matteo','Alessandro','Lorenzo','Antoine','Hugo','Lucas','Pierre','Maxime','Julien',
+  'Lukas','Felix','Maximilian','Niklas','Jakob','Oskar','Viktor','Anders','Magnus','Henrik','Olivier','Mathieu','Dimitri','Stefan','Tomasz','Piotr','Wojciech','Marek','Boris','Andrei',
+  // África
+  'Amir','Karim','Sadio','Kwame','Femi','Chidi','Yusuf','Mamadou','Ibrahima','Ousmane','Moussa','Abdoulaye','Bakary','Aliou','Cheikh','Idris','Tendai','Kofi','Kwabena','Emeka',
+  // Oriente Médio
+  'Ali','Hassan','Omar','Tariq','Rashid','Zayd','Faisal','Khalid','Samir','Walid',
+  // Ásia
+  'Haruto','Ren','Kaito','Yuto','Minho','Jisung','Daiki','Shota','Wei','Jian','Feng','Hiroshi','Kenji','Takeshi','Yuki','Sora',
+  // EUA / Reino Unido
+  'Jack','Harry','Oliver','George','Noah','Ethan','Liam','Mason','Jayden','Tyler','Connor','Aaron','Dylan','Marcus','Jordan','Trevor',
+];
+const LAST_NAMES = [
+  // Brasil / Portugal
+  'Silva','Souza','Costa','Pereira','Oliveira','Ramos','Nascimento','Barbosa','Cardoso','Teixeira','Moraes','Farias','Aguiar','Rocha','Vidal','Almeida','Santana','Carvalho','Monteiro','Pinto',
+  'Fonseca','Correia','Martins','Gonçalves','Figueiredo','Esteves','Nogueira','Azevedo','Lopes','Marques','Coelho','Dias','Freitas','Guerreiro','Mendes','Tavares','Brito','Cunha','Araújo','Borges',
+  // Espanha / América Latina
+  'Reyes','Herrera','Vega','Morales','Ibáñez','Delgado','Castillo','Salazar','Navarro','Cabrera','Gutiérrez','Fuentes','Valdez','Cordero','Rojas','Paredes','Medina','Rivas','Campos','Contreras',
+  // Europa (geral)
+  'Novak','Keller','Petrov','Ferrara','Moretti','Dubois','Lefevre','Fischer','Bauer','Van Dijk','De Boer','Bergkamp','Jansen','Visser','Kowalski','Nowak','Wójcik','Horvat','Kovač','Novotný',
+  'Dvořák','Lindqvist','Karlsson','Eriksson','Andersen','Nilsen','Johansen','Lemaire','Girard','Rousseau','Baptiste','Rinaldi','Conti','Bianchi','Romano','Marino','Greco','Leone','Fabbri',
+  // África
+  'Diallo','Traoré','Mensah','Okafor','Haddad','Nasser','Keita','Coulibaly','Sangaré','Toure','Diop','Ndiaye','Camara','Bamba','Adeyemi','Okonkwo','Chukwu','Abara','Mwangi','Kamau',
+  // Oriente Médio
+  'Al-Farsi','Al-Amin','El-Masri','Al-Rashid','Nasrallah','Barakat','Khalil','Saleh',
+  // Ásia
+  'Tanaka','Suzuki','Watanabe','Sato','Kim','Park','Lee','Choi','Zhang','Wang','Liu','Chen','Yamamoto','Nakamura','Kobayashi','Inoue',
+  // EUA / Reino Unido
+  'Johnson','Mitchell','Thompson','Parker','Collins','Bennett','Stewart','Morgan','Bailey','Foster','Hamilton','Wallace','Gordon','Reid','Cross','Sharpe',
+];
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rnd(0,arr.length-1)];}
 function randomName(){return pick(FIRST_NAMES)+' '+pick(LAST_NAMES);}
@@ -598,7 +633,7 @@ function setView(v, extra={}){
 function topbarHTML(){
   const items = [
     ['home','Início'],['teams','Times'],['catalog','Catálogo de Jogadores'],
-    ['categories','Categorias'],['createPlayer','Criar Jogador'],['createTeam','Criar Time'],['worldcup','Copa do Mundo']
+    ['categories','Categorias'],['createPlayer','Criar Jogador'],['createTeam','Criar Time'],['worldcup','Copa do Mundo'],['friendly','Amistoso']
   ];
   return `<div class="topbar">
     <div class="brand">
@@ -621,6 +656,7 @@ function viewHTML(){
     case 'categories': return categoriesView();
     case 'categoryDetail': return categoryDetailView();
     case 'createCategory': return createCategoryView();
+    case 'friendly': return friendlyView();
     case 'match': return matchView();
     default: return homeView();
   }
@@ -638,6 +674,7 @@ function homeView(){
     ${quickCard('Criar Jogador', 'Defina nome, posição e OVR (até 500) e gere a carta.', 'createPlayer', 'Marrom → Arco-Íris')}
     ${quickCard('Criar Time', 'Escolha nome, cor, formação e escale seus 11 titulares.', 'createTeam', 'Times ilimitados')}
     ${quickCard('Copa do Mundo', 'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', 'worldcup', 'Mata-mata completo')}
+    ${quickCard('Amistoso', 'Escolha dois times quaisquer e simule um jogo avulso na hora.', 'friendly', 'Jogo rápido')}
     ${quickCard('Categorias', 'Agrupe seus times em categorias personalizadas.', 'categories', state.categories.length+' categorias')}
   </div>`;
 }
@@ -860,7 +897,7 @@ function createPlayerView(){
           </select>
         </div>
         <div class="field">
-          ${ovrFieldHTML(draftPlayer, 'draftPlayer')}
+          ${ovrFieldHTML(draftPlayer, 'draftPlayer', 'draftPlayer')}
         </div>
       </div>
       <div class="btn-row">
@@ -869,7 +906,7 @@ function createPlayerView(){
         <button class="btn gold" onclick="draftPlayer={name:randomName(),pos:pick(POSITIONS),ovr:rnd(0,99),ovrWarning:false};render();">🎲 Aleatório</button>
       </div>
     </div>
-    <div style="flex:1;min-width:170px;display:flex;justify-content:center;align-items:flex-start;">
+    <div id="ovr-card-draftPlayer" style="flex:1;min-width:170px;display:flex;justify-content:center;align-items:flex-start;">
       ${playerCardHTML({name:draftPlayer.name||'Novo Jogador', pos:draftPlayer.pos, ovr:draftPlayer.ovr})}
     </div>
   </div>
@@ -1045,10 +1082,10 @@ function modalNewPlayerForSlotHTML(t, idx){
         <select onchange="modalDraftPlayer.pos=this.value">${POSITIONS.map(p=>`<option ${modalDraftPlayer.pos===p?'selected':''}>${p}</option>`).join('')}</select>
       </div>
       <div class="field">
-        ${ovrFieldHTML(modalDraftPlayer, 'modalDraftPlayer')}
+        ${ovrFieldHTML(modalDraftPlayer, 'modalDraftPlayer', 'modalDraftPlayer')}
       </div>
     </div>
-    <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:modalDraftPlayer.name||'Novo Jogador',pos:modalDraftPlayer.pos,ovr:modalDraftPlayer.ovr})}</div>
+    <div id="ovr-card-modalDraftPlayer" style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:modalDraftPlayer.name||'Novo Jogador',pos:modalDraftPlayer.pos,ovr:modalDraftPlayer.ovr})}</div>
     <button class="btn" onclick="createAndAddToSlot('${t.id}',${idx})">Criar e escalar</button>
   `;
 }
@@ -1140,10 +1177,10 @@ function modalEditPlayerHTML(){
           <select onchange="state.modal.draft.pos=this.value">${POSITIONS.map(p=>`<option ${m.draft.pos===p?'selected':''}>${p}</option>`).join('')}</select>
         </div>
         <div class="field">
-          ${ovrFieldHTML(m.draft, 'state.modal.draft')}
+          ${ovrFieldHTML(m.draft, 'state.modal.draft', 'editDraft')}
         </div>
       </div>
-      <div style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:m.draft.name||'Jogador', pos:m.draft.pos, ovr:m.draft.ovr})}</div>
+      <div id="ovr-card-editDraft" style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:m.draft.name||'Jogador', pos:m.draft.pos, ovr:m.draft.ovr})}</div>
       <div class="btn-row">
         <button class="btn" onclick="saveEditPlayer()">Salvar alterações</button>
         <button class="btn danger" onclick="deleteEditingPlayer()">Excluir jogador</button>
@@ -1574,6 +1611,63 @@ function openMatch(roundIdx, matchIdx){
   openMatchGeneric(m.a, m.b, {roundIdx, matchIdx});
 }
 
+/* ============================= AMISTOSO ============================= */
+function friendlyView(){
+  if(!state.friendly) state.friendly = {teamA:null, teamB:null};
+  const f = state.friendly;
+  const canStart = f.teamA && f.teamB && f.teamA!==f.teamB;
+  let html = `
+  <h2 class="section-title">Amistoso</h2>
+  <p class="section-sub">Escolha dois times quaisquer pra jogarem um amistoso avulso — não entra em nenhuma copa ou categoria.</p>
+  <div class="panel">
+    <div class="row">
+      <div class="field" style="flex:1;min-width:220px;">
+        <label>Time A</label>
+        <select onchange="setFriendlyTeam('A', this.value)">
+          <option value="">Selecione...</option>
+          ${state.teams.map(t=>`<option value="${t.id}" ${f.teamA===t.id?'selected':''}>${t.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field" style="flex:1;min-width:220px;">
+        <label>Time B</label>
+        <select onchange="setFriendlyTeam('B', this.value)">
+          <option value="">Selecione...</option>
+          ${state.teams.map(t=>`<option value="${t.id}" ${f.teamB===t.id?'selected':''}>${t.name}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    ${f.teamA && f.teamB && f.teamA===f.teamB ? '<p class="hint" style="color:var(--red);">Escolha dois times diferentes.</p>' : ''}
+    <div class="btn-row" style="margin-top:6px;">
+      <button class="btn gold" ${canStart?'':'disabled'} onclick="startFriendly()">Iniciar Amistoso ⚽</button>
+    </div>
+  </div>`;
+  if(f.lastResult){
+    const ta = findTeam(f.lastResult.teamA), tb = findTeam(f.lastResult.teamB);
+    if(ta && tb){
+      html += `<div class="panel">
+        <h4 style="margin:0 0 10px;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Resultado do último amistoso</h4>
+        <div class="match-row">
+          <div class="side"><div class="crest-mini" style="background:${ta.color};">${crestLetters(ta.name)}</div>${ta.name}</div>
+          <div class="score">${f.lastResult.scoreA} — ${f.lastResult.scoreB}</div>
+          <div class="side right">${tb.name}<div class="crest-mini" style="background:${tb.color};">${crestLetters(tb.name)}</div></div>
+        </div>
+        ${f.lastResult.draw ? `<p class="hint" style="margin-top:8px;">Empate no tempo normal — decidido nos pênaltis: ${f.lastResult.penA} x ${f.lastResult.penB}</p>` : ''}
+      </div>`;
+    }
+  }
+  return html;
+}
+function setFriendlyTeam(which, id){
+  if(!state.friendly) state.friendly = {teamA:null, teamB:null};
+  state.friendly[which==='A'?'teamA':'teamB'] = id || null;
+  render();
+}
+function startFriendly(){
+  const f = state.friendly;
+  if(!f.teamA || !f.teamB || f.teamA===f.teamB) return;
+  openMatchGeneric(f.teamA, f.teamB, {friendly:true});
+}
+
 /* ============================= MATCH SIMULATION ============================= */
 function openMatchGeneric(aId, bId, source){
   const ta = findTeam(aId), tb = findTeam(bId);
@@ -1746,6 +1840,20 @@ function finishMatch(){
   let winnerId;
   if(c.scoreA!==c.scoreB) winnerId = c.scoreA>c.scoreB ? c.teamA.id : c.teamB.id;
   else winnerId = (c.penA>c.penB) ? c.teamA.id : c.teamB.id;
+
+  // amistoso (não afeta nenhuma copa, é só um jogo avulso entre dois times)
+  if(src.friendly){
+    if(!state.friendly) state.friendly = {teamA:null, teamB:null};
+    state.friendly.lastResult = {
+      teamA: c.teamA.id, teamB: c.teamB.id,
+      scoreA: c.scoreA, scoreB: c.scoreB,
+      draw: c.scoreA===c.scoreB,
+      penA: c.penA, penB: c.penB,
+    };
+    state.matchCtx = null;
+    setView('friendly');
+    return;
+  }
 
   const wc = state.worldCup;
 
