@@ -60,14 +60,89 @@ body{
 .brand h1{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:26px;letter-spacing:.5px;margin:0;text-transform:uppercase;}
 .brand h1 span{color:var(--gold);}
 .brand small{display:block;color:var(--sub);font-size:11px;letter-spacing:2px;text-transform:uppercase;margin-top:-2px;}
-nav{display:flex;gap:6px;flex-wrap:wrap;}
-nav button{
-  background:transparent;border:1px solid var(--line);color:var(--sub);
-  padding:8px 14px;border-radius:999px;font-size:12.5px;font-weight:600;cursor:pointer;
-  letter-spacing:.3px;transition:.15s;
+/* ---- botão hambúrguer (três barrinhas) ---- */
+.hamburger-btn{
+  display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;
+  width:42px;height:42px;background:transparent;border:1px solid var(--line);
+  border-radius:10px;cursor:pointer;flex-shrink:0;transition:.15s;
 }
-nav button:hover{color:var(--text);border-color:var(--emerald);}
-nav button.active{background:var(--emerald);color:#052018;border-color:var(--emerald);}
+.hamburger-btn span{display:block;width:20px;height:2px;background:var(--text);border-radius:2px;transition:.2s;}
+.hamburger-btn:hover{border-color:var(--emerald);}
+.hamburger-btn:hover span{background:var(--emerald);}
+
+/* ---- sidebar (menu vertical) ---- */
+.sidebar-overlay{
+  position:fixed;inset:0;background:rgba(3,8,6,.6);opacity:0;pointer-events:none;
+  transition:opacity .2s ease;z-index:40;
+}
+.sidebar-overlay.show{opacity:1;pointer-events:auto;}
+.sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:280px;max-width:82vw;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border-right:1px solid var(--line);
+  transform:translateX(-100%);transition:transform .25s ease;
+  z-index:50;display:flex;flex-direction:column;
+  box-shadow:12px 0 32px rgba(0,0,0,.45);
+}
+.sidebar.open{transform:translateX(0);}
+.sidebar-header{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:18px 16px 14px;border-bottom:1px solid var(--line);
+}
+.sidebar-header h1{font-size:20px !important;}
+.sidebar-close{
+  background:transparent;border:1px solid var(--line);color:var(--sub);
+  border-radius:8px;width:32px;height:32px;cursor:pointer;flex-shrink:0;font-size:14px;
+}
+.sidebar-close:hover{border-color:var(--red);color:var(--red);}
+.sidebar-links{display:flex;flex-direction:column;padding:12px;gap:3px;overflow-y:auto;}
+.sidebar-links button{
+  display:flex;align-items:center;gap:12px;background:transparent;border:none;
+  color:var(--sub);padding:13px 14px;border-radius:10px;font-size:14.5px;font-weight:600;
+  cursor:pointer;text-align:left;transition:.15s;width:100%;
+}
+.sidebar-links button .nav-icon{font-size:18px;line-height:1;width:22px;text-align:center;}
+.sidebar-links button:hover{background:rgba(255,255,255,.06);color:var(--text);}
+.sidebar-links button.active{background:var(--emerald);color:#052018;}
+.sidebar-divider{height:1px;background:var(--line);margin:8px 10px;}
+
+/* ---- home stats bar ---- */
+.stats-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+.stat-chip{
+  flex:1;min-width:110px;background:linear-gradient(160deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:12px;padding:12px 14px;text-align:center;
+}
+.stat-num{display:block;font-family:'JetBrains Mono',monospace;font-weight:700;font-size:24px;color:var(--gold);}
+.stat-label{display:block;font-size:10.5px;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;}
+
+/* ---- escolha de dispositivo ---- */
+.device-pick{max-width:560px;margin:30px auto;}
+.device-options{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:22px;}
+.device-card{
+  flex:1;min-width:200px;background:linear-gradient(160deg,var(--panel2),var(--panel));
+  border:1.5px solid var(--line);border-radius:16px;padding:28px 20px;text-align:center;
+  cursor:pointer;transition:.15s;
+}
+.device-card:hover{border-color:var(--gold);transform:translateY(-3px);}
+.device-card.sel{border-color:var(--emerald);box-shadow:0 0 0 2px var(--emerald);}
+.device-icon{font-size:44px;margin-bottom:10px;}
+.device-card h3{margin:0 0 6px;}
+
+/* ---- ajustes por tipo de dispositivo ---- */
+body.device-mobile .grid.teams{grid-template-columns:repeat(auto-fill,minmax(145px,1fr));}
+body.device-mobile .grid.players{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));}
+body.device-mobile .sidebar{width:260px;}
+body.device-mobile .btn,
+body.device-mobile .btn.secondary,
+body.device-mobile .btn.gold,
+body.device-mobile .btn.danger{padding:12px 20px;font-size:14px;}
+body.device-mobile .wrap{padding:14px 12px 70px;}
+body.device-mobile .pitch.lineup{height:560px;}
+body.device-mobile .pitch-slot{width:58px;}
+
+body.device-desktop .wrap{max-width:1320px;}
+body.device-desktop .grid.teams{grid-template-columns:repeat(auto-fill,minmax(235px,1fr));}
+body.device-desktop .grid.players{grid-template-columns:repeat(auto-fill,minmax(165px,1fr));}
 
 h2.section-title{
   font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:30px;
@@ -106,6 +181,7 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 .card .pos{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;opacity:.85;}
 .card .name{font-weight:700;font-size:13px;margin-top:6px;line-height:1.2;min-height:32px;}
 .card .tier-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:.75;margin-top:2px;}
+.card .value-tag{font-size:9.5px;font-family:'JetBrains Mono',monospace;font-weight:700;opacity:.9;margin-top:4px;}
 .card .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:4px;}
 .card .rm{background:rgba(0,0,0,.35);border:none;color:inherit;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;flex-shrink:0;}
 
@@ -149,6 +225,9 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 .field input[type=range]{width:100%;accent-color:var(--gold);}
 .ovr-number-full{width:100%;font-size:16px;font-weight:700;font-family:'JetBrains Mono',monospace;}
 .ovr-warning{color:var(--red);font-size:12px;margin:6px 0 0;}
+.value-input-row{display:flex;gap:8px;align-items:center;}
+.value-input-row input{flex:1;}
+.value-input-row .btn{flex-shrink:0;white-space:nowrap;}
 .row{display:flex;gap:14px;flex-wrap:wrap;}
 .row .field{flex:1;min-width:160px;}
 .btn{
@@ -363,14 +442,52 @@ function updateOvrDraft(rawValue, draftObj, ctxKey){
   if(valueEl) valueEl.textContent = draftObj.ovr;
   const warnEl = document.getElementById('ovr-warning-'+ctxKey);
   if(warnEl) warnEl.style.display = draftObj.ovrWarning ? '' : 'none';
-  const cardEl = document.getElementById('ovr-card-'+ctxKey);
-  if(cardEl) cardEl.innerHTML = playerCardHTML({name: draftObj.name || 'Jogador', pos: draftObj.pos, ovr: draftObj.ovr});
+  patchDraftCard(draftObj, ctxKey);
 }
 function ovrFieldHTML(draftObj, refExpr, ctxKey){
   return `<label>OVR (0 a ${MAX_OVR}): <b id="ovr-value-${ctxKey}" style="color:var(--gold);">${draftObj.ovr}</b></label>
     <input type="number" min="0" max="${MAX_OVR}" step="1" class="ovr-number-full" value="${draftObj.ovr}"
       oninput="updateOvrDraft(this.value, ${refExpr}, '${ctxKey}')" placeholder="Digite o OVR">
     <p id="ovr-warning-${ctxKey}" class="ovr-warning" style="${draftObj.ovrWarning ? '' : 'display:none;'}">⚠ O limite máximo é ${MAX_OVR} OVR. O valor foi ajustado para ${MAX_OVR}.</p>`;
+}
+/* Patch genérico da carta de prévia (reusado por OVR, valor e nacionalidade) — nunca usa
+   render(), só atualiza o container da carta pelo id, preservando o foco de outros campos. */
+function patchDraftCard(draftObj, ctxKey){
+  const cardEl = document.getElementById('ovr-card-'+ctxKey);
+  if(cardEl) cardEl.innerHTML = playerCardHTML({name: draftObj.name || 'Jogador', pos: draftObj.pos, ovr: draftObj.ovr, value: draftObj.value, nationality: draftObj.nationality});
+}
+/* Campo de valor de mercado (€) — puramente cosmético, não afeta nada do jogo. */
+function updateValueDraft(rawValue, draftObj, ctxKey){
+  let n = parseFloat(rawValue);
+  if(isNaN(n) || n<0) n = 0;
+  draftObj.value = Math.round(n);
+  const prevEl = document.getElementById('value-preview-'+ctxKey);
+  if(prevEl) prevEl.textContent = formatValue(draftObj.value);
+  patchDraftCard(draftObj, ctxKey);
+}
+function suggestValue(draftObj, ctxKey){
+  draftObj.value = computePlayerValue(draftObj.ovr);
+  const input = document.getElementById('value-input-'+ctxKey);
+  if(input) input.value = draftObj.value;
+  const prevEl = document.getElementById('value-preview-'+ctxKey);
+  if(prevEl) prevEl.textContent = formatValue(draftObj.value);
+  patchDraftCard(draftObj, ctxKey);
+}
+function valueFieldHTML(draftObj, refExpr, ctxKey){
+  return `<label>Valor de Mercado (€)</label>
+    <div class="value-input-row">
+      <input type="number" id="value-input-${ctxKey}" min="0" step="1000" class="ovr-number-full" value="${draftObj.value}"
+        oninput="updateValueDraft(this.value, ${refExpr}, '${ctxKey}')" placeholder="Valor em €">
+      <button type="button" class="btn secondary" onclick="suggestValue(${refExpr}, '${ctxKey}')">🎲 Sugerir</button>
+    </div>
+    <p class="hint" style="margin:6px 0 0;">Prévia: <b id="value-preview-${ctxKey}" style="color:var(--gold);">${formatValue(draftObj.value)}</b> — é só visual, não afeta o jogo.</p>`;
+}
+/* Campo de nacionalidade */
+function nationalityFieldHTML(draftObj, refExpr, ctxKey){
+  return `<label>Nacionalidade</label>
+    <select onchange="${refExpr}.nationality=this.value;patchDraftCard(${refExpr},'${ctxKey}')">
+      ${NATIONALITIES.map(n=>`<option value="${n.name}" ${draftObj.nationality===n.name?'selected':''}>${flagEmoji(n.code)} ${n.name}</option>`).join('')}
+    </select>`;
 }
 
 const POSITIONS = ['GOL','ZAG','LAT','VOL','MEI','PON','ATA'];
@@ -451,8 +568,87 @@ function pick(arr){return arr[rnd(0,arr.length-1)];}
 function randomName(){return pick(FIRST_NAMES)+' '+pick(LAST_NAMES);}
 function uid(){return 'p'+Math.random().toString(36).slice(2,10);}
 
-function makePlayer(name,pos,ovr){
-  return {id:uid(), name, pos, ovr:Math.max(0,Math.min(MAX_OVR,Math.round(ovr)))};
+/* ---- Nacionalidade ---- */
+const NATIONALITIES = [
+  {name:'Brasil',code:'BR'},{name:'Portugal',code:'PT'},{name:'Argentina',code:'AR'},{name:'Espanha',code:'ES'},
+  {name:'França',code:'FR'},{name:'Alemanha',code:'DE'},{name:'Itália',code:'IT'},{name:'Inglaterra',code:'GB'},
+  {name:'Holanda',code:'NL'},{name:'Bélgica',code:'BE'},{name:'Suécia',code:'SE'},{name:'Noruega',code:'NO'},
+  {name:'Dinamarca',code:'DK'},{name:'Polônia',code:'PL'},{name:'Croácia',code:'HR'},{name:'Sérvia',code:'RS'},
+  {name:'República Tcheca',code:'CZ'},{name:'Áustria',code:'AT'},{name:'Suíça',code:'CH'},{name:'Rússia',code:'RU'},
+  {name:'Ucrânia',code:'UA'},{name:'Turquia',code:'TR'},{name:'Marrocos',code:'MA'},{name:'Senegal',code:'SN'},
+  {name:'Nigéria',code:'NG'},{name:'Gana',code:'GH'},{name:'Costa do Marfim',code:'CI'},{name:'Camarões',code:'CM'},
+  {name:'Egito',code:'EG'},{name:'Argélia',code:'DZ'},{name:'Japão',code:'JP'},{name:'Coreia do Sul',code:'KR'},
+  {name:'China',code:'CN'},{name:'Austrália',code:'AU'},{name:'Estados Unidos',code:'US'},{name:'México',code:'MX'},
+  {name:'Colômbia',code:'CO'},{name:'Uruguai',code:'UY'},{name:'Chile',code:'CL'},{name:'Paraguai',code:'PY'},
+  {name:'Peru',code:'PE'},{name:'Equador',code:'EC'},{name:'Canadá',code:'CA'},{name:'Arábia Saudita',code:'SA'},
+  {name:'Catar',code:'QA'},{name:'Irã',code:'IR'},
+];
+function flagEmoji(code){
+  if(!code) return '🏳️';
+  return code.toUpperCase().replace(/./g, c => String.fromCodePoint(127397 + c.charCodeAt(0)));
+}
+function nationalityCode(name){
+  const n = NATIONALITIES.find(x=>x.name===name);
+  return n ? n.code : 'BR';
+}
+
+/* ---- Valor de mercado (€) — cosmético, não afeta nada do jogo ---- */
+const VALUE_ANCHORS = [
+  {ovr:0,   value:300},
+  {ovr:29,  value:5000},
+  {ovr:69,  value:60000},
+  {ovr:80,  value:300000},
+  {ovr:89,  value:3000000},
+  {ovr:95,  value:18000000},
+  {ovr:250, value:600000000},
+  {ovr:300, value:3000000000},
+  {ovr:400, value:30000000000},
+  {ovr:450, value:150000000000},
+  {ovr:500, value:1000000000000},
+];
+function baseValueForOvr(ovr){
+  ovr = Math.max(0, Math.min(MAX_OVR, ovr));
+  for(let i=0;i<VALUE_ANCHORS.length-1;i++){
+    const a = VALUE_ANCHORS[i], b = VALUE_ANCHORS[i+1];
+    if(ovr>=a.ovr && ovr<=b.ovr){
+      const t = (ovr-a.ovr) / ((b.ovr-a.ovr) || 1);
+      const logA = Math.log(a.value), logB = Math.log(b.value);
+      return Math.exp(logA + (logB-logA)*t);
+    }
+  }
+  return VALUE_ANCHORS[VALUE_ANCHORS.length-1].value;
+}
+function computePlayerValue(ovr){
+  const base = baseValueForOvr(ovr);
+  const variance = 0.85 + Math.random()*0.3; // ±15%, pra não ficar sempre idêntico no mesmo OVR
+  return Math.max(100, Math.round(base*variance));
+}
+function formatValue(v){
+  v = Number(v)||0;
+  const fmt = (num, suffix, roundThreshold)=>{
+    let s = num.toFixed(num>=roundThreshold ? 0 : 1);
+    if(s.endsWith('.0')) s = s.slice(0,-2);
+    return '€'+s+suffix;
+  };
+  if(v>=1e12) return fmt(v/1e12, 'tri', 1e13/1e12);
+  if(v>=1e9)  return fmt(v/1e9,  'bi',  1e10/1e9);
+  if(v>=1e6)  return fmt(v/1e6,  'mi',  1e7/1e6);
+  if(v>=1e3)  return fmt(v/1e3,  'mil', 1e4/1e3);
+  return '€'+Math.round(v);
+}
+
+function makePlayer(name,pos,ovr,opts={}){
+  const finalOvr = Math.max(0,Math.min(MAX_OVR,Math.round(ovr)));
+  const value = (opts.value!==undefined && opts.value!==null && !isNaN(opts.value)) ? Math.max(0,Math.round(opts.value)) : computePlayerValue(finalOvr);
+  const nationality = opts.nationality || pick(NATIONALITIES).name;
+  return {id:uid(), name, pos, ovr:finalOvr, value, nationality};
+}
+/* Preenche value/nationality em jogadores salvos antes dessa funcionalidade existir */
+function ensurePlayerExtras(p){
+  if(!p) return p;
+  if(p.value===undefined || p.value===null || isNaN(p.value)) p.value = computePlayerValue(p.ovr);
+  if(!p.nationality) p.nationality = pick(NATIONALITIES).name;
+  return p;
 }
 function randomPlayer(qualityBias){
   let base = 45 + qualityBias*40;
@@ -465,7 +661,10 @@ function randomPlayer(qualityBias){
   return makePlayer(randomName(), pick(POSITIONS), ovr);
 }
 
-const CATALOG_TEAM_NAMES = ['Astra United','Les Bleus','Verde-Amarela','Liverpul Red Unidos','Inter Toronto','Claude FC','Laranja Mecânica','Azzurra'];
+const CATALOG_TEAM_NAMES = [
+  'Astra United','Les Bleus','Verde-Amarela','Liverpul Red Unidos','Inter Toronto','Claude FC','Laranja Mecânica','Azzurra',
+  'Ghiaka FC','Teccoy City','Teccoy United','Real Prism','Inter de Mercoy','Astralone','Escreion FFE','Izar Club',
+];
 
 const CLUB_PREFIXES = ['Tigres','Águias','Leões','Furacão','Estrela','União','Atlético','Real','Dragões','Panteras','Falcões','Titãs','Vulcão','Fênix','Lobos','Trovão','Cometas','Guerreiros','Corsários','Vikings'];
 const CLUB_SUFFIXES = ['FC','United','Clube','SC','Esporte Clube','AC','City','do Norte','do Sul','Rovers','Atlético','Sporting'];
@@ -492,7 +691,10 @@ let state = {
   selectedTeamIds:[],
   modal:null,
   worldCup:null,
+  league:null,
   matchCtx:null,
+  device:null, // 'mobile' | 'desktop' — escolhido na tela inicial, ajusta o layout
+  sidebarOpen:false,
   catalogFilter:{search:'', pos:'ALL', tier:'ALL', sort:'ovr-desc'},
 };
 
@@ -546,6 +748,8 @@ async function loadState(){
       state.freeAgents = Array.isArray(data.freeAgents) ? data.freeAgents : [];
       state.categories = Array.isArray(data.categories) ? data.categories : [];
       state.worldCup = data.worldCup || null;
+      state.league = data.league || null;
+      state.device = data.device || null;
       if(!state.teams.length && !state.freeAgents.length) seedData();
     } else {
       seedData();
@@ -553,7 +757,10 @@ async function loadState(){
   } catch(e){
     seedData();
   }
-  state.view='home';
+  // migração: jogadores salvos antes de value/nacionalidade existirem ganham valores agora
+  state.teams.forEach(t=> t.players.forEach(p=>{ if(p) ensurePlayerExtras(p); }));
+  state.freeAgents.forEach(p=> ensurePlayerExtras(p));
+  state.view = state.device ? 'home' : 'devicePick';
   render();
 }
 let saveTimer=null;
@@ -565,6 +772,8 @@ async function saveState(){
       freeAgents: state.freeAgents,
       categories: state.categories,
       worldCup: (state.worldCup && state.worldCup.rounds) ? state.worldCup : null,
+      league: (state.league && state.league.matches) ? state.league : null,
+      device: state.device,
     };
     await AppStorage.set(STORAGE_KEY, JSON.stringify(payload));
     if(toast){
@@ -589,13 +798,16 @@ function playerCardHTML(pl, opts={}){
   const tier = getTier(pl.ovr);
   const editBtn = opts.onEdit ? `<button class="rm" title="Editar" onclick="event.stopPropagation();${opts.onEdit}">✎</button>` : '';
   const rmBtn = opts.onRemove ? `<button class="rm" title="Remover" onclick="event.stopPropagation();${opts.onRemove}">✕</button>` : '';
+  const flag = flagEmoji(nationalityCode(pl.nationality));
+  const valueText = (pl.value!==undefined && pl.value!==null) ? formatValue(pl.value) : null;
   return `<div class="card tier-${tier.key}" ${opts.onClick?`onclick="${opts.onClick}"`:''}>
     <div class="top-row"><span>${editBtn}</span><span>${rmBtn}</span></div>
     <div class="ovr">${pl.ovr}</div>
-    <div class="pos">${pl.pos}</div>
+    <div class="pos">${pl.pos} <span title="${pl.nationality||''}">${flag}</span></div>
     <div>
       <div class="name">${pl.name}</div>
       <div class="tier-label">${tier.label}</div>
+      ${valueText ? `<div class="value-tag">${valueText}</div>` : ''}
     </div>
   </div>`;
 }
@@ -626,26 +838,54 @@ function legendHTML(){
 function render(){
   const app = document.getElementById('app');
   app.innerHTML = topbarHTML() + viewHTML() + (state.modal ? modalHTML() : '');
+  if(document.body && document.body.classList){
+    document.body.classList.remove('device-mobile','device-desktop');
+    if(state.device) document.body.classList.add('device-'+state.device);
+  }
 }
 function setView(v, extra={}){
-  state.view=v; Object.assign(state, extra); render();
+  state.view=v; Object.assign(state, extra); state.sidebarOpen=false; render();
 }
+function toggleSidebar(){ state.sidebarOpen = !state.sidebarOpen; render(); }
+function closeSidebar(){ state.sidebarOpen = false; render(); }
+const NAV_ITEMS = [
+  ['home','Início','🏠'],['teams','Times','⚽'],['catalog','Catálogo','📇'],
+  ['categories','Categorias','🗂️'],['createPlayer','Criar Jogador','➕'],['createTeam','Criar Time','🛠️'],
+  ['worldcup','Copa do Mundo','🏆'],['league','Liga','📊'],['friendly','Amistoso','🤝'],
+];
 function topbarHTML(){
-  const items = [
-    ['home','Início'],['teams','Times'],['catalog','Catálogo de Jogadores'],
-    ['categories','Categorias'],['createPlayer','Criar Jogador'],['createTeam','Criar Time'],['worldcup','Copa do Mundo'],['friendly','Amistoso']
-  ];
   return `<div class="topbar">
     <div class="brand">
       <div class="dot"></div>
       <div><h1>PLANI<span>FA</span> 1</h1><small>Sandbox de Cartas de Futebol</small></div>
     </div>
-    <nav>${items.map(([k,l])=>`<button class="${state.view===k?'active':''}" onclick="setView('${k}')">${l}</button>`).join('')}</nav>
-  </div>`;
+    <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+  </div>
+  ${sidebarHTML()}`;
+}
+function sidebarHTML(){
+  const deviceIcon = state.device==='mobile' ? '📱' : (state.device==='desktop' ? '🖥️' : '⚙️');
+  return `
+  <div class="sidebar-overlay ${state.sidebarOpen?'show':''}" onclick="closeSidebar()"></div>
+  <nav class="sidebar ${state.sidebarOpen?'open':''}">
+    <div class="sidebar-header">
+      <div class="brand">
+        <div class="dot"></div>
+        <div><h1>PLANI<span>FA</span> 1</h1></div>
+      </div>
+      <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+    </div>
+    <div class="sidebar-links">
+      ${NAV_ITEMS.map(([k,l,icon])=>`<button class="${state.view===k?'active':''}" onclick="setView('${k}')"><span class="nav-icon">${icon}</span>${l}</button>`).join('')}
+      <div class="sidebar-divider"></div>
+      <button onclick="setView('devicePick')"><span class="nav-icon">${deviceIcon}</span>Mudar tipo de tela</button>
+    </div>
+  </nav>`;
 }
 function viewHTML(){
   switch(state.view){
     case 'loading': return `<div class="panel" style="text-align:center;padding:60px;"><h2 class="section-title">Carregando Planifa 1...</h2><p class="hint">Recuperando seus times salvos.</p></div>`;
+    case 'devicePick': return devicePickView();
     case 'home': return homeView();
     case 'teams': return teamsView();
     case 'teamDetail': return teamDetailView();
@@ -653,6 +893,7 @@ function viewHTML(){
     case 'createPlayer': return createPlayerView();
     case 'createTeam': return createTeamView();
     case 'worldcup': return worldCupView();
+    case 'league': return leagueView();
     case 'categories': return categoriesView();
     case 'categoryDetail': return categoryDetailView();
     case 'createCategory': return createCategoryView();
@@ -662,25 +903,59 @@ function viewHTML(){
   }
 }
 
-/* ============================= HOME ============================= */
-function homeView(){
+/* ============================= ESCOLHA DE DISPOSITIVO ============================= */
+function devicePickView(){
   return `
-  <h2 class="section-title">Bem-vindo ao Planifa 1</h2>
-  <p class="section-sub">Monte seus times, crie jogadores lendários e dispute uma Copa do Mundo simulada. Tudo é salvo automaticamente.</p>
-  ${legendHTML()}
-  <div class="grid teams" style="margin-top:6px;">
-    ${quickCard('Times', `${state.teams.length} times salvos — veja escalações e formações.`, 'teams', state.teams.length+' times')}
-    ${quickCard('Catálogo de Jogadores', 'Jogadores livres prontos para entrar em qualquer time.', 'catalog', state.freeAgents.length+' agentes livres')}
-    ${quickCard('Criar Jogador', 'Defina nome, posição e OVR (até 500) e gere a carta.', 'createPlayer', 'Marrom → Arco-Íris')}
-    ${quickCard('Criar Time', 'Escolha nome, cor, formação e escale seus 11 titulares.', 'createTeam', 'Times ilimitados')}
-    ${quickCard('Copa do Mundo', 'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', 'worldcup', 'Mata-mata completo')}
-    ${quickCard('Amistoso', 'Escolha dois times quaisquer e simule um jogo avulso na hora.', 'friendly', 'Jogo rápido')}
-    ${quickCard('Categorias', 'Agrupe seus times em categorias personalizadas.', 'categories', state.categories.length+' categorias')}
+  <div class="device-pick">
+    <h2 class="section-title" style="text-align:center;">Antes de começar...</h2>
+    <p class="section-sub" style="text-align:center;">Qual tipo de tela você está usando agora? Isso ajusta o tamanho das cartas, botões e colunas pro seu aparelho.</p>
+    <div class="device-options">
+      <div class="device-card ${state.device==='mobile'?'sel':''}" onclick="chooseDevice('mobile')">
+        <div class="device-icon">📱</div>
+        <h3>Celular</h3>
+        <p class="hint">Layout compacto, com botões e toques maiores.</p>
+      </div>
+      <div class="device-card ${state.device==='desktop'?'sel':''}" onclick="chooseDevice('desktop')">
+        <div class="device-icon">🖥️</div>
+        <h3>Tablet / PC</h3>
+        <p class="hint">Layout mais denso, aproveitando telas maiores.</p>
+      </div>
+    </div>
   </div>`;
 }
-function quickCard(title, desc, view, meta){
+function chooseDevice(type){
+  state.device = type;
+  saveState();
+  setView('home');
+}
+
+/* ============================= HOME ============================= */
+function homeView(){
+  const totalPlayers = state.teams.reduce((a,t)=>a+teamFilled(t).length,0) + state.freeAgents.length;
+  return `
+  <h2 class="section-title">Bem-vindo ao Planifa 1</h2>
+  <p class="section-sub">Monte seus times, crie jogadores lendários e dispute copas, ligas e amistosos simulados. Tudo é salvo automaticamente.</p>
+  <div class="stats-bar">
+    <div class="stat-chip"><span class="stat-num">${state.teams.length}</span><span class="stat-label">Times</span></div>
+    <div class="stat-chip"><span class="stat-num">${totalPlayers}</span><span class="stat-label">Jogadores</span></div>
+    <div class="stat-chip"><span class="stat-num">${state.freeAgents.length}</span><span class="stat-label">Agentes livres</span></div>
+    <div class="stat-chip"><span class="stat-num">${state.categories.length}</span><span class="stat-label">Categorias</span></div>
+  </div>
+  ${legendHTML()}
+  <div class="grid teams" style="margin-top:6px;">
+    ${quickCard('⚽','Times', `${state.teams.length} times salvos — veja escalações e formações.`, 'teams', state.teams.length+' times')}
+    ${quickCard('📇','Catálogo de Jogadores', 'Jogadores livres prontos para entrar em qualquer time.', 'catalog', state.freeAgents.length+' agentes livres')}
+    ${quickCard('➕','Criar Jogador', 'Defina nome, posição e OVR (até 500) e gere a carta.', 'createPlayer', 'Marrom → Arco-Íris')}
+    ${quickCard('🛠️','Criar Time', 'Escolha nome, cor, formação e escale seus 11 titulares.', 'createTeam', 'Times ilimitados')}
+    ${quickCard('🏆','Copa do Mundo', 'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', 'worldcup', 'Mata-mata completo')}
+    ${quickCard('📊','Liga Planifa', 'Pontos corridos entre até 8 times, depois mata-mata entre os melhores.', 'league', 'Máx. 8 times')}
+    ${quickCard('🤝','Amistoso', 'Escolha dois times quaisquer e simule um jogo avulso na hora.', 'friendly', 'Jogo rápido')}
+    ${quickCard('🗂️','Categorias', 'Agrupe seus times em categorias personalizadas.', 'categories', state.categories.length+' categorias')}
+  </div>`;
+}
+function quickCard(icon, title, desc, view, meta){
   return `<div class="team-tile" onclick="setView('${view}')">
-    <div class="crest" style="background:var(--gold);">▶</div>
+    <div class="crest" style="background:var(--gold);">${icon}</div>
     <h3>${title}</h3>
     <div class="meta">${desc}</div>
     <div class="meta" style="margin-top:8px;color:var(--emerald);">${meta}</div>
@@ -877,12 +1152,21 @@ function bulkGenerateAgents(n){
 function openAssignModal(playerId){ state.modal = {type:'assign', playerId}; render(); }
 
 /* ============================= CREATE PLAYER ============================= */
-let draftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
+function defaultDraftPlayer(ovr){
+  ovr = ovr===undefined ? 75 : ovr;
+  return {name:'', pos:'ATA', ovr, ovrWarning:false, value:computePlayerValue(ovr), nationality:'Brasil'};
+}
+let draftPlayer = defaultDraftPlayer(75);
+function randomizeDraftPlayer(){
+  const ovr = rnd(0,99);
+  draftPlayer = {name:randomName(), pos:pick(POSITIONS), ovr, ovrWarning:false, value:computePlayerValue(ovr), nationality:pick(NATIONALITIES).name};
+  render();
+}
 function createPlayerView(){
   const tier = getTier(draftPlayer.ovr);
   return `
   <h2 class="section-title">Criar Jogador</h2>
-  <p class="section-sub">Defina o nome, a posição e o OVR (0 a ${MAX_OVR}). A raridade da carta muda automaticamente.</p>
+  <p class="section-sub">Defina nome, posição, OVR (0 a ${MAX_OVR}), nacionalidade e valor de mercado. A raridade da carta muda automaticamente com o OVR.</p>
   <div class="row">
     <div class="panel" style="flex:2;min-width:280px;">
       <div class="field">
@@ -897,25 +1181,33 @@ function createPlayerView(){
           </select>
         </div>
         <div class="field">
+          ${nationalityFieldHTML(draftPlayer, 'draftPlayer', 'draftPlayer')}
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
           ${ovrFieldHTML(draftPlayer, 'draftPlayer', 'draftPlayer')}
+        </div>
+        <div class="field">
+          ${valueFieldHTML(draftPlayer, 'draftPlayer', 'draftPlayer')}
         </div>
       </div>
       <div class="btn-row">
         <button class="btn" onclick="confirmCreatePlayer()">Salvar no catálogo</button>
-        <button class="btn secondary" onclick="draftPlayer={name:'',pos:'ATA',ovr:75,ovrWarning:false};render();">Limpar</button>
-        <button class="btn gold" onclick="draftPlayer={name:randomName(),pos:pick(POSITIONS),ovr:rnd(0,99),ovrWarning:false};render();">🎲 Aleatório</button>
+        <button class="btn secondary" onclick="draftPlayer=defaultDraftPlayer(75);render();">Limpar</button>
+        <button class="btn gold" onclick="randomizeDraftPlayer()">🎲 Aleatório</button>
       </div>
     </div>
     <div id="ovr-card-draftPlayer" style="flex:1;min-width:170px;display:flex;justify-content:center;align-items:flex-start;">
-      ${playerCardHTML({name:draftPlayer.name||'Novo Jogador', pos:draftPlayer.pos, ovr:draftPlayer.ovr})}
+      ${playerCardHTML({name:draftPlayer.name||'Novo Jogador', pos:draftPlayer.pos, ovr:draftPlayer.ovr, value:draftPlayer.value, nationality:draftPlayer.nationality})}
     </div>
   </div>
   <p class="hint">Faixa atual: <b>${tier.label}</b></p>`;
 }
 function confirmCreatePlayer(){
   if(!draftPlayer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
-  state.freeAgents.push(makePlayer(draftPlayer.name.trim(), draftPlayer.pos, draftPlayer.ovr));
-  draftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
+  state.freeAgents.push(makePlayer(draftPlayer.name.trim(), draftPlayer.pos, draftPlayer.ovr, {value:draftPlayer.value, nationality:draftPlayer.nationality}));
+  draftPlayer = defaultDraftPlayer(75);
   saveState();
   setView('catalog');
 }
@@ -1073,7 +1365,7 @@ function modalAgentsListForSlotHTML(t, idx){
       : `<p class="hint">Nenhum jogador encontrado com esses filtros.</p>`}
   `;
 }
-let modalDraftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
+let modalDraftPlayer = defaultDraftPlayer(75);
 function modalNewPlayerForSlotHTML(t, idx){
   return `
     <div class="field"><label>Nome</label><input type="text" value="${modalDraftPlayer.name}" oninput="modalDraftPlayer.name=this.value"></div>
@@ -1082,10 +1374,18 @@ function modalNewPlayerForSlotHTML(t, idx){
         <select onchange="modalDraftPlayer.pos=this.value">${POSITIONS.map(p=>`<option ${modalDraftPlayer.pos===p?'selected':''}>${p}</option>`).join('')}</select>
       </div>
       <div class="field">
-        ${ovrFieldHTML(modalDraftPlayer, 'modalDraftPlayer', 'modalDraftPlayer')}
+        ${nationalityFieldHTML(modalDraftPlayer, 'modalDraftPlayer', 'modalDraftPlayer')}
       </div>
     </div>
-    <div id="ovr-card-modalDraftPlayer" style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:modalDraftPlayer.name||'Novo Jogador',pos:modalDraftPlayer.pos,ovr:modalDraftPlayer.ovr})}</div>
+    <div class="row">
+      <div class="field">
+        ${ovrFieldHTML(modalDraftPlayer, 'modalDraftPlayer', 'modalDraftPlayer')}
+      </div>
+      <div class="field">
+        ${valueFieldHTML(modalDraftPlayer, 'modalDraftPlayer', 'modalDraftPlayer')}
+      </div>
+    </div>
+    <div id="ovr-card-modalDraftPlayer" style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:modalDraftPlayer.name||'Novo Jogador',pos:modalDraftPlayer.pos,ovr:modalDraftPlayer.ovr,value:modalDraftPlayer.value,nationality:modalDraftPlayer.nationality})}</div>
     <button class="btn" onclick="createAndAddToSlot('${t.id}',${idx})">Criar e escalar</button>
   `;
 }
@@ -1104,9 +1404,9 @@ function createAndAddToSlot(teamId, idx){
   if(!modalDraftPlayer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
   const t = findTeam(teamId);
   const removed = t.players[idx];
-  t.players[idx] = makePlayer(modalDraftPlayer.name.trim(), modalDraftPlayer.pos, modalDraftPlayer.ovr);
+  t.players[idx] = makePlayer(modalDraftPlayer.name.trim(), modalDraftPlayer.pos, modalDraftPlayer.ovr, {value:modalDraftPlayer.value, nationality:modalDraftPlayer.nationality});
   if(removed) state.freeAgents.push(removed);
-  modalDraftPlayer = {name:'', pos:'ATA', ovr:75, ovrWarning:false};
+  modalDraftPlayer = defaultDraftPlayer(75);
   saveState();
   closeModal();
 }
@@ -1163,7 +1463,8 @@ function openEditPlayer(source, a, b){
   let p;
   if(source==='team'){ p = findTeam(a).players[b]; } else { p = state.freeAgents.find(x=>x.id===a); }
   if(!p) return;
-  state.modal = {type:'editPlayer', source, a, b, draft:{name:p.name, pos:p.pos, ovr:p.ovr, ovrWarning:false}};
+  ensurePlayerExtras(p);
+  state.modal = {type:'editPlayer', source, a, b, draft:{name:p.name, pos:p.pos, ovr:p.ovr, ovrWarning:false, value:p.value, nationality:p.nationality}};
   render();
 }
 function modalEditPlayerHTML(){
@@ -1177,10 +1478,18 @@ function modalEditPlayerHTML(){
           <select onchange="state.modal.draft.pos=this.value">${POSITIONS.map(p=>`<option ${m.draft.pos===p?'selected':''}>${p}</option>`).join('')}</select>
         </div>
         <div class="field">
-          ${ovrFieldHTML(m.draft, 'state.modal.draft', 'editDraft')}
+          ${nationalityFieldHTML(m.draft, 'state.modal.draft', 'editDraft')}
         </div>
       </div>
-      <div id="ovr-card-editDraft" style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:m.draft.name||'Jogador', pos:m.draft.pos, ovr:m.draft.ovr})}</div>
+      <div class="row">
+        <div class="field">
+          ${ovrFieldHTML(m.draft, 'state.modal.draft', 'editDraft')}
+        </div>
+        <div class="field">
+          ${valueFieldHTML(m.draft, 'state.modal.draft', 'editDraft')}
+        </div>
+      </div>
+      <div id="ovr-card-editDraft" style="display:flex;justify-content:center;margin:10px 0;">${playerCardHTML({name:m.draft.name||'Jogador', pos:m.draft.pos, ovr:m.draft.ovr, value:m.draft.value, nationality:m.draft.nationality})}</div>
       <div class="btn-row">
         <button class="btn" onclick="saveEditPlayer()">Salvar alterações</button>
         <button class="btn danger" onclick="deleteEditingPlayer()">Excluir jogador</button>
@@ -1194,6 +1503,8 @@ function saveEditPlayer(){
   let p;
   if(m.source==='team'){ p = findTeam(m.a).players[m.b]; } else { p = state.freeAgents.find(x=>x.id===m.a); }
   p.name = m.draft.name.trim(); p.pos = m.draft.pos; p.ovr = Math.max(0,Math.min(MAX_OVR, m.draft.ovr));
+  p.value = Math.max(0, Math.round(m.draft.value)||0);
+  p.nationality = m.draft.nationality;
   saveState();
   closeModal();
 }
@@ -1545,8 +1856,12 @@ function openThirdPlaceMatch(){
   if(!m || m.played) return;
   openMatchGeneric(m.a, m.b, {thirdPlace:true});
 }
-function renderBracketTree(rounds){
-  const BASE_UNIT=96, MATCH_H=64, COL_W=210, COL_GAP=44;
+function renderBracketTree(rounds, openFnName){
+  openFnName = openFnName || 'openMatch';
+  // No celular, colunas mais estreitas e caixas um pouco mais altas (toque mais fácil);
+  // no tablet/PC, colunas mais largas aproveitando o espaço da tela.
+  const isMobile = state.device==='mobile';
+  const BASE_UNIT = isMobile?84:96, MATCH_H = isMobile?70:64, COL_W = isMobile?168:210, COL_GAP = isMobile?32:44;
   const positions = [];
   const n0 = rounds[0].length;
   positions[0] = rounds[0].map((_,i)=> i*BASE_UNIT + BASE_UNIT/2);
@@ -1564,7 +1879,7 @@ function renderBracketTree(rounds){
     const left = ri*(COL_W+COL_GAP);
     labels += `<div class="bracket-roundlabel" style="left:${left}px;width:${COL_W}px;">${roundName(round.length)}</div>`;
     round.forEach((m,mi)=>{
-      boxes += matchBoxHTML(m, ri, mi, left, positions[ri][mi], COL_W, MATCH_H);
+      boxes += matchBoxHTML(m, ri, mi, left, positions[ri][mi], COL_W, MATCH_H, openFnName);
     });
   });
   for(let r=0;r<rounds.length-1;r++){
@@ -1584,7 +1899,7 @@ function renderBracketTree(rounds){
     ${connectors}${boxes}${labels}
   </div></div>`;
 }
-function matchBoxHTML(m, ri, mi, left, y, colW, matchH){
+function matchBoxHTML(m, ri, mi, left, y, colW, matchH, openFnName){
   const ta = m.a ? findTeam(m.a) : null;
   const tb = m.b ? findTeam(m.b) : null;
   const canPlay = ta && tb && !m.played;
@@ -1598,7 +1913,7 @@ function matchBoxHTML(m, ri, mi, left, y, colW, matchH){
   };
   const winnerA = m.played && m.winner===m.a;
   const winnerB = m.played && m.winner===m.b;
-  return `<div class="bracket-match ${canPlay?'playable':''}" style="left:${left}px; top:${y}px; width:${colW}px; height:${matchH}px;" ${canPlay?`onclick="openMatch(${ri},${mi})"`:''}>
+  return `<div class="bracket-match ${canPlay?'playable':''}" style="left:${left}px; top:${y}px; width:${colW}px; height:${matchH}px;" ${canPlay?`onclick="${openFnName}(${ri},${mi})"`:''}>
     ${rowTeam(ta, m.played?m.scoreA:null, winnerA)}
     ${rowTeam(tb, m.played?m.scoreB:null, winnerB)}
     ${canPlay?`<div class="play-hint">▶ Simular</div>`:''}
@@ -1610,6 +1925,136 @@ function openMatch(roundIdx, matchIdx){
   const m = wc.rounds[roundIdx][matchIdx];
   openMatchGeneric(m.a, m.b, {roundIdx, matchIdx});
 }
+
+/* ============================= LIGA (máximo 8 times) ============================= */
+const LEAGUE_SIZES = [4,8];
+function leagueView(){
+  if(state.league && state.league.phase) return leagueActiveView();
+  if(!state.league) state.league = {selected:[], size:null};
+  const lg = state.league;
+  const selected = lg.selected;
+  return `
+  <h2 class="section-title">Liga Planifa</h2>
+  <p class="section-sub">Escolha o tamanho da liga (até 8 times) e selecione exatamente essa quantidade de participantes. Todos jogam entre si (pontos corridos); os melhores colocados avançam a um mata-mata final.</p>
+  <div class="size-row">
+    <span class="hint">Tamanho da liga:</span>
+    ${LEAGUE_SIZES.map(s=>`<button class="speed-btn ${lg.size===s?'active':''}" onclick="setLeagueSize(${s})">${s}</button>`).join('')}
+  </div>
+  <div class="grid teams">
+    ${state.teams.map(t=>checkboxTeamHTML(t, selected.includes(t.id), `toggleLeagueTeam('${t.id}')`)).join('')}
+  </div>
+  <div class="btn-row" style="margin-top:18px;">
+    <button class="btn gold" ${(!lg.size || selected.length!==lg.size)?'disabled':''} onclick="startLeague()">Iniciar Liga (${selected.length}/${lg.size||'?'})</button>
+  </div>
+  ${lg.size && selected.length<lg.size ? `<p class="hint">Faltam ${lg.size-selected.length} vaga(s).</p>` : ''}
+  ${lg.size && selected.length>lg.size ? `<p class="hint" style="color:var(--red);">Você selecionou mais times do que o tamanho escolhido.</p>` : ''}`;
+}
+function setLeagueSize(size){
+  if(!state.league || state.league.phase) state.league = {selected:[], size:null};
+  state.league.size = size;
+  render();
+}
+function toggleLeagueTeam(id){
+  if(!state.league || state.league.phase) state.league = {selected:[], size:null};
+  if(!state.league.selected) state.league.selected = [];
+  const s = state.league.selected;
+  const i = s.indexOf(id);
+  if(i>-1) s.splice(i,1); else s.push(id);
+  render();
+}
+function startLeague(){
+  const lg = state.league;
+  if(!lg.size) return;
+  let ids = [...lg.selected];
+  if(ids.length !== lg.size){
+    showAlert(`Selecione exatamente ${lg.size} time(s) para iniciar a liga (você tem ${ids.length}).`);
+    return;
+  }
+  const matches = generateGroupMatches(ids);
+  state.league = { teams:ids, size:lg.size, matches, phase:'group', knockoutRounds:null, champion:null };
+  saveState();
+  setView('league');
+}
+function leagueActiveView(){
+  const lg = state.league;
+  let html = `<h2 class="section-title">Liga Planifa</h2>`;
+  if(lg.phase==='done'){
+    const champ = findTeam(lg.champion);
+    html += `<div class="champion-banner">
+      <div class="trophy">🏆</div>
+      <div>CAMPEÃO DA LIGA</div>
+      <h2>${champ.name}</h2>
+    </div>
+    <div class="btn-row" style="margin:18px 0;justify-content:center;"><button class="btn secondary" onclick="resetLeague()">Nova Liga</button></div>`;
+    html += leagueStandingsHTML(lg);
+    return html;
+  }
+  if(lg.phase==='knockout'){
+    html += leagueStandingsHTML(lg);
+    html += `<p class="hint" style="margin:14px 0 10px;">Arraste para o lado para ver todas as fases. Clique numa partida destacada para simular.</p>`;
+    html += renderBracketTree(lg.knockoutRounds, 'openLeagueKnockoutMatch');
+    return html;
+  }
+  html += leagueStandingsHTML(lg);
+  html += leagueMatchListHTML(lg);
+  const allPlayed = lg.matches.every(m=>m.played);
+  if(allPlayed){
+    html += `<div class="btn-row" style="margin-top:10px;"><button class="btn gold" onclick="advanceLeagueToKnockout()">Avançar para o mata-mata</button></div>`;
+  } else {
+    html += `<p class="hint">Complete todas as partidas da liga pra liberar o mata-mata.</p>`;
+  }
+  return html;
+}
+function leagueStandingsHTML(lg){
+  const standings = computeGroupStandings({teamIds:lg.teams, matches:lg.matches});
+  const advanceCount = lg.size/2;
+  return `<div class="panel">
+    <h4 style="margin-top:0;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Classificação</h4>
+    <table class="standings">
+      <thead><tr><th>#</th><th>Time</th><th>PJ</th><th>V</th><th>E</th><th>D</th><th>GP</th><th>GC</th><th>SG</th><th>Pts</th></tr></thead>
+      <tbody>${standings.map((s,i)=>{
+        const t=findTeam(s.id);
+        return `<tr class="${i<advanceCount?'qualified':''}"><td>${i+1}</td><td>${t.name}</td><td>${s.played}</td><td>${s.wins}</td><td>${s.draws}</td><td>${s.losses}</td><td>${s.gf}</td><td>${s.ga}</td><td>${s.gf-s.ga}</td><td><b>${s.pts}</b></td></tr>`;
+      }).join('')}</tbody>
+    </table>
+    <p class="hint" style="margin-top:8px;">Os ${advanceCount} primeiros (destacados) avançam ao mata-mata.</p>
+  </div>`;
+}
+function leagueMatchListHTML(lg){
+  const playedCount = lg.matches.filter(m=>m.played).length;
+  return `<div class="panel">
+    <h4 style="margin-top:0;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Partidas (${playedCount}/${lg.matches.length})</h4>
+    ${lg.matches.map(m=>{
+      const ta=findTeam(m.a), tb=findTeam(m.b);
+      return `<div class="match-row">
+        <div class="side"><div class="crest-mini" style="background:${ta.color};">${crestLetters(ta.name)}</div>${ta.name}</div>
+        ${m.played ? `<div class="score">${m.scoreA} — ${m.scoreB}</div>` : `<button class="btn gold" onclick="openLeagueMatch('${m.id}')">Simular ⚽</button>`}
+        <div class="side right">${tb.name}<div class="crest-mini" style="background:${tb.color};">${crestLetters(tb.name)}</div></div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+function openLeagueMatch(matchId){
+  const lg = state.league;
+  const m = lg.matches.find(x=>x.id===matchId);
+  openMatchGeneric(m.a, m.b, {leagueMatchId:matchId});
+}
+function openLeagueKnockoutMatch(roundIdx, matchIdx){
+  const lg = state.league;
+  const m = lg.knockoutRounds[roundIdx][matchIdx];
+  openMatchGeneric(m.a, m.b, {leagueRoundIdx:roundIdx, leagueMatchIdx:matchIdx});
+}
+function advanceLeagueToKnockout(){
+  const lg = state.league;
+  const standings = computeGroupStandings({teamIds:lg.teams, matches:lg.matches});
+  const advanceCount = lg.size/2;
+  const advancing = standings.slice(0, advanceCount).map(s=>s.id);
+  lg.knockoutRounds = buildKnockoutRounds(advancing);
+  lg.phase = 'knockout';
+  saveState();
+  render();
+}
+function resetLeague(){ state.league=null; saveState(); setView('league'); }
 
 /* ============================= AMISTOSO ============================= */
 function friendlyView(){
@@ -1852,6 +2297,37 @@ function finishMatch(){
     };
     state.matchCtx = null;
     setView('friendly');
+    return;
+  }
+
+  // partida de pontos corridos da liga
+  if(src.leagueMatchId){
+    const lg = state.league;
+    const m = lg.matches.find(x=>x.id===src.leagueMatchId);
+    m.scoreA = c.scoreA; m.scoreB = c.scoreB; m.played = true;
+    state.matchCtx = null;
+    saveState();
+    setView('league');
+    return;
+  }
+
+  // mata-mata da liga
+  if(src.leagueRoundIdx !== undefined){
+    const lg = state.league;
+    const m = lg.knockoutRounds[src.leagueRoundIdx][src.leagueMatchIdx];
+    m.scoreA = c.scoreA; m.scoreB = c.scoreB; m.played = true; m.winner = winnerId;
+    if(src.leagueRoundIdx === lg.knockoutRounds.length-1){
+      lg.champion = winnerId;
+      lg.phase = 'done';
+    } else {
+      const nextRound = lg.knockoutRounds[src.leagueRoundIdx+1];
+      const pairIdx = Math.floor(src.leagueMatchIdx/2);
+      const slot = src.leagueMatchIdx%2===0 ? 'a' : 'b';
+      nextRound[pairIdx][slot] = winnerId;
+    }
+    state.matchCtx = null;
+    saveState();
+    setView('league');
     return;
   }
 
