@@ -31,6 +31,12 @@
   --tier-gold-a:#c98f22; --tier-gold-b:#ffd776;
   --tier-diamond-a:#1fa8c9; --tier-diamond-b:#a6f3ff;
   --tier-purple-a:#5a189a; --tier-purple-b:#c48bff;
+  --surface-grad:linear-gradient(160deg,rgba(26,50,41,.85),rgba(12,24,19,.92));
+  --surface-grad-v:linear-gradient(180deg,rgba(26,50,41,.92),rgba(13,27,21,.92));
+  --panel-border:rgba(255,255,255,.07);
+  --input-bg:rgba(0,0,0,.28);
+  --input-border:rgba(255,255,255,.1);
+  --overlay-soft:rgba(0,0,0,.25);
   --tier-white-a:#c7cdd3; --tier-white-b:#ffffff;
   --tier-wine-a:#2b060c; --tier-wine-b:#7d1f30;
   --tier-neon-a:#ff2079; --tier-neon-b:#18f7ff;
@@ -138,7 +144,6 @@ body.device-mobile .btn.gold,
 body.device-mobile .btn.danger{padding:12px 20px;font-size:14px;}
 body.device-mobile .wrap{padding:14px 12px 70px;}
 body.device-mobile .pitch.lineup{height:560px;}
-body.device-mobile .pitch-slot{width:58px;}
 
 body.device-desktop .wrap{max-width:1320px;}
 body.device-desktop .grid.teams{grid-template-columns:repeat(auto-fill,minmax(235px,1fr));}
@@ -170,20 +175,6 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 .team-tile .custom-badge{position:absolute;top:12px;right:12px;font-size:10px;background:var(--violet);color:#fff;padding:2px 8px;border-radius:999px;letter-spacing:.5px;}
 
 /* ---- player card (grids / catalog / modals) ---- */
-.card{
-  position:relative;border-radius:14px;padding:12px 10px 10px;text-align:center;
-  min-height:190px;display:flex;flex-direction:column;justify-content:space-between;
-  border:1px solid rgba(255,255,255,.15);cursor:pointer;transition:.15s;
-  box-shadow:0 6px 16px rgba(0,0,0,.35);
-}
-.card:hover{transform:translateY(-4px) scale(1.02);}
-.card .ovr{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:26px;line-height:1;}
-.card .pos{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;opacity:.85;}
-.card .name{font-weight:700;font-size:13px;margin-top:6px;line-height:1.2;min-height:32px;}
-.card .tier-label{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;opacity:.75;margin-top:2px;}
-.card .value-tag{font-size:9.5px;font-family:'JetBrains Mono',monospace;font-weight:700;opacity:.9;margin-top:4px;}
-.card .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:4px;}
-.card .rm{background:rgba(0,0,0,.35);border:none;color:inherit;border-radius:50%;width:22px;height:22px;font-size:12px;cursor:pointer;flex-shrink:0;}
 
 .tier-brown{background:linear-gradient(160deg,var(--tier-brown-b),var(--tier-brown-a));color:#e7d8c9;}
 .tier-bronze{background:linear-gradient(160deg,var(--tier-bronze-b),var(--tier-bronze-a));color:#2c1806;}
@@ -191,9 +182,7 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 .tier-gold{background:linear-gradient(160deg,var(--tier-gold-b),var(--tier-gold-a));color:#2c1c00;}
 .tier-diamond{background:linear-gradient(160deg,var(--tier-diamond-b),var(--tier-diamond-a));color:#022430;}
 .tier-purple{background:linear-gradient(160deg,var(--tier-purple-b),var(--tier-purple-a));color:#fff;box-shadow:0 0 22px rgba(162,91,255,.55);}
-.tier-purple::after{content:"";position:absolute;inset:0;border-radius:14px;border:1px solid rgba(255,255,255,.5);pointer-events:none;}
 .tier-white{background:linear-gradient(160deg,var(--tier-white-b),var(--tier-white-a));color:#1a2226;box-shadow:0 0 16px rgba(255,255,255,.5);}
-.tier-white::after{content:"";position:absolute;inset:0;border-radius:14px;border:1px solid rgba(0,0,0,.15);pointer-events:none;}
 .tier-wine{background:linear-gradient(160deg,var(--tier-wine-b),var(--tier-wine-a));color:#f3dbe0;box-shadow:0 0 18px rgba(125,31,48,.6);}
 .tier-neon{background:linear-gradient(135deg,var(--tier-neon-a),var(--tier-neon-b));color:#051014;
   animation:neon-pulse 1.8s ease-in-out infinite;}
@@ -210,6 +199,24 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
   100%{background-position:0% 50%;}
 }
 
+/* ---- mercado de transferências ---- */
+.tr-row{display:flex;align-items:center;gap:12px;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
+.tr-badge{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+.tr-badge.sign{background:rgba(41,211,152,.18);}
+.tr-badge.release{background:rgba(226,84,74,.18);}
+.tr-badge.new{background:rgba(232,179,74,.18);}
+.tr-badge.retire{background:rgba(143,168,156,.18);}
+.tr-badge.value{background:rgba(162,91,255,.2);}
+.tr-main{flex:1;min-width:0;}
+.tr-title{font-size:14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.tr-ovr{position:relative;display:inline-block;padding:1px 7px;border-radius:7px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:800;}
+.tr-ovr::after{border-radius:inherit !important;}
+.tr-sub{font-size:12px;color:var(--sub);margin-top:3px;}
+.tr-side{text-align:right;flex-shrink:0;}
+.tr-value{font-family:'JetBrains Mono',monospace;font-weight:800;color:var(--gold);font-size:14px;}
+.tr-time{font-size:10.5px;color:var(--sub);margin-top:2px;}
+.market-scroll{overflow-x:auto;}
+.market-scroll table.standings{min-width:520px;}
 .legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px;}
 .legend .chip{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--sub);}
 .legend .sw{width:14px;height:14px;border-radius:4px;}
@@ -280,17 +287,6 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
   transition:opacity .25s, transform .25s;text-align:center;z-index:4;text-transform:uppercase;
 }
 .goal-banner.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
-
-/* ---- lineup slots ---- */
-.pitch-slot{position:absolute;transform:translate(-50%,-50%);width:70px;padding:6px 4px;border-radius:10px;
-  text-align:center;cursor:pointer;font-size:11px;transition:transform .15s;z-index:2;}
-.pitch-slot:hover{transform:translate(-50%,-50%) scale(1.08);}
-.pitch-slot.empty{border:1.5px dashed rgba(255,255,255,.4);background:rgba(255,255,255,.06);color:#dce8e2;}
-.pitch-slot.empty .slot-plus{font-size:20px;line-height:1;}
-.pitch-slot.filled{border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 10px rgba(0,0,0,.45);}
-.pitch-slot .slot-ovr{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:15px;line-height:1.15;}
-.pitch-slot .slot-name{font-weight:700;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.pitch-slot .slot-pos{font-size:8px;letter-spacing:1px;opacity:.85;text-transform:uppercase;margin-top:1px;}
 
 .empty-slot{
   border:1.5px dashed var(--line);border-radius:14px;min-height:190px;
@@ -398,6 +394,372 @@ table.standings tr.qualified td:first-child{color:var(--emerald);font-weight:700
 
 ::-webkit-scrollbar{width:8px;}
 ::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;}
+
+/* =====================================================================
+   REPAGINAÇÃO v2 — interface, cartas e times
+   ===================================================================== */
+:root{--shadow-lg:0 18px 40px rgba(0,0,0,.45);}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:translateY(10px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes twinkle{0%,100%{opacity:.2}50%{opacity:1}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.view-enter{animation:fadeUp .35s ease both;}
+
+body{
+  background:
+    radial-gradient(ellipse 900px 520px at 15% -10%, rgba(41,211,152,.15), transparent 60%),
+    radial-gradient(ellipse 700px 520px at 100% 0%, rgba(232,179,74,.10), transparent 55%),
+    radial-gradient(ellipse 600px 420px at 50% 115%, rgba(162,91,255,.09), transparent 60%),
+    linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px) 0 0/100% 40px,
+    var(--ink);
+  background-attachment:fixed;
+}
+
+/* ---- topbar ---- */
+.topbar{
+  background:var(--surface-grad-v);
+  border:1px solid rgba(255,255,255,.08);padding:12px 16px;border-radius:18px;
+  box-shadow:var(--shadow-lg), inset 0 1px 0 rgba(255,255,255,.07);
+}
+.brand .logo{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;
+  background:linear-gradient(135deg,#ffd067,#b8741a);box-shadow:0 6px 16px rgba(232,179,74,.4), inset 0 1px 0 rgba(255,255,255,.5);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.page-chip{padding:6px 14px;border-radius:999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);
+  font-size:12px;font-weight:700;letter-spacing:.5px;color:var(--sub);text-transform:uppercase;}
+.hamburger-btn{border-radius:12px;background:rgba(255,255,255,.04);}
+
+/* ---- sidebar ---- */
+.sidebar{background:var(--surface-grad-v);width:292px;}
+.sb-group{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:#5f7a6d;font-weight:700;padding:14px 14px 4px;}
+.sidebar-links button.active{background:linear-gradient(90deg,rgba(41,211,152,.28),rgba(41,211,152,.04));color:#fff;box-shadow:inset 3px 0 0 var(--emerald);}
+.sidebar-links button:hover{background:rgba(255,255,255,.07);}
+.sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--line);}
+.sidebar-footer .mini{font-size:11px;color:var(--sub);padding:8px 14px 2px;line-height:1.5;}
+
+/* ---- títulos e texto ---- */
+h2.section-title{position:relative;padding-left:16px;font-size:32px;}
+h2.section-title::before{content:"";position:absolute;left:0;top:12%;bottom:12%;width:5px;border-radius:4px;background:linear-gradient(180deg,var(--gold),var(--emerald));}
+p.section-sub{padding-left:16px;}
+.device-pick h2.section-title{padding-left:0;}
+.device-pick h2.section-title::before{display:none;}
+.panel h2.section-title{padding-left:0;}
+.panel h2.section-title::before{display:none;}
+.sec-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:26px 0 12px;}
+.sec-head h3{margin:0;font-family:'Big Shoulders Display',sans-serif;font-size:22px;text-transform:uppercase;letter-spacing:.8px;}
+.sec-head h3 span{color:var(--gold);}
+.sec-head a{color:var(--emerald);font-size:12.5px;font-weight:700;cursor:pointer;}
+
+/* ---- botões ---- */
+.btn{
+  background:linear-gradient(180deg,#3de3a8,#1fae7a);color:#04251a;border:1px solid rgba(255,255,255,.28);border-radius:11px;
+  box-shadow:0 5px 14px rgba(41,211,152,.22), inset 0 1px 0 rgba(255,255,255,.4);
+  transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
+}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
+.btn:active{transform:translateY(1px);filter:brightness(.95);}
+.btn.secondary{background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.15);color:var(--text);box-shadow:none;}
+.btn.secondary:hover{background:rgba(255,255,255,.09);}
+.btn.gold{background:linear-gradient(180deg,#ffd067,#d9972a);color:#2c1c00;box-shadow:0 5px 16px rgba(232,179,74,.28), inset 0 1px 0 rgba(255,255,255,.5);}
+.btn.danger{background:linear-gradient(180deg,#f2695e,#c4403a);color:#fff;box-shadow:0 5px 14px rgba(226,84,74,.25), inset 0 1px 0 rgba(255,255,255,.3);}
+.btn:disabled{filter:grayscale(.6);box-shadow:none;}
+.btn:disabled:hover{transform:none;}
+
+/* ---- painéis e campos ---- */
+.panel{background:var(--surface-grad);border:1px solid var(--panel-border);border-radius:18px;
+  box-shadow:0 10px 26px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.05);}
+.field input[type=text],.field select,.field input[type=number]{background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;transition:border-color .15s, box-shadow .15s;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--emerald);box-shadow:0 0 0 3px rgba(41,211,152,.16);}
+.tabs-mini{background:var(--overlay-soft);padding:4px;border-radius:12px;display:inline-flex;gap:4px;border:1px solid var(--panel-border);}
+.tabs-mini button{border:none;border-radius:9px;padding:8px 16px;font-weight:700;}
+.tabs-mini button.active{background:linear-gradient(180deg,#2a4a3d,#1c352b);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);}
+.checkbox-team{border-radius:12px;padding:10px 12px;transition:.15s;background:var(--overlay-soft);}
+.checkbox-team:hover{border-color:rgba(255,255,255,.25);}
+.checkbox-team.sel{background:rgba(41,211,152,.1);box-shadow:0 0 0 1px var(--emerald);}
+.modal-bg{background:rgba(3,8,6,.72);backdrop-filter:blur(6px);animation:fadeIn .15s ease both;}
+.modal{background:var(--surface-grad);border:1px solid var(--input-border);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.6);animation:popIn .2s ease both;}
+
+/* ---- escudos (crests) ---- */
+.crest,.crest-mini,.crest-tiny,.crest-shield{
+  position:relative;isolation:isolate;display:flex;align-items:center;justify-content:center;
+  clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);border-radius:0 !important;
+  padding-bottom:14%;font-family:'Big Shoulders Display',sans-serif;font-weight:800;flex-shrink:0;
+}
+.crest::before,.crest-mini::before,.crest-tiny::before,.crest-shield::before{
+  content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(135deg,rgba(255,255,255,.5),rgba(255,255,255,0) 45%,rgba(0,0,0,.3));
+}
+
+/* ---- stats bar / home ---- */
+.stat-chip{position:relative;overflow:hidden;border-radius:14px;background:var(--surface-grad);border:1px solid var(--panel-border);}
+.stat-chip::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--emerald));}
+.hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:30px 30px 26px;border-radius:24px;margin-bottom:20px;overflow:hidden;
+  background:radial-gradient(circle at 88% 15%,rgba(162,91,255,.38),transparent 45%),radial-gradient(circle at 8% 95%,rgba(41,211,152,.28),transparent 50%),linear-gradient(135deg,#17392b,#0a1812);
+  border:1px solid rgba(255,255,255,.1);box-shadow:var(--shadow-lg);}
+.hero::before{content:"";position:absolute;right:-70px;top:-70px;width:300px;height:300px;border:2px solid rgba(255,255,255,.07);border-radius:50%;}
+.hero::after{content:"";position:absolute;right:20px;top:-20px;width:170px;height:170px;border:2px solid rgba(255,255,255,.06);border-radius:50%;}
+.hero-text{flex:1;min-width:250px;position:relative;z-index:2;}
+.hero-kicker{display:inline-block;padding:5px 13px;border-radius:999px;background:rgba(232,179,74,.15);border:1px solid rgba(232,179,74,.35);color:var(--gold);font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;}
+.hero h2{font-family:'Big Shoulders Display',sans-serif;font-size:46px;line-height:.98;margin:12px 0 10px;text-transform:uppercase;}
+.hero h2 span{color:var(--gold);}
+.hero p{color:#b9cdc2;max-width:470px;margin:0 0 18px;font-size:14px;line-height:1.6;}
+.hero-cards{display:flex;position:relative;z-index:2;padding:16px 26px 0 8px;}
+.hero-cards .card-wrap{width:132px;margin-left:-26px;transform:none;}
+.hero-cards .card-wrap:nth-child(1){transform:rotate(-9deg) translateY(12px);}
+.hero-cards .card-wrap:nth-child(2){transform:translateY(-10px);z-index:3;animation:floaty 4.5s ease-in-out infinite;}
+.hero-cards .card-wrap:nth-child(3){transform:rotate(9deg) translateY(12px);}
+.qc{position:relative;padding:18px;border-radius:18px;cursor:pointer;overflow:hidden;
+  background:var(--surface-grad);border:1px solid var(--panel-border);
+  transition:transform .18s ease, border-color .18s ease, box-shadow .18s ease;}
+.qc::before{content:"";position:absolute;left:0;top:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent);}
+.qc::after{content:"";position:absolute;right:-34px;bottom:-34px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,var(--accent),transparent 70%);opacity:.2;}
+.qc:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 14px 30px rgba(0,0,0,.4);}
+.qc-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:12px;
+  background:linear-gradient(135deg,var(--accent),rgba(0,0,0,.4));box-shadow:0 6px 14px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.3);}
+.qc h3{margin:0 0 5px;font-size:16px;}
+.qc .desc{color:var(--sub);font-size:12.5px;line-height:1.45;}
+.qc .meta-chip{display:inline-block;margin-top:11px;padding:3px 11px;border-radius:999px;background:rgba(255,255,255,.06);color:var(--accent);font-size:11px;font-weight:800;}
+
+/* ---- cartas de jogador ---- */
+.card-wrap{position:relative;width:100%;max-width:200px;filter:drop-shadow(0 10px 12px rgba(0,0,0,.5));
+  transform:perspective(800px) translateY(var(--ty,0px)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition:transform .15s ease-out, filter .25s ease;}
+.card-wrap:hover{--ty:-6px;}
+.glow-gold{filter:drop-shadow(0 0 8px rgba(255,215,118,.4)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-diamond{filter:drop-shadow(0 0 12px rgba(100,230,255,.55)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-purple{filter:drop-shadow(0 0 14px rgba(162,91,255,.75)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-white{filter:drop-shadow(0 0 14px rgba(255,255,255,.65)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-wine{filter:drop-shadow(0 0 14px rgba(180,40,70,.7)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-neon{animation:neonGlow 1.8s ease-in-out infinite;}
+.glow-rainbow{animation:rainbowGlow 4s linear infinite;}
+@keyframes neonGlow{
+  0%,100%{filter:drop-shadow(0 0 8px rgba(255,32,121,.8)) drop-shadow(0 0 8px rgba(24,247,255,.5)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+  50%{filter:drop-shadow(0 0 18px rgba(255,32,121,1)) drop-shadow(0 0 18px rgba(24,247,255,.9)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+}
+@keyframes rainbowGlow{
+  0%{filter:drop-shadow(0 0 14px rgba(255,0,76,.8)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+  25%{filter:drop-shadow(0 0 14px rgba(255,238,0,.8)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+  50%{filter:drop-shadow(0 0 14px rgba(0,229,255,.8)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+  75%{filter:drop-shadow(0 0 14px rgba(122,0,255,.8)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+  100%{filter:drop-shadow(0 0 14px rgba(255,0,76,.8)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+}
+.card{position:relative;width:100%;aspect-ratio:150/218;min-height:200px;cursor:pointer;box-shadow:none !important;animation-name:none;
+  clip-path:polygon(0 5%,7% 0,93% 0,100% 5%,100% 89%,50% 100%,0 89%);}
+.tier-rainbow.card{animation:rainbow-shift 5s linear infinite;}
+.card::before{content:"";position:absolute;inset:0;z-index:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(255,255,255,.05) 35%,rgba(0,0,0,.22) 60%,rgba(255,255,255,.5));}
+.card-face{position:absolute;inset:4px;z-index:1;background:inherit;overflow:hidden;
+  clip-path:polygon(0 5%,7% 0,93% 0,100% 5%,100% 89%,50% 100%,0 89%);
+  display:flex;flex-direction:column;padding:10px 8px 15%;}
+.card-face::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 78% 14%,rgba(255,255,255,.4),transparent 52%),
+             repeating-linear-gradient(135deg,rgba(255,255,255,.07) 0 2px,transparent 2px 10px),
+             linear-gradient(180deg,transparent 52%,rgba(0,0,0,.26));}
+.card-fx{position:absolute;inset:0;z-index:2;pointer-events:none;
+  background-image:
+   radial-gradient(circle at 18% 28%,rgba(255,255,255,.95) 0 1.2px,transparent 2.4px),
+   radial-gradient(circle at 72% 18%,rgba(255,255,255,.9) 0 1px,transparent 2px),
+   radial-gradient(circle at 84% 58%,rgba(255,255,255,.9) 0 1.3px,transparent 2.4px),
+   radial-gradient(circle at 28% 66%,rgba(255,255,255,.85) 0 1px,transparent 2px),
+   radial-gradient(circle at 56% 40%,rgba(255,255,255,.8) 0 1px,transparent 2px);
+  animation:twinkle 2.4s ease-in-out infinite;}
+.card-glare{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;transition:opacity .2s;
+  background:radial-gradient(circle at var(--mx,30%) var(--my,20%),rgba(255,255,255,.55),transparent 48%);}
+.card-wrap:hover .card-glare{opacity:.85;}
+.cf-top{position:relative;flex:1;min-height:0;z-index:3;}
+.cf-av{position:absolute;right:-6px;bottom:0;width:80%;height:100%;z-index:1;}
+.cf-av svg{width:100%;height:100%;display:block;}
+.cf-meta{position:absolute;left:2px;top:0;display:flex;flex-direction:column;align-items:center;gap:2px;z-index:3;}
+.card .ovr{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:28px;line-height:.92;text-shadow:0 1px 0 rgba(255,255,255,.3);}
+.card .pos{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;letter-spacing:.8px;border-top:1.5px solid currentColor;width:100%;text-align:center;padding-top:2px;}
+.card .flag{font-size:17px;line-height:1;margin-top:3px;}
+.card .club-crest{width:22px;height:24px;margin-top:3px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:800;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.6);
+  clip-path:polygon(0 0,100% 0,100% 62%,50% 100%,0 62%);padding-bottom:5px;}
+.cf-foot{position:relative;z-index:3;text-align:center;}
+.card .name{font-weight:800;font-size:12.5px;line-height:1.1;text-transform:uppercase;letter-spacing:.4px;min-height:27px;
+  display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(128,128,128,.45);padding-top:3px;}
+.cf-row{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:nowrap;}
+.card .tier-label{font-size:7.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;opacity:.85;white-space:nowrap;}
+.card .value-tag{padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.34);font-size:9.5px;font-family:'JetBrains Mono',monospace;font-weight:800;white-space:nowrap;margin:0;}
+.card.tier-bronze .value-tag,.card.tier-silver .value-tag,.card.tier-gold .value-tag,
+.card.tier-diamond .value-tag,.card.tier-white .value-tag,.card.tier-neon .value-tag{background:rgba(255,255,255,.45);}
+.card .card-actions{position:absolute;top:14px;right:12px;display:flex;gap:4px;z-index:6;}
+.card .rm{background:rgba(0,0,0,.45);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;flex-shrink:0;}
+.card .rm:hover{background:rgba(0,0,0,.7);}
+
+/* ---- escalação no campo ---- */
+.pitch{
+  border-radius:20px;border:2px solid rgba(255,255,255,.12);
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.05) 0 40px,transparent 40px 80px),
+             radial-gradient(ellipse at 50% 50%,#17794e 0%,#0e4f34 70%,#0a3b28 100%);
+  box-shadow:inset 0 0 70px rgba(0,0,0,.5), var(--shadow-lg);
+}
+.pitch.match-pitch{background:repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 50px,transparent 50px 100px),
+             radial-gradient(ellipse at 50% 50%,#17794e 0%,#0e4f34 70%,#0a3b28 100%);}
+.pl-out{position:absolute;inset:3%;border:2px solid rgba(255,255,255,.28);border-radius:6px;pointer-events:none;}
+.pl-mid{position:absolute;left:3%;right:3%;top:50%;height:2px;background:rgba(255,255,255,.28);pointer-events:none;}
+.pl-circle{position:absolute;left:50%;top:50%;width:110px;height:110px;margin:-55px 0 0 -55px;border:2px solid rgba(255,255,255,.28);border-radius:50%;pointer-events:none;}
+.pl-box{position:absolute;left:24%;right:24%;height:16%;border:2px solid rgba(255,255,255,.28);pointer-events:none;}
+.pl-box.top{top:3%;border-top:none;}
+.pl-box.bottom{bottom:3%;border-bottom:none;}
+.pl-six{position:absolute;left:38%;right:38%;height:7%;border:2px solid rgba(255,255,255,.28);pointer-events:none;}
+.pl-six.top{top:3%;border-top:none;}
+.pl-six.bottom{bottom:3%;border-bottom:none;}
+.mp-out{position:absolute;inset:4%;border:2px solid rgba(255,255,255,.25);border-radius:6px;pointer-events:none;}
+.mp-box{position:absolute;top:24%;bottom:24%;width:14%;border:2px solid rgba(255,255,255,.25);pointer-events:none;}
+.mp-box.left{left:4%;border-left:none;}
+.mp-box.right{right:4%;border-right:none;}
+
+.pitch-slot{position:absolute;transform:translate(-50%,-50%);width:62px;z-index:2;cursor:pointer;transition:transform .15s ease;}
+.pitch-slot:hover{transform:translate(-50%,-50%) scale(1.12);z-index:5;}
+.ps-wrap{filter:drop-shadow(0 6px 6px rgba(0,0,0,.55));}
+.ps-card{position:relative;width:100%;aspect-ratio:62/84;clip-path:polygon(0 6%,10% 0,90% 0,100% 6%,100% 88%,50% 100%,0 88%);}
+.ps-card::before{content:"";position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,.7),rgba(255,255,255,.05) 40%,rgba(0,0,0,.2) 65%,rgba(255,255,255,.5));}
+.ps-face{position:absolute;inset:2px;background:inherit;overflow:hidden;clip-path:polygon(0 6%,10% 0,90% 0,100% 6%,100% 88%,50% 100%,0 88%);}
+.ps-face::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 75% 15%,rgba(255,255,255,.4),transparent 55%),linear-gradient(180deg,transparent 55%,rgba(0,0,0,.28));}
+.ps-ovr{position:absolute;left:5px;top:3px;font-family:'JetBrains Mono',monospace;font-weight:800;font-size:15px;line-height:1;z-index:2;}
+.ps-av{position:absolute;left:8%;right:-8%;top:10%;bottom:16%;z-index:1;}
+.ps-av svg{width:100%;height:100%;display:block;}
+.ps-name{position:absolute;left:0;right:0;bottom:11%;text-align:center;font-weight:800;font-size:8.5px;text-transform:uppercase;letter-spacing:.3px;z-index:2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px;}
+.ps-pos{display:block;margin:-3px auto 0;width:max-content;padding:2px 9px;border-radius:999px;background:rgba(5,15,11,.85);border:1px solid rgba(255,255,255,.25);
+  font-size:8.5px;font-weight:800;letter-spacing:1px;color:#fff;position:relative;z-index:3;}
+.pitch-slot.empty .ps-empty{width:100%;aspect-ratio:62/84;border:2px dashed rgba(255,255,255,.45);border-radius:14px;background:rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;font-size:26px;color:#e6f3ec;transition:.15s;}
+.pitch-slot.empty:hover .ps-empty{border-color:var(--gold);color:var(--gold);background:rgba(232,179,74,.12);}
+body.device-mobile .pitch-slot{width:52px;}
+body.device-mobile .ps-ovr{font-size:13px;}
+body.device-mobile .ps-name{font-size:7.5px;}
+
+/* ---- times ---- */
+.team-tile.tt{padding:0 16px 14px;text-align:center;border-radius:18px;background:var(--surface-grad);border:1px solid var(--panel-border);}
+.team-tile.tt:hover{border-color:var(--tc);transform:translateY(-4px);box-shadow:0 14px 30px rgba(0,0,0,.4);}
+.tt-banner{height:76px;margin:0 -16px;border-bottom:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(135deg,var(--tc),rgba(0,0,0,.45)),repeating-linear-gradient(45deg,rgba(255,255,255,.08) 0 6px,transparent 6px 14px);}
+.tt-crest{display:flex;justify-content:center;margin-top:-36px;position:relative;z-index:2;filter:drop-shadow(0 6px 8px rgba(0,0,0,.55));}
+.team-tile.tt h3{margin:8px 0 6px;font-size:16.5px;}
+.tt-chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:10px;}
+.tt-chips span{padding:2px 10px;border-radius:999px;background:rgba(255,255,255,.07);font-size:10.5px;font-weight:700;color:var(--sub);}
+.tt-stats{display:flex;gap:8px;justify-content:center;margin-bottom:8px;}
+.tt-stats>div{flex:1;background:rgba(0,0,0,.25);border-radius:10px;padding:7px 4px;}
+.tt-stats b{display:block;font-family:'JetBrains Mono',monospace;font-size:15px;color:var(--gold);}
+.tt-stats small{display:block;font-size:9.5px;color:var(--sub);text-transform:uppercase;letter-spacing:.7px;margin-top:2px;}
+.tt-star{font-size:11px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tt-star b{color:var(--text);}
+.team-tile.tt .custom-badge{top:10px;right:10px;z-index:3;}
+.team-tile.tt .sel-check{top:10px;right:10px;z-index:3;}
+.team-hero{position:relative;overflow:hidden;display:flex;align-items:center;gap:18px;flex-wrap:wrap;padding:20px 22px;margin-bottom:16px;border-radius:22px;
+  background:var(--surface-grad);border:1px solid var(--panel-border);box-shadow:var(--shadow-lg);}
+.team-hero::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,var(--tc),transparent 60%);opacity:.3;pointer-events:none;}
+.team-hero>*{position:relative;z-index:1;}
+.th-crest{filter:drop-shadow(0 8px 10px rgba(0,0,0,.55));}
+.th-info{flex:1;min-width:200px;}
+.th-info h2{font-family:'Big Shoulders Display',sans-serif;font-size:36px;line-height:1;margin:0 0 8px;text-transform:uppercase;}
+.th-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.th-chips span{padding:3px 11px;border-radius:999px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);font-size:11px;font-weight:700;color:#cfe3d8;}
+.th-stats{display:flex;gap:10px;}
+.th-stats>div{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:10px 16px;text-align:center;min-width:92px;}
+.th-stats b{display:block;font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--gold);}
+.th-stats small{display:block;font-size:10px;color:var(--sub);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;}
+.th-actions{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;}
+
+/* ---- partida ---- */
+.scoreboard{background:var(--surface-grad-v);border:1px solid var(--panel-border);border-radius:20px;box-shadow:var(--shadow-lg);}
+.scoreboard .team-name{display:flex;align-items:center;gap:12px;}
+.scoreboard .team-name.right{flex-direction:row-reverse;text-align:right;}
+.scoreboard .score-big{background:rgba(0,0,0,.4);border:1px solid rgba(232,179,74,.4);border-radius:14px;padding:4px 18px;text-shadow:0 0 16px rgba(232,179,74,.55);}
+.ticker{border-radius:14px;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.07);}
+.speed-btn{border-radius:10px;background:rgba(255,255,255,.04);}
+
+body.device-mobile .hero{padding:22px 18px;}
+body.device-mobile .hero h2{font-size:36px;}
+body.device-mobile .hero-cards{padding-top:6px;}
+body.device-mobile .hero-cards .card-wrap{width:104px;margin-left:-20px;}
+body.device-mobile .th-stats{width:100%;}
+body.device-mobile .th-stats>div{flex:1;min-width:0;}
+body.device-mobile .th-info h2{font-size:30px;}
+
+
+/* =====================================================================
+   TEMA CLARO
+   ===================================================================== */
+body.theme-light{
+  --ink:#eef3ef; --panel:#ffffff; --panel2:#f7faf8; --line:#d7e2dc;
+  --text:#132019; --sub:#5c6f66;
+  --surface-grad:linear-gradient(160deg,#ffffff,#eef4f0);
+  --surface-grad-v:linear-gradient(180deg,#ffffff,#eef4f0);
+  --panel-border:#dbe6e0; --input-bg:#f3f7f5; --input-border:#cddad2; --overlay-soft:#eef3f0;
+}
+body.theme-light{
+  background:
+    radial-gradient(ellipse 900px 520px at 15% -10%, rgba(41,211,152,.10), transparent 60%),
+    radial-gradient(ellipse 700px 520px at 100% 0%, rgba(232,179,74,.08), transparent 55%),
+    radial-gradient(ellipse 600px 420px at 50% 115%, rgba(162,91,255,.06), transparent 60%),
+    var(--ink);
+}
+body.theme-light .topbar,body.theme-light .sidebar{box-shadow:0 8px 24px rgba(20,40,32,.08), inset 0 1px 0 rgba(255,255,255,.6);}
+body.theme-light .brand h1,body.theme-light .page-chip,body.theme-light .sb-group{color:var(--text);}
+body.theme-light .sb-group{color:#7c8f85;}
+body.theme-light .hamburger-btn span{background:var(--text);}
+body.theme-light .sidebar-links button:hover{background:rgba(20,40,32,.06);}
+body.theme-light .modal-bg{background:rgba(20,40,32,.35);}
+body.theme-light .scoreboard,body.theme-light .pitch,body.theme-light .hero,body.theme-light .team-hero,
+body.theme-light .ticker,body.theme-light .checkbox-team,body.theme-light .tabs-mini{box-shadow:0 10px 26px rgba(20,40,32,.1);}
+body.theme-light .crest-shield::before{background:linear-gradient(135deg,rgba(255,255,255,.65),rgba(255,255,255,0) 45%,rgba(0,0,0,.18));}
+body.theme-light .value-tag{color:#132019;}
+body.theme-light .page-chip{background:rgba(20,40,32,.05);}
+
+/* =====================================================================
+   MODO DE DESEMPENHO — desliga efeitos caros pra parar de travar
+   ===================================================================== */
+body.perf-mode{background-attachment:scroll;}
+body.perf-mode .card-wrap{filter:none !important;}
+body.perf-mode .glow-neon,body.perf-mode .glow-rainbow,body.perf-mode .card-fx,
+body.perf-mode .tier-rainbow.card,body.perf-mode .hero-cards .card-wrap:nth-child(2){animation:none !important;}
+body.perf-mode .card-glare{display:none;}
+body.perf-mode .ps-wrap{filter:none !important;}
+
+/* =====================================================================
+   CARTA ENXUTA (catálogo e outras listas grandes) — sem avatar, sem
+   filtro de brilho, sem clip-path duplo: muito mais barata de desenhar.
+   ===================================================================== */
+.card.card-lite{
+  position:relative;width:100%;max-width:168px;aspect-ratio:auto;min-height:150px;
+  border-radius:13px;padding:9px;display:flex;flex-direction:column;justify-content:space-between;
+  border:1px solid rgba(255,255,255,.22);cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.28);
+  clip-path:none;animation:none;
+}
+.card.card-lite:hover{border-color:rgba(255,255,255,.45);}
+.card.card-lite .lt-top{display:flex;justify-content:space-between;align-items:flex-start;}
+.card.card-lite .ovr{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:25px;line-height:1;}
+.card.card-lite .lt-actions{display:flex;gap:4px;}
+.card.card-lite .rm{background:rgba(0,0,0,.38);border:none;color:#fff;border-radius:50%;width:19px;height:19px;font-size:10px;cursor:pointer;}
+.card.card-lite .pos{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;opacity:.85;display:flex;align-items:center;gap:4px;}
+.card.card-lite .name{font-weight:800;font-size:12px;line-height:1.2;min-height:28px;text-transform:uppercase;}
+.card.card-lite .tier-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:.8;}
+.card.card-lite .value-tag{display:inline-block;margin-top:3px;padding:1px 7px;border-radius:999px;background:rgba(0,0,0,.3);font-size:8.5px;font-family:'JetBrains Mono',monospace;font-weight:800;}
+.card.card-lite.tier-bronze .value-tag,.card.card-lite.tier-silver .value-tag,.card.card-lite.tier-gold .value-tag,
+.card.card-lite.tier-diamond .value-tag,.card.card-lite.tier-white .value-tag,.card.card-lite.tier-neon .value-tag{background:rgba(255,255,255,.4);}
+
+/* slot de formação, versão enxuta (modo de desempenho) */
+.ps-lite{width:100%;aspect-ratio:62/84;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  border:1px solid rgba(255,255,255,.3);box-shadow:0 3px 6px rgba(0,0,0,.3);}
+.ps-ovr-lite{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:15px;line-height:1;}
+.ps-name-lite{font-size:7.5px;font-weight:800;text-transform:uppercase;text-align:center;padding:0 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+
+/* =====================================================================
+   CONFIGURAÇÕES
+   ===================================================================== */
+.seg-control{display:inline-flex;background:var(--overlay-soft);padding:4px;border-radius:12px;gap:4px;border:1px solid var(--panel-border);flex-wrap:wrap;}
+.seg-control button{border:none;background:transparent;color:var(--sub);padding:9px 18px;border-radius:9px;font-weight:700;cursor:pointer;font-size:13px;transition:.15s;}
+.seg-control button:hover{color:var(--text);}
+.seg-control button.active{background:var(--emerald);color:#052018;}
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:16px;cursor:pointer;padding:6px 0;}
+.switch{width:46px;height:26px;border-radius:999px;background:rgba(128,128,128,.3);position:relative;flex-shrink:0;transition:.2s;border:1px solid var(--panel-border);}
+.switch .knob{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:.2s;box-shadow:0 2px 4px rgba(0,0,0,.4);}
+.switch.on{background:var(--emerald);}
+.switch.on .knob{left:22px;}
+.settings-panel-title{margin:0 0 14px;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.6px;font-size:18px;}
+
 </style>
 </head>
 <body>
@@ -695,6 +1057,11 @@ let state = {
   matchCtx:null,
   device:null, // 'mobile' | 'desktop' — escolhido na tela inicial, ajusta o layout
   sidebarOpen:false,
+  settings:null, // {theme, performanceMode, defaultSpeed} — ver defaultSettings()
+  transfers:[],
+  marketTab:'transfers',
+  marketSearch:'',
+  marketScope:'all',
   catalogFilter:{search:'', pos:'ALL', tier:'ALL', sort:'ovr-desc'},
 };
 
@@ -750,6 +1117,8 @@ async function loadState(){
       state.worldCup = data.worldCup || null;
       state.league = data.league || null;
       state.device = data.device || null;
+      state.transfers = Array.isArray(data.transfers) ? data.transfers : [];
+      state.settings = Object.assign(defaultSettings(), data.settings||{});
       if(!state.teams.length && !state.freeAgents.length) seedData();
     } else {
       seedData();
@@ -760,6 +1129,8 @@ async function loadState(){
   // migração: jogadores salvos antes de value/nacionalidade existirem ganham valores agora
   state.teams.forEach(t=> t.players.forEach(p=>{ if(p) ensurePlayerExtras(p); }));
   state.freeAgents.forEach(p=> ensurePlayerExtras(p));
+  if(!state.settings) state.settings = defaultSettings();
+  applyTheme();
   state.view = state.device ? 'home' : 'devicePick';
   render();
 }
@@ -774,6 +1145,8 @@ async function saveState(){
       worldCup: (state.worldCup && state.worldCup.rounds) ? state.worldCup : null,
       league: (state.league && state.league.matches) ? state.league : null,
       device: state.device,
+      transfers: state.transfers,
+      settings: state.settings,
     };
     await AppStorage.set(STORAGE_KEY, JSON.stringify(payload));
     if(toast){
@@ -794,15 +1167,121 @@ function teamStrength(t){
   return filled.reduce((a,p)=>a+p.ovr,0)/filled.length;
 }
 
+
+/* ---- avatar do jogador (SVG gerado a partir do nome) ---- */
+function hashStr(str){let h=2166136261;for(let i=0;i<str.length;i++){h^=str.charCodeAt(i);h=Math.imul(h,16777619);}return h>>>0;}
+const SKIN_TONES=['#f8d5b8','#efbf94','#d9a06f','#b9794c','#8a5330','#5e3a22'];
+const HAIR_COLORS=['#1c1410','#3a2416','#6b4423','#a8742c','#d9b45a','#8c8c8c','#b5342a'];
+function shade(hex,amt){
+  const n=parseInt(hex.slice(1),16);let r=(n>>16)+amt,g=((n>>8)&255)+amt,b=(n&255)+amt;
+  r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+  return '#'+((1<<24)+(r<<16)+(g<<8)+b).toString(16).slice(1);
+}
+function contrastText(hex){
+  if(!hex || hex[0]!=='#' || hex.length<7) return '#04140f';
+  const n=parseInt(hex.slice(1,7),16),r=n>>16,g=(n>>8)&255,b=n&255;
+  return (0.299*r+0.587*g+0.114*b)>150 ? '#04140f' : '#ffffff';
+}
+function avatarSVG(pl, jersey){
+  const h=hashStr((pl.id||'')+(pl.name||'?'));
+  const skin=SKIN_TONES[h%6], dark=shade(skin,-28), hair=HAIR_COLORS[(h>>3)%7], style=(h>>6)%6;
+  const jc=jersey||'#33475b', jd=shade(jc,-35);
+  let back='',front='';
+  if(style===2) back=`<path d="M29 44 C24 14 76 14 71 44 L74 70 L26 70 Z" fill="${hair}"/>`;
+  if(style===4) back=`<circle cx="50" cy="34" r="25" fill="${hair}"/>`;
+  if(style===0) front=`<path d="M32 40 C30 18 70 18 68 40 C64 31 57 28 50 28 C43 28 36 31 32 40 Z" fill="${hair}"/>`;
+  if(style===1) front=`<path d="M33 37 C33 23 67 23 67 37 C60 31 40 31 33 37 Z" fill="${hair}" opacity=".9"/>`;
+  if(style===2) front=`<path d="M32 38 C34 22 66 22 68 38 C60 30 40 30 32 38 Z" fill="${hair}"/>`;
+  if(style===4) front=`<path d="M33 36 C35 26 65 26 67 36 C60 32 40 32 33 36 Z" fill="${hair}"/>`;
+  if(style===5) front=`<path d="M33 37 C33 25 67 25 67 37 C60 32 40 32 33 37 Z" fill="${hair}" opacity=".9"/><path d="M44 27 L50 6 L56 27 Z" fill="${hair}"/>`;
+  return `<svg viewBox="0 0 100 120" preserveAspectRatio="xMidYMax meet" aria-hidden="true">
+    ${back}
+    <path d="M4 122 C4 88 26 76 50 76 C74 76 96 88 96 122 Z" fill="${jc}"/>
+    <path d="M4 122 C4 104 12 92 24 86 L24 122 Z" fill="${jd}" opacity=".45"/>
+    <rect x="43" y="58" width="14" height="22" rx="6" fill="${dark}"/>
+    <path d="M38 77 Q50 94 62 77 Z" fill="${dark}"/>
+    <ellipse cx="33" cy="47" rx="3.2" ry="5" fill="${skin}"/><ellipse cx="67" cy="47" rx="3.2" ry="5" fill="${skin}"/>
+    <ellipse cx="50" cy="45" rx="17" ry="20" fill="${skin}"/>
+    ${front}
+    <circle cx="43.5" cy="46" r="1.9" fill="#1b1b1b"/><circle cx="56.5" cy="46" r="1.9" fill="#1b1b1b"/>
+    <path d="M45 55 Q50 59 55 55" stroke="#7a3b2e" stroke-width="1.7" fill="none" stroke-linecap="round"/>
+  </svg>`;
+}
+function clubOf(pl){
+  if(!pl || !pl.id) return null;
+  for(const t of state.teams){ for(const p of t.players){ if(p && p.id===pl.id) return t; } }
+  return null;
+}
+function crestHTML(t,size,fs){
+  size=size||36;
+  return `<div class="crest-shield" style="background:${t.color};color:${contrastText(t.color)};width:${size}px;height:${Math.round(size*1.14)}px;font-size:${fs||Math.round(size*0.36)}px;">${crestLetters(t.name)}</div>`;
+}
+function topPlayers(n){
+  return allMarketPlayers().map(r=>r.p).sort((a,b)=>b.ovr-a.ovr).slice(0,n);
+}
+/* inclinação 3D + brilho que acompanha o mouse nas cartas */
+function initCardTilt(){
+  if(!document.addEventListener) return;
+  document.addEventListener('mousemove', e=>{
+    const w = e.target && e.target.closest ? e.target.closest('.card-wrap') : null;
+    if(!w) return;
+    const r = w.getBoundingClientRect();
+    const px = (e.clientX-r.left)/r.width, py = (e.clientY-r.top)/r.height;
+    w.style.setProperty('--ry', ((px-.5)*16)+'deg');
+    w.style.setProperty('--rx', ((.5-py)*16)+'deg');
+    w.style.setProperty('--mx', (px*100)+'%');
+    w.style.setProperty('--my', (py*100)+'%');
+  });
+  document.addEventListener('mouseout', e=>{
+    const w = e.target && e.target.closest ? e.target.closest('.card-wrap') : null;
+    if(w && !w.contains(e.relatedTarget)){ w.style.setProperty('--rx','0deg'); w.style.setProperty('--ry','0deg'); }
+  });
+}
+
 function playerCardHTML(pl, opts={}){
+  const compact = opts.compact || (state.settings && state.settings.performanceMode);
+  if(compact) return playerCardLiteHTML(pl, opts);
+  const tier = getTier(pl.ovr);
+  const tierIdx = TIERS.findIndex(t=>t.key===tier.key);
+  const editBtn = opts.onEdit ? `<button class="rm" title="Editar" onclick="event.stopPropagation();${opts.onEdit}">✎</button>` : '';
+  const rmBtn = opts.onRemove ? `<button class="rm" title="Remover" onclick="event.stopPropagation();${opts.onRemove}">✕</button>` : '';
+  const flag = flagEmoji(nationalityCode(pl.nationality));
+  const valueText = (pl.value!==undefined && pl.value!==null) ? formatValue(pl.value) : null;
+  const club = clubOf(pl);
+  const jersey = club ? club.color : '#33475b';
+  return `<div class="card-wrap glow-${tier.key}">
+    <div class="card tier-${tier.key}" ${opts.onClick?`onclick="${opts.onClick}"`:''}>
+      <div class="card-face">
+        <div class="card-glare"></div>
+        ${tierIdx>=5 ? '<div class="card-fx"></div>' : ''}
+        <div class="cf-top">
+          <div class="cf-av">${avatarSVG(pl, jersey)}</div>
+          <div class="cf-meta">
+            <div class="ovr">${pl.ovr}</div>
+            <div class="pos">${pl.pos}</div>
+            <div class="flag" title="${pl.nationality||''}">${flag}</div>
+            ${club ? `<div class="club-crest" title="${escHtml(club.name)}" style="background:${club.color};color:${contrastText(club.color)};text-shadow:none;">${crestLetters(club.name).slice(0,2)}</div>` : ''}
+          </div>
+        </div>
+        <div class="cf-foot">
+          <div class="name">${pl.name}</div>
+          <div class="cf-row"><span class="tier-label">${tier.label}</span>${valueText ? `<span class="value-tag">${valueText}</span>` : ''}</div>
+        </div>
+      </div>
+      ${(editBtn||rmBtn) ? `<div class="card-actions">${editBtn}${rmBtn}</div>` : ''}
+    </div>
+  </div>`;
+}
+/* Versão enxuta: sem avatar SVG, sem filtro de brilho, sem clip-path duplo —
+   usada no catálogo (sempre) e em todo o app quando o Modo de Desempenho está ligado. */
+function playerCardLiteHTML(pl, opts={}){
   const tier = getTier(pl.ovr);
   const editBtn = opts.onEdit ? `<button class="rm" title="Editar" onclick="event.stopPropagation();${opts.onEdit}">✎</button>` : '';
   const rmBtn = opts.onRemove ? `<button class="rm" title="Remover" onclick="event.stopPropagation();${opts.onRemove}">✕</button>` : '';
   const flag = flagEmoji(nationalityCode(pl.nationality));
   const valueText = (pl.value!==undefined && pl.value!==null) ? formatValue(pl.value) : null;
-  return `<div class="card tier-${tier.key}" ${opts.onClick?`onclick="${opts.onClick}"`:''}>
-    <div class="top-row"><span>${editBtn}</span><span>${rmBtn}</span></div>
-    <div class="ovr">${pl.ovr}</div>
+  return `<div class="card card-lite tier-${tier.key}" ${opts.onClick?`onclick="${opts.onClick}"`:''}>
+    <div class="lt-top"><div class="ovr">${pl.ovr}</div>${(editBtn||rmBtn)?`<div class="lt-actions">${editBtn}${rmBtn}</div>`:''}</div>
     <div class="pos">${pl.pos} <span title="${pl.nationality||''}">${flag}</span></div>
     <div>
       <div class="name">${pl.name}</div>
@@ -815,13 +1294,24 @@ function slotCardHTML(team, slot, idx){
   const p = team.players[idx];
   if(!p){
     return `<div class="pitch-slot empty" style="left:${slot.x}%; top:${slot.y}%;" onclick="openSlotModal('${team.id}',${idx})">
-      <div class="slot-plus">+</div><div class="slot-pos">${slot.label}</div></div>`;
+      <div class="ps-empty">+</div><span class="ps-pos">${slot.label}</span></div>`;
   }
   const tier = getTier(p.ovr);
-  return `<div class="pitch-slot filled tier-${tier.key}" style="left:${slot.x}%; top:${slot.y}%;" onclick="openSlotModal('${team.id}',${idx})">
-    <div class="slot-ovr">${p.ovr}</div>
-    <div class="slot-name">${p.name.split(' ')[0]}</div>
-    <div class="slot-pos">${slot.label}</div>
+  if(state.settings && state.settings.performanceMode){
+    return `<div class="pitch-slot filled" style="left:${slot.x}%; top:${slot.y}%;" onclick="openSlotModal('${team.id}',${idx})">
+      <div class="ps-lite tier-${tier.key}"><div class="ps-ovr-lite">${p.ovr}</div><div class="ps-name-lite">${escHtml(p.name.split(' ')[0])}</div></div>
+      <span class="ps-pos">${slot.label}</span>
+    </div>`;
+  }
+  return `<div class="pitch-slot filled" style="left:${slot.x}%; top:${slot.y}%;" onclick="openSlotModal('${team.id}',${idx})">
+    <div class="ps-wrap glow-${tier.key}">
+      <div class="ps-card tier-${tier.key}"><div class="ps-face">
+        <div class="ps-ovr">${p.ovr}</div>
+        <div class="ps-av">${avatarSVG(p, team.color)}</div>
+        <div class="ps-name">${escHtml(p.name.split(' ')[0])}</div>
+      </div></div>
+    </div>
+    <span class="ps-pos">${slot.label}</span>
   </div>`;
 }
 function legendHTML(){
@@ -837,48 +1327,71 @@ function legendHTML(){
 /* ============================= RENDER ROOT ============================= */
 function render(){
   const app = document.getElementById('app');
-  app.innerHTML = topbarHTML() + viewHTML() + (state.modal ? modalHTML() : '');
+  const anim = state._animate; state._animate = false;
+  app.innerHTML = topbarHTML() + `<div class="${anim?'view-enter':''}">${viewHTML()}</div>` + (state.modal ? modalHTML() : '');
   if(document.body && document.body.classList){
     document.body.classList.remove('device-mobile','device-desktop');
     if(state.device) document.body.classList.add('device-'+state.device);
   }
+  applyTheme();
 }
 function setView(v, extra={}){
-  state.view=v; Object.assign(state, extra); state.sidebarOpen=false; render();
+  state.view=v; Object.assign(state, extra); state.sidebarOpen=false; state._animate=true; render();
 }
 function toggleSidebar(){ state.sidebarOpen = !state.sidebarOpen; render(); }
 function closeSidebar(){ state.sidebarOpen = false; render(); }
 const NAV_ITEMS = [
   ['home','Início','🏠'],['teams','Times','⚽'],['catalog','Catálogo','📇'],
   ['categories','Categorias','🗂️'],['createPlayer','Criar Jogador','➕'],['createTeam','Criar Time','🛠️'],
-  ['worldcup','Copa do Mundo','🏆'],['league','Liga','📊'],['friendly','Amistoso','🤝'],
+  ['worldcup','Copa do Mundo','🏆'],['league','Liga','📊'],['friendly','Amistoso','🤝'],['market','Mercado','💶'],
+  ['settings','Configurações','⚙️'],
 ];
+const NAV_GROUPS = [
+  ['Geral',['home','teams','catalog','categories']],
+  ['Criar',['createPlayer','createTeam']],
+  ['Competições',['worldcup','league','friendly']],
+  ['Economia',['market']],
+  ['Sistema',['settings']],
+];
+const VIEW_LABEL = {teamDetail:'Times',categoryDetail:'Categorias',createCategory:'Categorias',match:'Partida',devicePick:'Configuração',loading:'Carregando'};
+function currentPageLabel(){
+  const it = NAV_ITEMS.find(x=>x[0]===state.view);
+  return it ? it[1] : (VIEW_LABEL[state.view] || 'Planifa 1');
+}
 function topbarHTML(){
   return `<div class="topbar">
     <div class="brand">
-      <div class="dot"></div>
+      <div class="logo">⚽</div>
       <div><h1>PLANI<span>FA</span> 1</h1><small>Sandbox de Cartas de Futebol</small></div>
     </div>
-    <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+    <div class="topbar-right">
+      <span class="page-chip">${currentPageLabel()}</span>
+      <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Abrir menu"><span></span><span></span><span></span></button>
+    </div>
   </div>
   ${sidebarHTML()}`;
 }
 function sidebarHTML(){
   const deviceIcon = state.device==='mobile' ? '📱' : (state.device==='desktop' ? '🖥️' : '⚙️');
+  const byKey = {}; NAV_ITEMS.forEach(i=>byKey[i[0]]=i);
+  const groups = NAV_GROUPS.map(([title,keys])=>`
+      <div class="sb-group">${title}</div>
+      ${keys.map(k=>{ const [,l,icon]=byKey[k]; return `<button class="${state.view===k?'active':''}" onclick="setView('${k}')"><span class="nav-icon">${icon}</span>${l}</button>`; }).join('')}`).join('');
+  const nPlayers = state.teams.reduce((a,t)=>a+teamFilled(t).length,0)+state.freeAgents.length;
   return `
   <div class="sidebar-overlay ${state.sidebarOpen?'show':''}" onclick="closeSidebar()"></div>
   <nav class="sidebar ${state.sidebarOpen?'open':''}">
     <div class="sidebar-header">
       <div class="brand">
-        <div class="dot"></div>
+        <div class="logo" style="width:36px;height:36px;font-size:18px;">⚽</div>
         <div><h1>PLANI<span>FA</span> 1</h1></div>
       </div>
       <button class="sidebar-close" onclick="closeSidebar()">✕</button>
     </div>
-    <div class="sidebar-links">
-      ${NAV_ITEMS.map(([k,l,icon])=>`<button class="${state.view===k?'active':''}" onclick="setView('${k}')"><span class="nav-icon">${icon}</span>${l}</button>`).join('')}
-      <div class="sidebar-divider"></div>
-      <button onclick="setView('devicePick')"><span class="nav-icon">${deviceIcon}</span>Mudar tipo de tela</button>
+    <div class="sidebar-links" style="flex:1;">${groups}</div>
+    <div class="sidebar-footer">
+      <button class="btn secondary" style="width:100%;justify-content:flex-start;" onclick="setView('settings')">⚙️&nbsp; Configurações</button>
+      <div class="mini">${state.teams.length} times · ${nPlayers} jogadores</div>
     </div>
   </nav>`;
 }
@@ -894,6 +1407,8 @@ function viewHTML(){
     case 'createTeam': return createTeamView();
     case 'worldcup': return worldCupView();
     case 'league': return leagueView();
+    case 'market': return marketView();
+    case 'settings': return settingsView();
     case 'categories': return categoriesView();
     case 'categoryDetail': return categoryDetailView();
     case 'createCategory': return createCategoryView();
@@ -929,36 +1444,128 @@ function chooseDevice(type){
   setView('home');
 }
 
+/* ============================= CONFIGURAÇÕES ============================= */
+function defaultSettings(){ return {theme:'dark', performanceMode:false, defaultSpeed:1}; }
+function applyTheme(){
+  if(!document.body || !document.body.classList) return;
+  const s = state.settings || defaultSettings();
+  document.body.classList.toggle('theme-light', s.theme==='light');
+  document.body.classList.toggle('perf-mode', !!s.performanceMode);
+}
+function updateSetting(key, value){
+  if(!state.settings) state.settings = defaultSettings();
+  state.settings[key] = value;
+  saveState();
+  render();
+}
+function toggleSetting(key){
+  if(!state.settings) state.settings = defaultSettings();
+  state.settings[key] = !state.settings[key];
+  saveState();
+  render();
+}
+function chooseDeviceInline(type){
+  state.device = type;
+  saveState();
+  render();
+}
+function settingsView(){
+  const s = state.settings || defaultSettings();
+  return `
+  <h2 class="section-title">Configurações</h2>
+  <p class="section-sub">Ajustes gerais do Planifa 1. Tudo fica salvo automaticamente.</p>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <h4 class="settings-panel-title">Aparência</h4>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Tema</label>
+      <div class="seg-control">
+        <button class="${s.theme==='dark'?'active':''}" onclick="updateSetting('theme','dark')">🌙 Escuro</button>
+        <button class="${s.theme==='light'?'active':''}" onclick="updateSetting('theme','light')">☀️ Claro</button>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Tipo de tela</label>
+      <div class="seg-control">
+        <button class="${state.device==='mobile'?'active':''}" onclick="chooseDeviceInline('mobile')">📱 Celular</button>
+        <button class="${state.device==='desktop'?'active':''}" onclick="chooseDeviceInline('desktop')">🖥️ Tablet / PC</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <h4 class="settings-panel-title">Desempenho</h4>
+    <label class="switch-row" onclick="toggleSetting('performanceMode')">
+      <div>
+        <b>Modo de desempenho</b>
+        <p class="hint" style="margin:5px 0 0;max-width:460px;">Deixa as cartas mais simples em todo o app (sem avatar, brilho ou animação) e o catálogo bem mais rápido. Ative se o jogo estiver travando.</p>
+      </div>
+      <div class="switch ${s.performanceMode?'on':''}"><div class="knob"></div></div>
+    </label>
+  </div>
+
+  <div class="panel">
+    <h4 class="settings-panel-title">Partidas</h4>
+    <div class="field" style="margin-bottom:0;">
+      <label>Velocidade padrão da simulação</label>
+      <div class="seg-control">
+        ${[0.5,1,2,4].map(v=>`<button class="${s.defaultSpeed===v?'active':''}" onclick="updateSetting('defaultSpeed',${v})">${v}x</button>`).join('')}
+      </div>
+      <p class="hint" style="margin-top:8px;">Toda nova partida (Copa, Liga ou Amistoso) já começa nessa velocidade.</p>
+    </div>
+  </div>`;
+}
+
 /* ============================= HOME ============================= */
+const QC_ACCENT = {teams:'#29d398',catalog:'#4a90e2',createPlayer:'#e8b34a',createTeam:'#f2a65a',worldcup:'#ffd067',league:'#7b8cff',market:'#2ec4b6',friendly:'#ff6b6b',categories:'#a25bff'};
 function homeView(){
   const totalPlayers = state.teams.reduce((a,t)=>a+teamFilled(t).length,0) + state.freeAgents.length;
+  const stars = topPlayers(3);
+  const heroCards = stars.length===3 ? `<div class="hero-cards">${[stars[1],stars[0],stars[2]].map(p=>playerCardHTML(p)).join('')}</div>` : '';
+  const bestTeams = state.teams.slice().sort((a,b)=>teamStrength(b)-teamStrength(a)).slice(0,4);
   return `
-  <h2 class="section-title">Bem-vindo ao Planifa 1</h2>
-  <p class="section-sub">Monte seus times, crie jogadores lendários e dispute copas, ligas e amistosos simulados. Tudo é salvo automaticamente.</p>
+  <div class="hero">
+    <div class="hero-text">
+      <span class="hero-kicker">⚽ Sandbox de cartas</span>
+      <h2>Monte o <span>time dos sonhos</span></h2>
+      <p>Crie jogadores lendários, escale suas formações e dispute copas, ligas e amistosos simulados. Tudo é salvo automaticamente.</p>
+      <div class="btn-row">
+        <button class="btn gold" onclick="setView('createTeam')">+ Criar time</button>
+        <button class="btn secondary" onclick="setView('worldcup')">🏆 Iniciar copa</button>
+      </div>
+    </div>
+    ${heroCards}
+  </div>
   <div class="stats-bar">
     <div class="stat-chip"><span class="stat-num">${state.teams.length}</span><span class="stat-label">Times</span></div>
     <div class="stat-chip"><span class="stat-num">${totalPlayers}</span><span class="stat-label">Jogadores</span></div>
     <div class="stat-chip"><span class="stat-num">${state.freeAgents.length}</span><span class="stat-label">Agentes livres</span></div>
     <div class="stat-chip"><span class="stat-num">${state.categories.length}</span><span class="stat-label">Categorias</span></div>
   </div>
-  ${legendHTML()}
-  <div class="grid teams" style="margin-top:6px;">
+  <div class="sec-head"><h3>Acesso <span>rápido</span></h3></div>
+  <div class="grid teams">
     ${quickCard('⚽','Times', `${state.teams.length} times salvos — veja escalações e formações.`, 'teams', state.teams.length+' times')}
     ${quickCard('📇','Catálogo de Jogadores', 'Jogadores livres prontos para entrar em qualquer time.', 'catalog', state.freeAgents.length+' agentes livres')}
     ${quickCard('➕','Criar Jogador', 'Defina nome, posição e OVR (até 500) e gere a carta.', 'createPlayer', 'Marrom → Arco-Íris')}
     ${quickCard('🛠️','Criar Time', 'Escolha nome, cor, formação e escale seus 11 titulares.', 'createTeam', 'Times ilimitados')}
     ${quickCard('🏆','Copa do Mundo', 'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', 'worldcup', 'Mata-mata completo')}
     ${quickCard('📊','Liga Planifa', 'Pontos corridos entre até 8 times, depois mata-mata entre os melhores.', 'league', 'Máx. 8 times')}
+    ${quickCard('💶','Mercado','Acompanhe transferências e os jogadores mais valiosos do seu universo.', 'market', state.transfers.length+' movimentações')}
     ${quickCard('🤝','Amistoso', 'Escolha dois times quaisquer e simule um jogo avulso na hora.', 'friendly', 'Jogo rápido')}
     ${quickCard('🗂️','Categorias', 'Agrupe seus times em categorias personalizadas.', 'categories', state.categories.length+' categorias')}
-  </div>`;
+  </div>
+  ${bestTeams.length ? `<div class="sec-head"><h3>Times em <span>destaque</span></h3><a onclick="setView('teams')">Ver todos →</a></div>
+  <div class="grid teams">${bestTeams.map(t=>teamTileHTML(t)).join('')}</div>` : ''}
+  <div class="sec-head"><h3>Raridades das <span>cartas</span></h3></div>
+  ${legendHTML()}`;
 }
 function quickCard(icon, title, desc, view, meta){
-  return `<div class="team-tile" onclick="setView('${view}')">
-    <div class="crest" style="background:var(--gold);">${icon}</div>
+  const accent = QC_ACCENT[view] || '#29d398';
+  return `<div class="qc" style="--accent:${accent};" onclick="setView('${view}')">
+    <div class="qc-icon">${icon}</div>
     <h3>${title}</h3>
-    <div class="meta">${desc}</div>
-    <div class="meta" style="margin-top:8px;color:var(--emerald);">${meta}</div>
+    <div class="desc">${desc}</div>
+    <span class="meta-chip">${meta}</span>
   </div>`;
 }
 
@@ -981,15 +1588,22 @@ function teamsView(){
 function teamTileHTML(t){
   const filled = teamFilled(t);
   const avgOvr = filled.length ? Math.round(filled.reduce((a,p)=>a+p.ovr,0)/filled.length) : 0;
+  const sumValue = filled.reduce((a,p)=>a+(p.value||0),0);
+  const best = filled.slice().sort((a,b)=>b.ovr-a.ovr)[0];
   const selMode = state.teamSelectMode;
   const isSel = state.selectedTeamIds.includes(t.id);
-  return `<div class="team-tile ${isSel?'tile-selected':''}" onclick="${selMode ? `toggleTeamSelected('${t.id}')` : `openTeam('${t.id}')`}">
+  return `<div class="team-tile tt ${isSel?'tile-selected':''}" style="--tc:${t.color};" onclick="${selMode ? `toggleTeamSelected('${t.id}')` : `openTeam('${t.id}')`}">
     ${t.custom?'<div class="custom-badge">CUSTOM</div>':''}
     ${selMode?`<div class="sel-check">${isSel?'✓':''}</div>`:''}
-    <div class="crest" style="background:${t.color};">${crestLetters(t.name)}</div>
+    <div class="tt-banner"></div>
+    <div class="tt-crest">${crestHTML(t,58,21)}</div>
     <h3>${t.name}</h3>
-    <div class="meta">${filled.length}/11 jogadores · ${t.formation}</div>
-    <div class="meta" style="margin-top:6px;color:var(--gold);">OVR médio: ${avgOvr||'-'}</div>
+    <div class="tt-chips"><span>${t.formation}</span><span>${filled.length}/11</span></div>
+    <div class="tt-stats">
+      <div><b>${avgOvr||'-'}</b><small>OVR médio</small></div>
+      <div><b>${formatValue(sumValue)}</b><small>Valor</small></div>
+    </div>
+    <div class="tt-star">${best ? `★ <b>${escHtml(best.name)}</b> · ${best.ovr}` : 'Elenco vazio'}</div>
   </div>`;
 }
 function generateRandomTeam(){
@@ -1012,7 +1626,7 @@ function bulkDeleteTeams(){
     const removedSet = new Set(state.selectedTeamIds);
     state.selectedTeamIds.forEach(id=>{
       const t = findTeam(id);
-      if(t) state.freeAgents.push(...teamFilled(t));
+      if(t){ teamFilled(t).forEach(p=>logTransfer('release', p, t.name, FREE_LABEL)); state.freeAgents.push(...teamFilled(t)); }
     });
     state.teams = state.teams.filter(t=>!removedSet.has(t.id));
     state.categories.forEach(cat=>{ cat.teamIds = cat.teamIds.filter(id=>!removedSet.has(id)); });
@@ -1029,28 +1643,36 @@ function teamDetailView(){
   const t = findTeam(state.currentTeamId);
   if(!t) return `<p>Time não encontrado.</p>`;
   const slots = buildFormationSlots(t.formation);
-  const filled = teamFilled(t).length;
+  const filledList = teamFilled(t);
+  const filled = filledList.length;
+  const avgOvr = filled ? Math.round(filledList.reduce((a,p)=>a+p.ovr,0)/filled) : 0;
+  const sumValue = filledList.reduce((a,p)=>a+(p.value||0),0);
+  const best = filledList.slice().sort((a,b)=>b.ovr-a.ovr)[0];
   return `
-  <div class="btn-row" style="margin-bottom:10px;"><button class="btn secondary" onclick="setView('teams')">← Voltar</button></div>
-  <div class="panel" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:space-between;">
-    <div style="display:flex;align-items:center;gap:14px;">
-      <div class="crest" style="background:${t.color};width:56px;height:56px;font-size:22px;">${crestLetters(t.name)}</div>
-      <div>
-        <h2 class="section-title" style="margin:0;">${t.name}</h2>
-        <div class="hint">${filled}/11 escalados · ${t.custom?'Time personalizado':'Time de catálogo'}</div>
-      </div>
+  <div class="btn-row" style="margin-bottom:12px;"><button class="btn secondary" onclick="setView('teams')">← Voltar</button></div>
+  <div class="team-hero" style="--tc:${t.color};">
+    <div class="th-crest">${crestHTML(t,84,30)}</div>
+    <div class="th-info">
+      <h2>${t.name}</h2>
+      <div class="th-chips"><span>${t.formation}</span><span>${filled}/11 escalados</span><span>${t.custom?'Time personalizado':'Time de catálogo'}</span>${best?`<span>★ ${escHtml(best.name)} (${best.ovr})</span>`:''}</div>
     </div>
-    <div style="display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;">
-      <div class="field" style="margin:0;min-width:150px;">
+    <div class="th-stats">
+      <div><b>${avgOvr||'-'}</b><small>OVR médio</small></div>
+      <div><b>${formatValue(sumValue)}</b><small>Valor do elenco</small></div>
+    </div>
+    <div class="th-actions">
+      <div class="field" style="margin:0;min-width:130px;">
         <label>Formação</label>
         <select onchange="changeFormation('${t.id}', this.value)">
           ${Object.keys(FORMATIONS).map(f=>`<option value="${f}" ${t.formation===f?'selected':''}>${f}</option>`).join('')}
         </select>
       </div>
-      ${t.custom?`<button class="btn danger" onclick="deleteTeam('${t.id}')">Excluir time</button>`:''}
+      <button class="btn danger" onclick="deleteTeam('${t.id}')">Excluir time</button>
     </div>
   </div>
   <div class="pitch lineup">
+    <div class="pl-out"></div><div class="pl-mid"></div><div class="pl-circle"></div>
+    <div class="pl-box top"></div><div class="pl-box bottom"></div><div class="pl-six top"></div><div class="pl-six bottom"></div>
     ${slots.map((s,i)=>slotCardHTML(t,s,i)).join('')}
   </div>
   <p class="hint">Clique em qualquer posição para escalar, trocar, editar ou remover o jogador.</p>
@@ -1061,6 +1683,7 @@ function deleteTeam(id){
   const t = findTeam(id);
   if(!t) return;
   showConfirm(`Excluir o time "${t.name}"? Os jogadores voltarão ao catálogo de agentes livres.`, ()=>{
+    teamFilled(t).forEach(p=>logTransfer('release', p, t.name, FREE_LABEL));
     state.freeAgents.push(...teamFilled(t));
     state.teams = state.teams.filter(x=>x.id!==id);
     saveState();
@@ -1140,7 +1763,8 @@ function catalogView(){
   <div class="grid players">
     ${list.length? list.map(p=>playerCardHTML(p,{
         onClick:`openAssignModal('${p.id}')`,
-        onEdit:`openEditPlayer('freeAgent','${p.id}')`
+        onEdit:`openEditPlayer('freeAgent','${p.id}')`,
+        compact:true
       })).join(''): '<p class="hint">Nenhum jogador encontrado com esses filtros.</p>'}
   </div>`;
 }
@@ -1206,7 +1830,9 @@ function createPlayerView(){
 }
 function confirmCreatePlayer(){
   if(!draftPlayer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
-  state.freeAgents.push(makePlayer(draftPlayer.name.trim(), draftPlayer.pos, draftPlayer.ovr, {value:draftPlayer.value, nationality:draftPlayer.nationality}));
+  const newP = makePlayer(draftPlayer.name.trim(), draftPlayer.pos, draftPlayer.ovr, {value:draftPlayer.value, nationality:draftPlayer.nationality});
+  state.freeAgents.push(newP);
+  logTransfer('new', newP, 'Criado por você', FREE_LABEL);
   draftPlayer = defaultDraftPlayer(75);
   saveState();
   setView('catalog');
@@ -1361,7 +1987,7 @@ function modalAgentsListForSlotHTML(t, idx){
     </div>
     <p class="hint" style="margin-bottom:8px;">Mostrando ${list.length} de ${state.freeAgents.length} agente(s) livre(s).</p>
     ${list.length
-      ? `<div class="grid players">${list.map(p=>playerCardHTML(p,{onClick:`assignAgentToSlot('${t.id}',${idx},'${p.id}')`})).join('')}</div>`
+      ? `<div class="grid players">${list.map(p=>playerCardHTML(p,{onClick:`assignAgentToSlot('${t.id}',${idx},'${p.id}')`, compact:true})).join('')}</div>`
       : `<p class="hint">Nenhum jogador encontrado com esses filtros.</p>`}
   `;
 }
@@ -1396,7 +2022,8 @@ function assignAgentToSlot(teamId, idx, playerId){
   const removed = t.players[idx];
   t.players[idx] = state.freeAgents[ai];
   state.freeAgents.splice(ai,1);
-  if(removed) state.freeAgents.push(removed);
+  logTransfer('signing', t.players[idx], FREE_LABEL, t.name);
+  if(removed){ state.freeAgents.push(removed); logTransfer('release', removed, t.name, FREE_LABEL); }
   saveState();
   closeModal();
 }
@@ -1405,7 +2032,8 @@ function createAndAddToSlot(teamId, idx){
   const t = findTeam(teamId);
   const removed = t.players[idx];
   t.players[idx] = makePlayer(modalDraftPlayer.name.trim(), modalDraftPlayer.pos, modalDraftPlayer.ovr, {value:modalDraftPlayer.value, nationality:modalDraftPlayer.nationality});
-  if(removed) state.freeAgents.push(removed);
+  logTransfer('new', t.players[idx], 'Criado por você', t.name);
+  if(removed){ state.freeAgents.push(removed); logTransfer('release', removed, t.name, FREE_LABEL); }
   modalDraftPlayer = defaultDraftPlayer(75);
   saveState();
   closeModal();
@@ -1413,7 +2041,7 @@ function createAndAddToSlot(teamId, idx){
 function removeFromSlot(teamId, idx){
   const t = findTeam(teamId);
   const p = t.players[idx];
-  if(p) state.freeAgents.push(p);
+  if(p){ state.freeAgents.push(p); logTransfer('release', p, t.name, FREE_LABEL); }
   t.players[idx] = null;
   saveState();
   closeModal();
@@ -1451,10 +2079,13 @@ function assignFreeAgent(playerId){
   const ai = state.freeAgents.findIndex(p=>p.id===playerId);
   t.players[idx] = state.freeAgents[ai];
   state.freeAgents.splice(ai,1);
+  logTransfer('signing', t.players[idx], FREE_LABEL, t.name);
   saveState();
   closeModal();
 }
 function deleteFreeAgent(playerId){
+  const dp = state.freeAgents.find(p=>p.id===playerId);
+  if(dp) logTransfer('retire', dp, FREE_LABEL, 'Aposentado');
   state.freeAgents = state.freeAgents.filter(p=>p.id!==playerId);
   saveState();
   closeModal();
@@ -1502,16 +2133,24 @@ function saveEditPlayer(){
   if(!m.draft.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
   let p;
   if(m.source==='team'){ p = findTeam(m.a).players[m.b]; } else { p = state.freeAgents.find(x=>x.id===m.a); }
+  const oldValue = p.value;
   p.name = m.draft.name.trim(); p.pos = m.draft.pos; p.ovr = Math.max(0,Math.min(MAX_OVR, m.draft.ovr));
   p.value = Math.max(0, Math.round(m.draft.value)||0);
   p.nationality = m.draft.nationality;
+  if(oldValue!==p.value){
+    const where = m.source==='team' ? findTeam(m.a).name : FREE_LABEL;
+    logTransfer('valuechange', p, where, where, {oldValue});
+  }
   saveState();
   closeModal();
 }
 function deleteEditingPlayer(){
   const m = state.modal;
   showConfirm('Excluir este jogador definitivamente?', ()=>{
-    if(m.source==='team'){ findTeam(m.a).players[m.b] = null; } else { state.freeAgents = state.freeAgents.filter(x=>x.id!==m.a); }
+    let dp, from;
+    if(m.source==='team'){ const t=findTeam(m.a); dp=t.players[m.b]; from=t.name; t.players[m.b]=null; }
+    else { dp=state.freeAgents.find(x=>x.id===m.a); from=FREE_LABEL; state.freeAgents=state.freeAgents.filter(x=>x.id!==m.a); }
+    if(dp) logTransfer('retire', dp, from, 'Aposentado');
     saveState();
   });
 }
@@ -2056,6 +2695,142 @@ function advanceLeagueToKnockout(){
 }
 function resetLeague(){ state.league=null; saveState(); setView('league'); }
 
+
+/* ============================= MERCADO DE TRANSFERÊNCIAS ============================= */
+const FREE_LABEL = 'Agente livre';
+const TRANSFER_KINDS = {
+  signing:    {label:'Contratação',     icon:'✍️', cls:'sign'},
+  release:    {label:'Dispensa',        icon:'📤', cls:'release'},
+  new:        {label:'Novo no mercado', icon:'🆕', cls:'new'},
+  retire:     {label:'Aposentadoria',   icon:'🧓', cls:'retire'},
+  valuechange:{label:'Reavaliação',     icon:'📈', cls:'value'},
+};
+function escHtml(str){ return String(str==null?'':str).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function logTransfer(kind, p, from, to, extra){
+  if(!p) return;
+  if(!Array.isArray(state.transfers)) state.transfers = [];
+  state.transfers.unshift(Object.assign({
+    id:uid(), ts:Date.now(), kind, playerId:p.id, name:p.name, pos:p.pos, ovr:p.ovr,
+    value:p.value, nationality:p.nationality, from, to
+  }, extra||{}));
+  if(state.transfers.length>300) state.transfers.length = 300;
+}
+function timeAgo(ts){
+  const s = Math.floor((Date.now()-ts)/1000);
+  if(s<60) return 'agora há pouco';
+  const m = Math.floor(s/60); if(m<60) return `há ${m} min`;
+  const h = Math.floor(m/60); if(h<24) return `há ${h} h`;
+  return `há ${Math.floor(h/24)} d`;
+}
+function marketView(){
+  const tab = state.marketTab;
+  return `
+  <h2 class="section-title">Mercado de Transferências</h2>
+  <p class="section-sub">Um mercado fictício que acompanha tudo o que você faz: contratações, dispensas, novos talentos e reavaliações. Os valores são só visuais e não afetam as partidas.</p>
+  <div class="tabs-mini">
+    <button class="${tab==='transfers'?'active':''}" onclick="state.marketTab='transfers';render();">Transferências</button>
+    <button class="${tab==='values'?'active':''}" onclick="state.marketTab='values';render();">Valores de jogadores</button>
+  </div>
+  ${tab==='transfers' ? transfersTabHTML() : valuesTabHTML()}`;
+}
+function transfersTabHTML(){
+  const list = state.transfers || [];
+  if(!list.length){
+    return `<div class="panel"><p class="hint" style="margin:0;">Nenhuma movimentação ainda. Contrate agentes livres, dispense jogadores de um time ou crie novos talentos e tudo aparece aqui.</p></div>`;
+  }
+  const signings = list.filter(t=>t.kind==='signing' || t.kind==='new');
+  const spent = list.filter(t=>t.kind==='signing').reduce((a,t)=>a+(t.value||0),0);
+  const top = list.filter(t=>t.kind==='signing').sort((a,b)=>(b.value||0)-(a.value||0))[0];
+  return `
+  <div class="stats-bar">
+    <div class="stat-chip"><span class="stat-num">${list.length}</span><span class="stat-label">Movimentações</span></div>
+    <div class="stat-chip"><span class="stat-num">${list.filter(t=>t.kind==='signing').length}</span><span class="stat-label">Contratações</span></div>
+    <div class="stat-chip"><span class="stat-num">${formatValue(spent)}</span><span class="stat-label">Valor contratado</span></div>
+    <div class="stat-chip"><span class="stat-num" style="font-size:16px;">${top?escHtml(top.name):'—'}</span><span class="stat-label">Maior contratação</span></div>
+  </div>
+  <div class="btn-row" style="margin-bottom:12px;"><button class="btn secondary" onclick="clearTransfers()">Limpar histórico</button></div>
+  ${list.map(transferRowHTML).join('')}`;
+}
+function transferRowHTML(t){
+  const k = TRANSFER_KINDS[t.kind] || TRANSFER_KINDS.signing;
+  const tier = getTier(t.ovr);
+  const flag = flagEmoji(nationalityCode(t.nationality));
+  const detail = t.kind==='valuechange'
+    ? `${k.label}: ${formatValue(t.oldValue)} → ${formatValue(t.value)} (${escHtml(t.from)})`
+    : `${k.label}: ${escHtml(t.from)} → ${escHtml(t.to)}`;
+  return `<div class="tr-row">
+    <div class="tr-badge ${k.cls}">${k.icon}</div>
+    <div class="tr-main">
+      <div class="tr-title"><b>${escHtml(t.name)}</b> <span class="tr-ovr tier-${tier.key}">${t.ovr}</span> <span>${escHtml(t.pos)}</span> <span title="${escHtml(t.nationality)}">${flag}</span></div>
+      <div class="tr-sub">${detail}</div>
+    </div>
+    <div class="tr-side"><div class="tr-value">${formatValue(t.value)}</div><div class="tr-time">${timeAgo(t.ts)}</div></div>
+  </div>`;
+}
+function clearTransfers(){
+  showConfirm('Limpar todo o histórico de transferências?', ()=>{ state.transfers = []; saveState(); });
+}
+function allMarketPlayers(){
+  const out = [];
+  state.teams.forEach(t=> t.players.forEach(p=>{ if(p) out.push({p, club:t.name, color:t.color}); }));
+  state.freeAgents.forEach(p=> out.push({p, club:FREE_LABEL, color:null}));
+  return out;
+}
+function marketValuesListHTML(){
+  let rows = allMarketPlayers();
+  const q = (state.marketSearch||'').trim().toLowerCase();
+  if(state.marketScope==='teams') rows = rows.filter(r=>r.color!==null);
+  if(state.marketScope==='free') rows = rows.filter(r=>r.color===null);
+  if(q) rows = rows.filter(r=>r.p.name.toLowerCase().includes(q) || r.club.toLowerCase().includes(q));
+  rows.sort((a,b)=>(b.p.value||0)-(a.p.value||0));
+  const shown = rows.slice(0,100);
+  if(!shown.length) return `<p class="hint">Nenhum jogador encontrado.</p>`;
+  return `<div class="market-scroll"><table class="standings">
+    <thead><tr><th>#</th><th>Jogador</th><th>Pos</th><th>OVR</th><th>Clube</th><th>Valor</th></tr></thead>
+    <tbody>${shown.map((r,i)=>{
+      const tier = getTier(r.p.ovr);
+      return `<tr><td>${i+1}</td>
+        <td>${flagEmoji(nationalityCode(r.p.nationality))} ${escHtml(r.p.name)}</td>
+        <td>${r.p.pos}</td>
+        <td><span class="tr-ovr tier-${tier.key}">${r.p.ovr}</span></td>
+        <td>${escHtml(r.club)}</td>
+        <td><b style="color:var(--gold);">${formatValue(r.p.value)}</b></td></tr>`;
+    }).join('')}</tbody></table></div>
+    <p class="hint" style="margin-top:8px;">Mostrando ${shown.length} de ${rows.length} jogador(es), do mais valioso para o menos.</p>`;
+}
+function onMarketSearch(v){
+  state.marketSearch = v;
+  const el = document.getElementById('market-values-list');
+  if(el) el.innerHTML = marketValuesListHTML();
+}
+function valuesTabHTML(){
+  const all = allMarketPlayers();
+  const total = all.reduce((a,r)=>a+(r.p.value||0),0);
+  const best = all.slice().sort((a,b)=>(b.p.value||0)-(a.p.value||0))[0];
+  const squads = state.teams.map(t=>({t, sum:teamFilled(t).reduce((a,p)=>a+(p.value||0),0)})).sort((a,b)=>b.sum-a.sum).slice(0,5);
+  return `
+  <div class="stats-bar">
+    <div class="stat-chip"><span class="stat-num">${all.length}</span><span class="stat-label">Jogadores</span></div>
+    <div class="stat-chip"><span class="stat-num">${formatValue(total)}</span><span class="stat-label">Valor total</span></div>
+    <div class="stat-chip"><span class="stat-num" style="font-size:16px;">${best?escHtml(best.p.name):'—'}</span><span class="stat-label">Mais valioso</span></div>
+  </div>
+  <div class="panel">
+    <h4 style="margin:0 0 10px;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Elencos mais valiosos</h4>
+    ${squads.map((x,i)=>`<div class="tr-row" style="margin-bottom:6px;"><div class="tr-badge new">${i+1}º</div><div class="tr-main"><b>${escHtml(x.t.name)}</b></div><div class="tr-side"><div class="tr-value">${formatValue(x.sum)}</div></div></div>`).join('')}
+  </div>
+  <div class="catalog-controls">
+    <div class="field search"><label>Buscar jogador ou clube</label>
+      <input type="text" placeholder="Ex: Silva" value="${escHtml(state.marketSearch)}" oninput="onMarketSearch(this.value)"></div>
+    <div class="field"><label>Mostrar</label>
+      <select onchange="state.marketScope=this.value;render();">
+        <option value="all" ${state.marketScope==='all'?'selected':''}>Todos</option>
+        <option value="teams" ${state.marketScope==='teams'?'selected':''}>Só em times</option>
+        <option value="free" ${state.marketScope==='free'?'selected':''}>Só agentes livres</option>
+      </select></div>
+  </div>
+  <div id="market-values-list">${marketValuesListHTML()}</div>`;
+}
+
 /* ============================= AMISTOSO ============================= */
 function friendlyView(){
   if(!state.friendly) state.friendly = {teamA:null, teamB:null};
@@ -2119,7 +2894,7 @@ function openMatchGeneric(aId, bId, source){
   state.matchCtx = {
     source, teamA:ta, teamB:tb,
     scoreA:0, scoreB:0, minute:0, events:[], finished:false,
-    ballX:50, ballY:50, speed:1, timerId:null, tickFn:null, tickBaseMs:220,
+    ballX:50, ballY:50, speed:(state.settings && state.settings.defaultSpeed) || 1, timerId:null, tickFn:null, tickBaseMs:220,
     dotsA:Array.from({length:5},()=>({x:rnd(6,58),y:rnd(10,90)})),
     dotsB:Array.from({length:5},()=>({x:rnd(42,94),y:rnd(10,90)})),
     strA: teamStrength(ta), strB: teamStrength(tb),
@@ -2134,18 +2909,19 @@ function matchView(){
   return `
   <h2 class="section-title">Simulação de Partida</h2>
   <div class="scoreboard">
-    <div class="team-name">${c.teamA.name}</div>
+    <div class="team-name">${crestHTML(c.teamA,38,14)}<span>${c.teamA.name}</span></div>
     <div style="text-align:center;">
       <span class="score-big">${c.scoreA} - ${c.scoreB}</span>
       <span class="clock" id="clockDisplay">${c.minute}'</span>
     </div>
-    <div class="team-name right">${c.teamB.name}</div>
+    <div class="team-name right">${crestHTML(c.teamB,38,14)}<span>${c.teamB.name}</span></div>
   </div>
   <div class="speed-row">
     <span class="hint">Velocidade da simulação:</span>
     ${speeds.map(s=>`<button class="speed-btn ${c.speed===s?'active':''}" onclick="changeSpeed(${s})">${s}x</button>`).join('')}
   </div>
   <div class="pitch match-pitch" id="pitchEl">
+    <div class="mp-out"></div><div class="mp-box left"></div><div class="mp-box right"></div>
     <div class="midline"></div><div class="circle"></div>
     <div class="goal-net left"></div><div class="goal-net right"></div>
     <div class="flash side-left" id="flashLeft"></div>
@@ -2382,6 +3158,7 @@ function finishMatch(){
 
 /* ============================= INIT ============================= */
 render();
+initCardTilt();
 loadState();
 
 /* Registro do Service Worker (PWA) — só funciona quando os arquivos são hospedados via
