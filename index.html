@@ -22,7 +22,8 @@
   --text:#eaf2ec;
   --sub:#8fa89c;
   --gold:#e8b34a;
-  --emerald:#29d398;
+  --accent:#29d398; --accent-r:41; --accent-g:211; --accent-b:152;
+  --emerald:var(--accent);
   --violet:#a25bff;
   --red:#e2544a;
   --tier-brown-a:#2b1c12; --tier-brown-b:#4a2f1a;
@@ -45,7 +46,7 @@
 html,body{margin:0;padding:0;}
 body{
   background:
-    radial-gradient(ellipse 900px 500px at 20% -10%, rgba(41,211,152,.10), transparent 60%),
+    radial-gradient(ellipse 900px 500px at 20% -10%, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.10), transparent 60%),
     radial-gradient(ellipse 700px 500px at 100% 0%, rgba(232,179,74,.08), transparent 55%),
     var(--ink);
   color:var(--text);
@@ -202,7 +203,7 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 /* ---- mercado de transferências ---- */
 .tr-row{display:flex;align-items:center;gap:12px;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
 .tr-badge{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
-.tr-badge.sign{background:rgba(41,211,152,.18);}
+.tr-badge.sign{background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.18);}
 .tr-badge.release{background:rgba(226,84,74,.18);}
 .tr-badge.new{background:rgba(232,179,74,.18);}
 .tr-badge.retire{background:rgba(143,168,156,.18);}
@@ -352,12 +353,25 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
 .catalog-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:16px;}
 .catalog-controls .field{margin-bottom:0;min-width:150px;}
 .catalog-controls .field.search{flex:2;min-width:200px;}
+
+/* ---- painel de filtros (catálogo, mercado, escalação) ---- */
+.filter-panel{background:var(--surface-grad);border:1px solid var(--panel-border);border-radius:16px;padding:16px 18px;margin-bottom:16px;}
+.filter-panel.modal-filter{padding:14px 16px;margin:0 0 12px;}
+.filter-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;flex-wrap:wrap;gap:8px;}
+.filter-head a{color:var(--accent);font-size:12.5px;font-weight:700;cursor:pointer;}
+.filter-head a:hover{text-decoration:underline;}
+.filter-count{display:inline-flex;align-items:center;justify-content:center;min-width:19px;height:19px;padding:0 5px;
+  border-radius:999px;background:var(--accent);color:#04140f;font-size:11px;font-weight:800;margin-left:6px;vertical-align:middle;}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+.filter-grid .field{margin-bottom:0;}
+.filter-grid .field.search{grid-column:span 2;}
+body.device-mobile .filter-grid .field.search{grid-column:span 1;}
 .catalog-count{color:var(--sub);font-size:12.5px;margin-bottom:14px;}
 
 table.standings{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:4px;}
 table.standings th{text-align:left;color:var(--sub);font-weight:600;padding:6px 8px;border-bottom:1px solid var(--line);text-transform:uppercase;font-size:10.5px;letter-spacing:.5px;}
 table.standings td{padding:7px 8px;border-bottom:1px dashed var(--line);}
-table.standings tr.qualified{background:rgba(41,211,152,.08);}
+table.standings tr.qualified{background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.08);}
 table.standings tr.qualified td:first-child{color:var(--emerald);font-weight:700;}
 
 /* ---- team selection mode ---- */
@@ -378,7 +392,7 @@ table.standings tr.qualified td:first-child{color:var(--emerald);font-weight:700
 .row-team{display:flex;align-items:center;gap:6px;padding:4px 8px;font-size:11.5px;font-weight:600;height:50%;}
 .row-team:first-child{border-bottom:1px solid var(--line);}
 .row-team.tbd{color:var(--sub);font-style:italic;font-weight:400;justify-content:center;}
-.row-team.winner{background:rgba(41,211,152,.14);color:var(--emerald);}
+.row-team.winner{background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.14);color:var(--emerald);}
 .crest-tiny{width:16px;height:16px;border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:800;color:#04140f;}
 .row-team .rt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
 .row-team .sc{font-family:'JetBrains Mono',monospace;font-weight:700;}
@@ -408,7 +422,7 @@ table.standings tr.qualified td:first-child{color:var(--emerald);font-weight:700
 
 body{
   background:
-    radial-gradient(ellipse 900px 520px at 15% -10%, rgba(41,211,152,.15), transparent 60%),
+    radial-gradient(ellipse 900px 520px at 15% -10%, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.15), transparent 60%),
     radial-gradient(ellipse 700px 520px at 100% 0%, rgba(232,179,74,.10), transparent 55%),
     radial-gradient(ellipse 600px 420px at 50% 115%, rgba(162,91,255,.09), transparent 60%),
     linear-gradient(rgba(255,255,255,.014) 1px, transparent 1px) 0 0/100% 40px,
@@ -432,7 +446,7 @@ body{
 /* ---- sidebar ---- */
 .sidebar{background:var(--surface-grad-v);width:292px;}
 .sb-group{font-size:10.5px;letter-spacing:2px;text-transform:uppercase;color:#5f7a6d;font-weight:700;padding:14px 14px 4px;}
-.sidebar-links button.active{background:linear-gradient(90deg,rgba(41,211,152,.28),rgba(41,211,152,.04));color:#fff;box-shadow:inset 3px 0 0 var(--emerald);}
+.sidebar-links button.active{background:linear-gradient(90deg,rgba(var(--accent-r),var(--accent-g),var(--accent-b),.28),rgba(var(--accent-r),var(--accent-g),var(--accent-b),.04));color:#fff;box-shadow:inset 3px 0 0 var(--emerald);}
 .sidebar-links button:hover{background:rgba(255,255,255,.07);}
 .sidebar-footer{margin-top:auto;padding:12px;border-top:1px solid var(--line);}
 .sidebar-footer .mini{font-size:11px;color:var(--sub);padding:8px 14px 2px;line-height:1.5;}
@@ -450,10 +464,19 @@ p.section-sub{padding-left:16px;}
 .sec-head h3 span{color:var(--gold);}
 .sec-head a{color:var(--emerald);font-size:12.5px;font-weight:700;cursor:pointer;}
 
+/* ---- barra de sub-navegação (páginas irmãs do grupo atual) ---- */
+.subnav{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 20px;padding:6px;
+  background:var(--overlay-soft);border:1px solid var(--panel-border);border-radius:14px;}
+.subnav button{background:transparent;border:none;color:var(--sub);padding:9px 16px;border-radius:10px;
+  font-weight:700;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:6px;
+  white-space:nowrap;transition:background .15s, color .15s;}
+.subnav button:hover{color:var(--text);background:rgba(255,255,255,.05);}
+.subnav button.active{background:var(--accent);color:#04140f;}
+
 /* ---- botões ---- */
 .btn{
   background:linear-gradient(180deg,#3de3a8,#1fae7a);color:#04251a;border:1px solid rgba(255,255,255,.28);border-radius:11px;
-  box-shadow:0 5px 14px rgba(41,211,152,.22), inset 0 1px 0 rgba(255,255,255,.4);
+  box-shadow:0 5px 14px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.22), inset 0 1px 0 rgba(255,255,255,.4);
   transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
 }
 .btn:hover{transform:translateY(-1px);filter:brightness(1.08);}
@@ -469,13 +492,13 @@ p.section-sub{padding-left:16px;}
 .panel{background:var(--surface-grad);border:1px solid var(--panel-border);border-radius:18px;
   box-shadow:0 10px 26px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.05);}
 .field input[type=text],.field select,.field input[type=number]{background:var(--input-bg);border:1px solid var(--input-border);border-radius:10px;transition:border-color .15s, box-shadow .15s;}
-.field input:focus,.field select:focus{outline:none;border-color:var(--emerald);box-shadow:0 0 0 3px rgba(41,211,152,.16);}
+.field input:focus,.field select:focus{outline:none;border-color:var(--emerald);box-shadow:0 0 0 3px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.16);}
 .tabs-mini{background:var(--overlay-soft);padding:4px;border-radius:12px;display:inline-flex;gap:4px;border:1px solid var(--panel-border);}
 .tabs-mini button{border:none;border-radius:9px;padding:8px 16px;font-weight:700;}
 .tabs-mini button.active{background:linear-gradient(180deg,#2a4a3d,#1c352b);color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.35);}
 .checkbox-team{border-radius:12px;padding:10px 12px;transition:.15s;background:var(--overlay-soft);}
 .checkbox-team:hover{border-color:rgba(255,255,255,.25);}
-.checkbox-team.sel{background:rgba(41,211,152,.1);box-shadow:0 0 0 1px var(--emerald);}
+.checkbox-team.sel{background:rgba(var(--accent-r),var(--accent-g),var(--accent-b),.1);box-shadow:0 0 0 1px var(--emerald);}
 .modal-bg{background:rgba(3,8,6,.72);backdrop-filter:blur(6px);animation:fadeIn .15s ease both;}
 .modal{background:var(--surface-grad);border:1px solid var(--input-border);border-radius:20px;box-shadow:0 30px 70px rgba(0,0,0,.6);animation:popIn .2s ease both;}
 
@@ -494,7 +517,7 @@ p.section-sub{padding-left:16px;}
 .stat-chip{position:relative;overflow:hidden;border-radius:14px;background:var(--surface-grad);border:1px solid var(--panel-border);}
 .stat-chip::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--emerald));}
 .hero{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;padding:30px 30px 26px;border-radius:24px;margin-bottom:20px;overflow:hidden;
-  background:radial-gradient(circle at 88% 15%,rgba(162,91,255,.38),transparent 45%),radial-gradient(circle at 8% 95%,rgba(41,211,152,.28),transparent 50%),linear-gradient(135deg,#17392b,#0a1812);
+  background:radial-gradient(circle at 88% 15%,rgba(162,91,255,.38),transparent 45%),radial-gradient(circle at 8% 95%,rgba(var(--accent-r),var(--accent-g),var(--accent-b),.28),transparent 50%),linear-gradient(135deg,#17392b,#0a1812);
   border:1px solid rgba(255,255,255,.1);box-shadow:var(--shadow-lg);}
 .hero::before{content:"";position:absolute;right:-70px;top:-70px;width:300px;height:300px;border:2px solid rgba(255,255,255,.07);border-radius:50%;}
 .hero::after{content:"";position:absolute;right:20px;top:-20px;width:170px;height:170px;border:2px solid rgba(255,255,255,.06);border-radius:50%;}
@@ -583,9 +606,10 @@ p.section-sub{padding-left:16px;}
 .card .value-tag{padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.34);font-size:9.5px;font-family:'JetBrains Mono',monospace;font-weight:800;white-space:nowrap;margin:0;}
 .card.tier-bronze .value-tag,.card.tier-silver .value-tag,.card.tier-gold .value-tag,
 .card.tier-diamond .value-tag,.card.tier-white .value-tag,.card.tier-neon .value-tag{background:rgba(255,255,255,.45);}
-.card .card-actions{position:absolute;top:14px;right:12px;display:flex;gap:4px;z-index:6;}
-.card .rm{background:rgba(0,0,0,.45);border:none;color:#fff;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;flex-shrink:0;}
-.card .rm:hover{background:rgba(0,0,0,.7);}
+.card .card-actions{position:absolute;top:12px;right:10px;display:flex;gap:6px;z-index:6;}
+.card .rm{background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:50%;width:32px;height:32px;min-width:32px;min-height:32px;font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .12s ease, background .12s ease;}
+.card .rm:hover{background:rgba(0,0,0,.78);transform:scale(1.12);}
+.card .rm:active{transform:scale(.96);}
 
 /* ---- escalação no campo ---- */
 .pitch{
@@ -691,7 +715,7 @@ body.theme-light{
 }
 body.theme-light{
   background:
-    radial-gradient(ellipse 900px 520px at 15% -10%, rgba(41,211,152,.10), transparent 60%),
+    radial-gradient(ellipse 900px 520px at 15% -10%, rgba(var(--accent-r),var(--accent-g),var(--accent-b),.10), transparent 60%),
     radial-gradient(ellipse 700px 520px at 100% 0%, rgba(232,179,74,.08), transparent 55%),
     radial-gradient(ellipse 600px 420px at 50% 115%, rgba(162,91,255,.06), transparent 60%),
     var(--ink);
@@ -731,8 +755,10 @@ body.perf-mode .ps-wrap{filter:none !important;}
 .card.card-lite:hover{border-color:rgba(255,255,255,.45);}
 .card.card-lite .lt-top{display:flex;justify-content:space-between;align-items:flex-start;}
 .card.card-lite .ovr{font-family:'JetBrains Mono',monospace;font-weight:800;font-size:25px;line-height:1;}
-.card.card-lite .lt-actions{display:flex;gap:4px;}
-.card.card-lite .rm{background:rgba(0,0,0,.38);border:none;color:#fff;border-radius:50%;width:19px;height:19px;font-size:10px;cursor:pointer;}
+.card.card-lite .lt-actions{display:flex;gap:6px;}
+.card.card-lite .rm{background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.3);color:#fff;border-radius:50%;width:28px;height:28px;min-width:28px;min-height:28px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .12s ease, background .12s ease;}
+.card.card-lite .rm:hover{background:rgba(0,0,0,.72);transform:scale(1.12);}
+.card.card-lite .rm:active{transform:scale(.96);}
 .card.card-lite .pos{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:800;opacity:.85;display:flex;align-items:center;gap:4px;}
 .card.card-lite .name{font-weight:800;font-size:12px;line-height:1.2;min-height:28px;text-transform:uppercase;}
 .card.card-lite .tier-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:.8;}
@@ -759,6 +785,38 @@ body.perf-mode .ps-wrap{filter:none !important;}
 .switch.on{background:var(--emerald);}
 .switch.on .knob{left:22px;}
 .settings-panel-title{margin:0 0 14px;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.6px;font-size:18px;}
+
+
+/* =====================================================================
+   TEMAS DE COR — trocam o acento principal usado em botões, destaques,
+   nav ativo, foco de campos etc. Tema escuro/claro continua independente.
+   ===================================================================== */
+body.accent-green{--accent:#29d398;--accent-r:41;--accent-g:211;--accent-b:152;}
+body.accent-red{--accent:#ff5c5c;--accent-r:255;--accent-g:92;--accent-b:92;}
+body.accent-purple{--accent:#b07cff;--accent-r:176;--accent-g:124;--accent-b:255;}
+body.accent-blue{--accent:#4ea1ff;--accent-r:78;--accent-g:161;--accent-b:255;}
+body.accent-yellow{--accent:#f0c94a;--accent-r:240;--accent-g:201;--accent-b:74;}
+.theme-swatches{display:flex;gap:10px;flex-wrap:wrap;}
+.theme-swatch{width:42px;height:42px;border-radius:50%;cursor:pointer;border:3px solid transparent;
+  display:flex;align-items:center;justify-content:center;font-size:15px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.5);
+  transition:transform .15s ease, border-color .15s ease;}
+.theme-swatch:hover{transform:translateY(-2px) scale(1.06);}
+.theme-swatch.sel{border-color:var(--text);box-shadow:0 0 0 3px rgba(255,255,255,.15);}
+
+
+/* ---- editor de escudo personalizado ---- */
+.crest-editor{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;}
+.crest-preview-col{flex:0 0 220px;display:flex;flex-direction:column;align-items:center;gap:14px;
+  position:sticky;top:16px;background:var(--surface-grad);border:1px solid var(--panel-border);
+  border-radius:18px;padding:26px 18px;}
+.crest-preview-col .hint{text-align:center;margin:0;}
+.crest-controls-col{flex:1;min-width:280px;display:flex;flex-direction:column;gap:14px;}
+.symbol-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(42px,1fr));gap:8px;}
+.symbol-btn{aspect-ratio:1;border-radius:10px;background:var(--overlay-soft);border:1.5px solid var(--panel-border);
+  font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.symbol-btn:hover{border-color:var(--accent);transform:translateY(-1px);}
+.symbol-btn.active{background:var(--accent);border-color:var(--accent);box-shadow:0 0 0 2px rgba(255,255,255,.25) inset;}
+body.device-mobile .crest-preview-col{position:static;flex:1 1 100%;}
 
 </style>
 </head>
@@ -953,6 +1011,11 @@ function nationalityCode(name){
   const n = NATIONALITIES.find(x=>x.name===name);
   return n ? n.code : 'BR';
 }
+const NATIONALITIES_SORTED = [...NATIONALITIES].sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
+function nationalityOptionsHTML(selected){
+  return `<option value="ALL" ${selected==='ALL'?'selected':''}>🌐 Todas</option>` +
+    NATIONALITIES_SORTED.map(n=>`<option value="${n.name}" ${selected===n.name?'selected':''}>${flagEmoji(n.code)} ${n.name}</option>`).join('');
+}
 
 /* ---- Valor de mercado (€) — cosmético, não afeta nada do jogo ---- */
 const VALUE_ANCHORS = [
@@ -1038,7 +1101,14 @@ function generateRandomTeamObject(){
   const bias = Math.random();
   const players = [];
   for(let i=0;i<total;i++) players.push(randomPlayer(bias));
-  return {id:uid(), name:randomTeamName(), color:pick(TEAM_COLORS), custom:true, formation, players};
+  const color = pick(TEAM_COLORS);
+  const name = randomTeamName();
+  const crest = {
+    shape: pick(CREST_SHAPE_LIST).key, pattern: pick(CREST_PATTERN_LIST).key,
+    base: color, accent: shade(color,-42),
+    symbol: pick(CREST_SYMBOLS.filter(s=>s.key!=='none')).key, text: crestLetters(name), stars: rnd(0,2)
+  };
+  return {id:uid(), name, color, custom:true, formation, players, crest};
 }
 
 /* ============================= STATE ============================= */
@@ -1062,7 +1132,7 @@ let state = {
   marketTab:'transfers',
   marketSearch:'',
   marketScope:'all',
-  catalogFilter:{search:'', pos:'ALL', tier:'ALL', sort:'ovr-desc'},
+  catalogFilter:{search:'', pos:'ALL', tier:'ALL', nat:'ALL', sort:'ovr-desc'},
 };
 
 function seedData(){
@@ -1074,7 +1144,11 @@ function seedData(){
     const players = [];
     for(let k=0;k<total;k++) players.push(randomPlayer(bias));
     players[Math.floor(total/2)] = makePlayer(randomName(), 'ATA', rnd(84,97));
-    return {id:'t'+i, name, color:TEAM_COLORS[i%TEAM_COLORS.length], custom:false, formation, players};
+    const color = TEAM_COLORS[i%TEAM_COLORS.length];
+    const cc = CATALOG_CRESTS[i] || {};
+    const crest = {shape:cc.shape||'shield', pattern:cc.pattern||'solid', base:color, accent:shade(color,-42),
+      symbol:cc.symbol||'none', text:crestLetters(name), stars:cc.stars||0};
+    return {id:'t'+i, name, color, custom:false, formation, players, crest};
   });
   state.freeAgents = [];
   for(let i=0;i<60;i++){ state.freeAgents.push(randomPlayer(Math.random())); }
@@ -1129,6 +1203,7 @@ async function loadState(){
   // migração: jogadores salvos antes de value/nacionalidade existirem ganham valores agora
   state.teams.forEach(t=> t.players.forEach(p=>{ if(p) ensurePlayerExtras(p); }));
   state.freeAgents.forEach(p=> ensurePlayerExtras(p));
+  state.teams.forEach(t=>{ if(!t.crest) t.crest = defaultCrestFor(t); });
   if(!state.settings) state.settings = defaultSettings();
   applyTheme();
   state.view = state.device ? 'home' : 'devicePick';
@@ -1214,8 +1289,224 @@ function clubOf(pl){
 }
 function crestHTML(t,size,fs){
   size=size||36;
-  return `<div class="crest-shield" style="background:${t.color};color:${contrastText(t.color)};width:${size}px;height:${Math.round(size*1.14)}px;font-size:${fs||Math.round(size*0.36)}px;">${crestLetters(t.name)}</div>`;
+  if(!t.crest) t.crest = defaultCrestFor(t);
+  return `<div style="width:${size}px;flex-shrink:0;">${crestSVGFromConfig(t.crest, size, t.id)}</div>`;
 }
+
+/* ============================= ESCUDOS PERSONALIZADOS ============================= */
+const CREST_SHAPE_LIST = [
+  {key:'shield',  label:'Escudo clássico'},
+  {key:'circle',  label:'Círculo'},
+  {key:'hex',     label:'Hexágono'},
+  {key:'pentagon',label:'Pentágono'},
+  {key:'banner',  label:'Bandeira'},
+];
+const CREST_PATTERN_LIST = [
+  {key:'solid',    label:'Sólido'},
+  {key:'split',    label:'Diagonal'},
+  {key:'stripes',  label:'Listras'},
+  {key:'quarters', label:'Quadrantes'},
+  {key:'border',   label:'Borda'},
+];
+const CREST_SYMBOLS = [
+  {key:'none',    emoji:'',  label:'Nenhum'},
+  {key:'star',    emoji:'⭐', label:'Estrela'},
+  {key:'ball',    emoji:'⚽', label:'Bola'},
+  {key:'lion',    emoji:'🦁', label:'Leão'},
+  {key:'wolf',    emoji:'🐺', label:'Lobo'},
+  {key:'eagle',   emoji:'🦅', label:'Águia'},
+  {key:'fire',    emoji:'🔥', label:'Fogo'},
+  {key:'bolt',    emoji:'⚡', label:'Raio'},
+  {key:'crown',   emoji:'👑', label:'Coroa'},
+  {key:'shield',  emoji:'🛡️', label:'Escudo'},
+  {key:'moon',    emoji:'🌙', label:'Lua'},
+  {key:'sun',     emoji:'☀️', label:'Sol'},
+  {key:'clover',  emoji:'🍀', label:'Trevo'},
+  {key:'dragon',  emoji:'🐉', label:'Dragão'},
+  {key:'swords',  emoji:'⚔️', label:'Espadas'},
+  {key:'bull',    emoji:'🐂', label:'Touro'},
+  {key:'wave',    emoji:'🌊', label:'Onda'},
+  {key:'mountain',emoji:'🏔️', label:'Montanha'},
+];
+function crestShapeClip(shape){
+  switch(shape){
+    case 'circle':   return '<ellipse cx="50" cy="55" rx="47" ry="52"/>';
+    case 'hex':      return '<polygon points="50,2 95,27 95,83 50,108 5,83 5,27"/>';
+    case 'pentagon': return '<polygon points="50,2 97,40 79,105 21,105 3,40"/>';
+    case 'banner':   return '<polygon points="4,4 96,4 96,92 75,102 50,92 25,102 4,92"/>';
+    case 'shield':
+    default:         return '<path d="M4,4 H96 V62 C96,86 76,96 50,109 C24,96 4,86 4,62 Z"/>';
+  }
+}
+function defaultCrestFor(t){
+  return {shape:'shield', pattern:'solid', base:t.color, accent:shade(t.color,-42), symbol:'none', text:crestLetters(t.name), stars:0};
+}
+/* Monta o SVG do escudo a partir da configuração (usado tanto na prévia do editor quanto nas telas do jogo). */
+function crestSVGFromConfig(cfg, size, idSeed){
+  size = size || 48;
+  const shape = cfg.shape || 'shield';
+  const pattern = cfg.pattern || 'solid';
+  const base = cfg.base || '#29d398';
+  const accent = cfg.accent || shade(base,-42);
+  const clip = crestShapeClip(shape);
+  let fill = `<rect width="100" height="110" fill="${base}"/>`;
+  if(pattern==='split'){
+    fill = `<rect width="100" height="110" fill="${base}"/><polygon points="0,110 100,0 100,110" fill="${accent}"/>`;
+  } else if(pattern==='stripes'){
+    let st=''; const n=5, w=100/n;
+    for(let i=0;i<n;i++) st += `<rect x="${i*w}" y="0" width="${w}" height="110" fill="${i%2 ? accent : base}"/>`;
+    fill = st;
+  } else if(pattern==='quarters'){
+    fill = `<rect x="0" y="0" width="50" height="55" fill="${base}"/><rect x="50" y="0" width="50" height="55" fill="${accent}"/>`+
+           `<rect x="0" y="55" width="50" height="55" fill="${accent}"/><rect x="50" y="55" width="50" height="55" fill="${base}"/>`;
+  }
+  const symbolMeta = CREST_SYMBOLS.find(sy=>sy.key===cfg.symbol) || CREST_SYMBOLS[0];
+  const hasSymbol = symbolMeta.key!=='none';
+  const hasText = !!(cfg.text && String(cfg.text).trim());
+  const symbolEl = hasSymbol ? `<text x="50" y="${hasText?50:58}" font-size="38" text-anchor="middle" dominant-baseline="central">${symbolMeta.emoji}</text>` : '';
+  const textColor = contrastText(base);
+  const textEl = hasText ? `<text x="50" y="${hasSymbol?90:58}" font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="${hasSymbol?17:27}" letter-spacing="1" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escHtml(String(cfg.text).toUpperCase().slice(0,5))}</text>` : '';
+  const borderEl = pattern==='border' ? `<g fill="none" stroke="${accent}" stroke-width="7">${clip}</g>` : '';
+  const starsN = Math.max(0, Math.min(3, cfg.stars||0));
+  let starsEl = '';
+  if(starsN>0){
+    const startX = 50 - (starsN-1)*7;
+    for(let i=0;i<starsN;i++) starsEl += `<text x="${startX+i*14}" y="-2" font-size="13" text-anchor="middle">⭐</text>`;
+  }
+  return `<svg viewBox="0 -16 100 126" width="${size}" height="${Math.round(size*1.26)}" style="display:block;overflow:visible;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));">
+    <defs><clipPath id="cc${idSeed}">${clip}</clipPath></defs>
+    ${starsEl}
+    <g clip-path="url(#cc${idSeed})">
+      ${fill}
+      <rect width="100" height="55" fill="rgba(255,255,255,.16)"/>
+      <rect y="55" width="100" height="55" fill="rgba(0,0,0,.1)"/>
+    </g>
+    ${borderEl}
+    <g fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2.5">${clip}</g>
+    ${symbolEl}
+    ${textEl}
+  </svg>`;
+}
+/* 16 escudos fixos pros times iniciais — sempre os mesmos, pra todo mundo que abrir o jogo. */
+const CATALOG_CRESTS = [
+  {shape:'hex',      pattern:'split',    symbol:'star',    stars:2}, // Astra United
+  {shape:'shield',   pattern:'stripes',  symbol:'bolt',     stars:0}, // Les Bleus
+  {shape:'shield',   pattern:'solid',    symbol:'sun',      stars:1}, // Verde-Amarela
+  {shape:'circle',   pattern:'quarters', symbol:'eagle',    stars:3}, // Liverpul Red Unidos
+  {shape:'banner',   pattern:'split',    symbol:'mountain', stars:0}, // Inter Toronto
+  {shape:'pentagon', pattern:'solid',    symbol:'bolt',     stars:0}, // Claude FC
+  {shape:'hex',      pattern:'quarters', symbol:'fire',     stars:0}, // Laranja Mecânica
+  {shape:'shield',   pattern:'split',    symbol:'wave',     stars:1}, // Azzurra
+  {shape:'circle',   pattern:'stripes',  symbol:'lion',     stars:0}, // Ghiaka FC
+  {shape:'banner',   pattern:'solid',    symbol:'crown',    stars:0}, // Teccoy City
+  {shape:'pentagon', pattern:'stripes',  symbol:'swords',   stars:0}, // Teccoy United
+  {shape:'hex',      pattern:'solid',    symbol:'clover',   stars:2}, // Real Prism
+  {shape:'circle',   pattern:'split',    symbol:'moon',     stars:0}, // Inter de Mercoy
+  {shape:'shield',   pattern:'quarters', symbol:'dragon',   stars:1}, // Astralone
+  {shape:'pentagon', pattern:'border',   symbol:'wolf',     stars:0}, // Escreion FFE
+  {shape:'banner',   pattern:'stripes',  symbol:'bull',     stars:3}, // Izar Club
+];
+
+let draftCrest = null;
+function openCrestEditor(teamId){
+  const t = findTeam(teamId);
+  if(!t) return;
+  if(!t.crest) t.crest = defaultCrestFor(t);
+  draftCrest = Object.assign({}, t.crest);
+  setView('editCrest', {currentTeamId: teamId});
+}
+function setCrestField(key, value){
+  if(!draftCrest) return;
+  draftCrest[key] = value;
+  render();
+}
+function updateCrestText(val){
+  if(!draftCrest) return;
+  draftCrest.text = val;
+  const el = document.getElementById('crest-preview');
+  if(el) el.innerHTML = crestSVGFromConfig(draftCrest, 160, 'draft');
+}
+function saveCrestEdit(){
+  const t = findTeam(state.currentTeamId);
+  if(!t || !draftCrest) return;
+  t.crest = Object.assign({}, draftCrest);
+  draftCrest = null;
+  saveState();
+  setView('teamDetail', {currentTeamId: t.id});
+}
+function cancelCrestEdit(){
+  const teamId = state.currentTeamId;
+  draftCrest = null;
+  setView('teamDetail', {currentTeamId: teamId});
+}
+function resetCrestToDefault(teamId){
+  const t = findTeam(teamId);
+  if(!t) return;
+  draftCrest = defaultCrestFor(t);
+  render();
+}
+function editCrestView(){
+  const t = findTeam(state.currentTeamId);
+  if(!t) return `<p>Time não encontrado.</p>`;
+  if(!draftCrest) draftCrest = Object.assign({}, t.crest || defaultCrestFor(t));
+  const c = draftCrest;
+  return `
+  <div class="btn-row" style="margin-bottom:12px;"><button class="btn secondary" onclick="cancelCrestEdit()">← Voltar</button></div>
+  <h2 class="section-title">Editar Escudo</h2>
+  <p class="section-sub">Monte o escudo de <b>${escHtml(t.name)}</b>: formato, cores, padrão, símbolo e texto.</p>
+  <div class="crest-editor">
+    <div class="crest-preview-col">
+      <div id="crest-preview">${crestSVGFromConfig(c, 160, 'draft')}</div>
+      <p class="hint">Prévia ao vivo</p>
+      <div class="btn-row" style="justify-content:center;">
+        <button class="btn gold" onclick="saveCrestEdit()">Salvar escudo</button>
+      </div>
+      <button class="btn secondary" style="width:100%;" onclick="resetCrestToDefault('${t.id}')">Restaurar padrão</button>
+    </div>
+    <div class="crest-controls-col">
+      <div class="panel">
+        <h4 class="settings-panel-title">Formato</h4>
+        <div class="seg-control">
+          ${CREST_SHAPE_LIST.map(sh=>`<button class="${c.shape===sh.key?'active':''}" onclick="setCrestField('shape','${sh.key}')">${sh.label}</button>`).join('')}
+        </div>
+      </div>
+      <div class="panel">
+        <h4 class="settings-panel-title">Padrão</h4>
+        <div class="seg-control">
+          ${CREST_PATTERN_LIST.map(p=>`<button class="${c.pattern===p.key?'active':''}" onclick="setCrestField('pattern','${p.key}')">${p.label}</button>`).join('')}
+        </div>
+      </div>
+      <div class="panel">
+        <h4 class="settings-panel-title">Cores</h4>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Cor principal</label>
+          <div class="color-swatches">${TEAM_COLORS.map(col=>`<div style="background:${col};" class="${c.base===col?'sel':''}" onclick="setCrestField('base','${col}')"></div>`).join('')}</div>
+        </div>
+        <div class="field" style="margin-bottom:0;">
+          <label>Cor secundária</label>
+          <div class="color-swatches">${TEAM_COLORS.map(col=>`<div style="background:${col};" class="${c.accent===col?'sel':''}" onclick="setCrestField('accent','${col}')"></div>`).join('')}</div>
+        </div>
+      </div>
+      <div class="panel">
+        <h4 class="settings-panel-title">Símbolo</h4>
+        <div class="symbol-grid">
+          ${CREST_SYMBOLS.map(sy=>`<button type="button" class="symbol-btn ${c.symbol===sy.key?'active':''}" title="${sy.label}" onclick="setCrestField('symbol','${sy.key}')">${sy.emoji || '🚫'}</button>`).join('')}
+        </div>
+      </div>
+      <div class="panel">
+        <h4 class="settings-panel-title">Texto (até 5 letras)</h4>
+        <input type="text" maxlength="5" value="${escHtml(c.text||'')}" placeholder="Ex: ${crestLetters(t.name)}" oninput="updateCrestText(this.value)">
+      </div>
+      <div class="panel">
+        <h4 class="settings-panel-title">Estrelas</h4>
+        <div class="seg-control">
+          ${[0,1,2,3].map(n=>`<button class="${(c.stars||0)===n?'active':''}" onclick="setCrestField('stars',${n})">${n===0?'Nenhuma':'★'.repeat(n)}</button>`).join('')}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function topPlayers(n){
   return allMarketPlayers().map(r=>r.p).sort((a,b)=>b.ovr-a.ovr).slice(0,n);
 }
@@ -1328,7 +1619,7 @@ function legendHTML(){
 function render(){
   const app = document.getElementById('app');
   const anim = state._animate; state._animate = false;
-  app.innerHTML = topbarHTML() + `<div class="${anim?'view-enter':''}">${viewHTML()}</div>` + (state.modal ? modalHTML() : '');
+  app.innerHTML = topbarHTML() + subNavHTML() + `<div class="${anim?'view-enter':''}">${viewHTML()}</div>` + (state.modal ? modalHTML() : '');
   if(document.body && document.body.classList){
     document.body.classList.remove('device-mobile','device-desktop');
     if(state.device) document.body.classList.add('device-'+state.device);
@@ -1347,12 +1638,26 @@ const NAV_ITEMS = [
   ['settings','Configurações','⚙️'],
 ];
 const NAV_GROUPS = [
-  ['Geral',['home','teams','catalog','categories']],
-  ['Criar',['createPlayer','createTeam']],
+  ['Times e Jogadores',['teams','catalog','categories','createTeam','createPlayer']],
   ['Competições',['worldcup','league','friendly']],
   ['Economia',['market']],
-  ['Sistema',['settings']],
 ];
+const GROUP_TITLE_HTML = {
+  'Times e Jogadores':'Times e <span>Jogadores</span>',
+  'Competições':'<span>Competições</span>',
+  'Economia':'<span>Economia</span>',
+};
+/* Barra de abas com as páginas "irmãs" da página atual — ajuda a navegar
+   dentro de um mesmo assunto sem precisar abrir o menu lateral toda hora. */
+function subNavHTML(){
+  const group = NAV_GROUPS.find(([,keys])=>keys.includes(state.view));
+  if(!group || group[1].length<2) return '';
+  const byKey = {}; NAV_ITEMS.forEach(i=>byKey[i[0]]=i);
+  return `<div class="subnav">${group[1].map(k=>{
+    const [,label,icon] = byKey[k];
+    return `<button class="${state.view===k?'active':''}" onclick="setView('${k}')">${icon} ${label}</button>`;
+  }).join('')}</div>`;
+}
 const VIEW_LABEL = {teamDetail:'Times',categoryDetail:'Categorias',createCategory:'Categorias',match:'Partida',devicePick:'Configuração',loading:'Carregando'};
 function currentPageLabel(){
   const it = NAV_ITEMS.find(x=>x[0]===state.view);
@@ -1372,7 +1677,6 @@ function topbarHTML(){
   ${sidebarHTML()}`;
 }
 function sidebarHTML(){
-  const deviceIcon = state.device==='mobile' ? '📱' : (state.device==='desktop' ? '🖥️' : '⚙️');
   const byKey = {}; NAV_ITEMS.forEach(i=>byKey[i[0]]=i);
   const groups = NAV_GROUPS.map(([title,keys])=>`
       <div class="sb-group">${title}</div>
@@ -1388,7 +1692,11 @@ function sidebarHTML(){
       </div>
       <button class="sidebar-close" onclick="closeSidebar()">✕</button>
     </div>
-    <div class="sidebar-links" style="flex:1;">${groups}</div>
+    <div class="sidebar-links" style="flex:1;">
+      <button class="${state.view==='home'?'active':''}" onclick="setView('home')"><span class="nav-icon">🏠</span>Início</button>
+      <div class="sidebar-divider"></div>
+      ${groups}
+    </div>
     <div class="sidebar-footer">
       <button class="btn secondary" style="width:100%;justify-content:flex-start;" onclick="setView('settings')">⚙️&nbsp; Configurações</button>
       <div class="mini">${state.teams.length} times · ${nPlayers} jogadores</div>
@@ -1409,6 +1717,7 @@ function viewHTML(){
     case 'league': return leagueView();
     case 'market': return marketView();
     case 'settings': return settingsView();
+    case 'editCrest': return editCrestView();
     case 'categories': return categoriesView();
     case 'categoryDetail': return categoryDetailView();
     case 'createCategory': return createCategoryView();
@@ -1445,12 +1754,21 @@ function chooseDevice(type){
 }
 
 /* ============================= CONFIGURAÇÕES ============================= */
-function defaultSettings(){ return {theme:'dark', performanceMode:false, defaultSpeed:1}; }
+const ACCENT_THEMES = [
+  {key:'green',  label:'Verde',   color:'#29d398'},
+  {key:'red',    label:'Vermelho',color:'#ff5c5c'},
+  {key:'purple', label:'Lilás',   color:'#b07cff'},
+  {key:'blue',   label:'Azul',    color:'#4ea1ff'},
+  {key:'yellow', label:'Amarelo', color:'#f0c94a'},
+];
+function defaultSettings(){ return {theme:'dark', accent:'green', performanceMode:false, defaultSpeed:1}; }
 function applyTheme(){
   if(!document.body || !document.body.classList) return;
   const s = state.settings || defaultSettings();
   document.body.classList.toggle('theme-light', s.theme==='light');
   document.body.classList.toggle('perf-mode', !!s.performanceMode);
+  ACCENT_THEMES.forEach(a=> document.body.classList.remove('accent-'+a.key));
+  document.body.classList.add('accent-'+(s.accent||'green'));
 }
 function updateSetting(key, value){
   if(!state.settings) state.settings = defaultSettings();
@@ -1484,11 +1802,17 @@ function settingsView(){
         <button class="${s.theme==='light'?'active':''}" onclick="updateSetting('theme','light')">☀️ Claro</button>
       </div>
     </div>
-    <div class="field" style="margin-bottom:0;">
+    <div class="field" style="margin-bottom:14px;">
       <label>Tipo de tela</label>
       <div class="seg-control">
         <button class="${state.device==='mobile'?'active':''}" onclick="chooseDeviceInline('mobile')">📱 Celular</button>
         <button class="${state.device==='desktop'?'active':''}" onclick="chooseDeviceInline('desktop')">🖥️ Tablet / PC</button>
+      </div>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label>Cor do tema</label>
+      <div class="theme-swatches">
+        ${ACCENT_THEMES.map(a=>`<div class="theme-swatch ${s.accent===a.key?'sel':''}" style="background:${a.color};" title="${a.label}" onclick="updateSetting('accent','${a.key}')">${s.accent===a.key?'✓':''}</div>`).join('')}
       </div>
     </div>
   </div>
@@ -1518,11 +1842,31 @@ function settingsView(){
 
 /* ============================= HOME ============================= */
 const QC_ACCENT = {teams:'#29d398',catalog:'#4a90e2',createPlayer:'#e8b34a',createTeam:'#f2a65a',worldcup:'#ffd067',league:'#7b8cff',market:'#2ec4b6',friendly:'#ff6b6b',categories:'#a25bff'};
+const QC_META = {
+  teams:       {desc:(_)=>`${state.teams.length} times salvos — veja escalações e formações.`, meta:()=> state.teams.length+' times'},
+  catalog:     {desc:()=>'Jogadores livres prontos para entrar em qualquer time.', meta:()=> state.freeAgents.length+' agentes livres'},
+  categories:  {desc:()=>'Agrupe seus times em categorias personalizadas.', meta:()=> state.categories.length+' categorias'},
+  createTeam:  {desc:()=>'Escolha nome, cor, formação e escale seus 11 titulares.', meta:()=>'Times ilimitados'},
+  createPlayer:{desc:()=>'Defina nome, posição e OVR (até 500) e gere a carta.', meta:()=>'Marrom → Arco-Íris'},
+  worldcup:    {desc:()=>'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', meta:()=>'Mata-mata completo'},
+  league:      {desc:()=>'Pontos corridos entre até 8 times, depois mata-mata entre os melhores.', meta:()=>'Máx. 8 times'},
+  friendly:    {desc:()=>'Escolha dois times quaisquer e simule um jogo avulso na hora.', meta:()=>'Jogo rápido'},
+  market:      {desc:()=>'Acompanhe transferências e os jogadores mais valiosos do seu universo.', meta:()=> state.transfers.length+' movimentações'},
+};
 function homeView(){
   const totalPlayers = state.teams.reduce((a,t)=>a+teamFilled(t).length,0) + state.freeAgents.length;
   const stars = topPlayers(3);
   const heroCards = stars.length===3 ? `<div class="hero-cards">${[stars[1],stars[0],stars[2]].map(p=>playerCardHTML(p)).join('')}</div>` : '';
   const bestTeams = state.teams.slice().sort((a,b)=>teamStrength(b)-teamStrength(a)).slice(0,4);
+  const byKey = {}; NAV_ITEMS.forEach(i=>byKey[i[0]]=i);
+  const groupsHTML = NAV_GROUPS.map(([title,keys])=>{
+    const cards = keys.map(k=>{
+      const meta = QC_META[k], item = byKey[k];
+      if(!meta || !item) return '';
+      return quickCard(item[2], item[1], meta.desc(), k, meta.meta());
+    }).join('');
+    return `<div class="sec-head"><h3>${GROUP_TITLE_HTML[title] || title}</h3></div><div class="grid teams">${cards}</div>`;
+  }).join('');
   return `
   <div class="hero">
     <div class="hero-text">
@@ -1542,18 +1886,7 @@ function homeView(){
     <div class="stat-chip"><span class="stat-num">${state.freeAgents.length}</span><span class="stat-label">Agentes livres</span></div>
     <div class="stat-chip"><span class="stat-num">${state.categories.length}</span><span class="stat-label">Categorias</span></div>
   </div>
-  <div class="sec-head"><h3>Acesso <span>rápido</span></h3></div>
-  <div class="grid teams">
-    ${quickCard('⚽','Times', `${state.teams.length} times salvos — veja escalações e formações.`, 'teams', state.teams.length+' times')}
-    ${quickCard('📇','Catálogo de Jogadores', 'Jogadores livres prontos para entrar em qualquer time.', 'catalog', state.freeAgents.length+' agentes livres')}
-    ${quickCard('➕','Criar Jogador', 'Defina nome, posição e OVR (até 500) e gere a carta.', 'createPlayer', 'Marrom → Arco-Íris')}
-    ${quickCard('🛠️','Criar Time', 'Escolha nome, cor, formação e escale seus 11 titulares.', 'createTeam', 'Times ilimitados')}
-    ${quickCard('🏆','Copa do Mundo', 'Selecione times (2 a 64) e simule em chaveamento real, partida por partida.', 'worldcup', 'Mata-mata completo')}
-    ${quickCard('📊','Liga Planifa', 'Pontos corridos entre até 8 times, depois mata-mata entre os melhores.', 'league', 'Máx. 8 times')}
-    ${quickCard('💶','Mercado','Acompanhe transferências e os jogadores mais valiosos do seu universo.', 'market', state.transfers.length+' movimentações')}
-    ${quickCard('🤝','Amistoso', 'Escolha dois times quaisquer e simule um jogo avulso na hora.', 'friendly', 'Jogo rápido')}
-    ${quickCard('🗂️','Categorias', 'Agrupe seus times em categorias personalizadas.', 'categories', state.categories.length+' categorias')}
-  </div>
+  ${groupsHTML}
   ${bestTeams.length ? `<div class="sec-head"><h3>Times em <span>destaque</span></h3><a onclick="setView('teams')">Ver todos →</a></div>
   <div class="grid teams">${bestTeams.map(t=>teamTileHTML(t)).join('')}</div>` : ''}
   <div class="sec-head"><h3>Raridades das <span>cartas</span></h3></div>
@@ -1667,6 +2000,7 @@ function teamDetailView(){
           ${Object.keys(FORMATIONS).map(f=>`<option value="${f}" ${t.formation===f?'selected':''}>${f}</option>`).join('')}
         </select>
       </div>
+      <button class="btn secondary" onclick="openCrestEditor('${t.id}')">🎨 Editar escudo</button>
       <button class="btn danger" onclick="deleteTeam('${t.id}')">Excluir time</button>
     </div>
   </div>
@@ -1703,7 +2037,7 @@ function changeFormation(teamId, newKey){
 }
 function openSlotModal(teamId, idx){
   const t = findTeam(teamId);
-  state.modal = {type:'slot', teamId, slotIndex:idx, tab: t.players[idx] ? 'view' : 'agents', posFilter:'ALL', tierFilter:'ALL'};
+  state.modal = {type:'slot', teamId, slotIndex:idx, tab: t.players[idx] ? 'view' : 'agents', posFilter:'ALL', tierFilter:'ALL', natFilter:'ALL'};
   render();
 }
 
@@ -1714,6 +2048,7 @@ function filteredAgents(){
   if(f.search.trim()) list = list.filter(p=>p.name.toLowerCase().includes(f.search.trim().toLowerCase()));
   if(f.pos!=='ALL') list = list.filter(p=>p.pos===f.pos);
   if(f.tier!=='ALL') list = list.filter(p=>getTier(p.ovr).key===f.tier);
+  if(f.nat && f.nat!=='ALL') list = list.filter(p=>p.nationality===f.nat);
   if(f.sort==='ovr-desc') list.sort((a,b)=>b.ovr-a.ovr);
   else if(f.sort==='ovr-asc') list.sort((a,b)=>a.ovr-b.ovr);
   else if(f.sort==='name') list.sort((a,b)=>a.name.localeCompare(b.name));
@@ -1722,36 +2057,49 @@ function filteredAgents(){
 function catalogView(){
   const f = state.catalogFilter;
   const list = filteredAgents();
+  const activeCount = (f.search.trim()?1:0)+(f.pos!=='ALL'?1:0)+(f.tier!=='ALL'?1:0)+(f.nat!=='ALL'?1:0);
   return `
   <h2 class="section-title">Catálogo de Jogadores</h2>
-  <p class="section-sub">Jogadores livres, sem time. Crie novos, edite, filtre por posição/raridade ou gere lotes aleatórios.</p>
+  <p class="section-sub">Jogadores livres, sem time. Crie novos, edite, filtre por posição, raridade ou nacionalidade, ou gere lotes aleatórios.</p>
   ${legendHTML()}
-  <div class="catalog-controls">
-    <div class="field search">
-      <label>Buscar por nome</label>
-      <input type="text" placeholder="Ex: Silva" value="${f.search}" oninput="state.catalogFilter.search=this.value;render();">
+  <div class="filter-panel">
+    <div class="filter-head">
+      <h4 class="settings-panel-title" style="margin:0;">🔍 Filtros${activeCount?`<span class="filter-count">${activeCount}</span>`:''}</h4>
+      ${activeCount ? `<a onclick="clearCatalogFilters()">Limpar filtros</a>` : ''}
     </div>
-    <div class="field">
-      <label>Posição</label>
-      <select onchange="state.catalogFilter.pos=this.value;render();">
-        <option value="ALL" ${f.pos==='ALL'?'selected':''}>Todas</option>
-        ${POSITIONS.map(p=>`<option value="${p}" ${f.pos===p?'selected':''}>${p}</option>`).join('')}
-      </select>
-    </div>
-    <div class="field">
-      <label>Raridade</label>
-      <select onchange="state.catalogFilter.tier=this.value;render();">
-        <option value="ALL" ${f.tier==='ALL'?'selected':''}>Todas</option>
-        ${TIERS.map(t=>`<option value="${t.key}" ${f.tier===t.key?'selected':''}>${t.label}</option>`).join('')}
-      </select>
-    </div>
-    <div class="field">
-      <label>Ordenar</label>
-      <select onchange="state.catalogFilter.sort=this.value;render();">
-        <option value="ovr-desc" ${f.sort==='ovr-desc'?'selected':''}>Maior OVR</option>
-        <option value="ovr-asc" ${f.sort==='ovr-asc'?'selected':''}>Menor OVR</option>
-        <option value="name" ${f.sort==='name'?'selected':''}>Nome (A-Z)</option>
-      </select>
+    <div class="filter-grid">
+      <div class="field search">
+        <label>Buscar por nome</label>
+        <input type="text" placeholder="Ex: Silva" value="${f.search}" oninput="state.catalogFilter.search=this.value;render();">
+      </div>
+      <div class="field">
+        <label>Posição</label>
+        <select onchange="state.catalogFilter.pos=this.value;render();">
+          <option value="ALL" ${f.pos==='ALL'?'selected':''}>Todas</option>
+          ${POSITIONS.map(p=>`<option value="${p}" ${f.pos===p?'selected':''}>${p}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Raridade</label>
+        <select onchange="state.catalogFilter.tier=this.value;render();">
+          <option value="ALL" ${f.tier==='ALL'?'selected':''}>Todas</option>
+          ${TIERS.map(t=>`<option value="${t.key}" ${f.tier===t.key?'selected':''}>${t.label}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field">
+        <label>Nacionalidade</label>
+        <select onchange="state.catalogFilter.nat=this.value;render();">
+          ${nationalityOptionsHTML(f.nat)}
+        </select>
+      </div>
+      <div class="field">
+        <label>Ordenar</label>
+        <select onchange="state.catalogFilter.sort=this.value;render();">
+          <option value="ovr-desc" ${f.sort==='ovr-desc'?'selected':''}>Maior OVR</option>
+          <option value="ovr-asc" ${f.sort==='ovr-asc'?'selected':''}>Menor OVR</option>
+          <option value="name" ${f.sort==='name'?'selected':''}>Nome (A-Z)</option>
+        </select>
+      </div>
     </div>
   </div>
   <div class="btn-row" style="margin-bottom:10px;">
@@ -1768,6 +2116,11 @@ function catalogView(){
       })).join(''): '<p class="hint">Nenhum jogador encontrado com esses filtros.</p>'}
   </div>`;
 }
+function clearCatalogFilters(){
+  state.catalogFilter = {search:'', pos:'ALL', tier:'ALL', nat:'ALL', sort:'ovr-desc'};
+  render();
+}
+
 function bulkGenerateAgents(n){
   for(let i=0;i<n;i++) state.freeAgents.push(randomPlayer(Math.random()));
   saveState();
@@ -1871,6 +2224,7 @@ function confirmCreateTeam(){
   if(!draftTeam.name.trim()){ showAlert('Dê um nome ao time.'); return; }
   const total = buildFormationSlots(draftTeam.formation).length;
   const t = {id:uid(), name:draftTeam.name.trim(), color:draftTeam.color, custom:true, formation:draftTeam.formation, players:Array(total).fill(null)};
+  t.crest = defaultCrestFor(t);
   state.teams.push(t);
   draftTeam = {name:'', color:TEAM_COLORS[0], formation:'4-3-3'};
   saveState();
@@ -1967,22 +2321,36 @@ function modalAgentsListForSlotHTML(t, idx){
   let list = [...state.freeAgents];
   if(m.posFilter && m.posFilter!=='ALL') list = list.filter(p=>p.pos===m.posFilter);
   if(m.tierFilter && m.tierFilter!=='ALL') list = list.filter(p=>getTier(p.ovr).key===m.tierFilter);
+  if(m.natFilter && m.natFilter!=='ALL') list = list.filter(p=>p.nationality===m.natFilter);
   list.sort((a,b)=>b.ovr-a.ovr);
+  const activeCount = (m.posFilter&&m.posFilter!=='ALL'?1:0)+(m.tierFilter&&m.tierFilter!=='ALL'?1:0)+(m.natFilter&&m.natFilter!=='ALL'?1:0);
   return `
-    <div class="row" style="margin-bottom:10px;">
-      <div class="field" style="margin-bottom:0;">
-        <label>Posição</label>
-        <select onchange="state.modal.posFilter=this.value;render();">
-          <option value="ALL" ${(!m.posFilter||m.posFilter==='ALL')?'selected':''}>Todas</option>
-          ${POSITIONS.map(p=>`<option value="${p}" ${m.posFilter===p?'selected':''}>${p}</option>`).join('')}
-        </select>
+    <div class="filter-panel modal-filter">
+      <div class="filter-head">
+        <h4 class="settings-panel-title" style="margin:0;font-size:14px;">🔍 Filtros${activeCount?`<span class="filter-count">${activeCount}</span>`:''}</h4>
+        ${activeCount ? `<a onclick="state.modal.posFilter='ALL';state.modal.tierFilter='ALL';state.modal.natFilter='ALL';render();">Limpar</a>` : ''}
       </div>
-      <div class="field" style="margin-bottom:0;">
-        <label>Raridade</label>
-        <select onchange="state.modal.tierFilter=this.value;render();">
-          <option value="ALL" ${(!m.tierFilter||m.tierFilter==='ALL')?'selected':''}>Todas</option>
-          ${TIERS.map(tr=>`<option value="${tr.key}" ${m.tierFilter===tr.key?'selected':''}>${tr.label}</option>`).join('')}
-        </select>
+      <div class="filter-grid">
+        <div class="field">
+          <label>Posição</label>
+          <select onchange="state.modal.posFilter=this.value;render();">
+            <option value="ALL" ${(!m.posFilter||m.posFilter==='ALL')?'selected':''}>Todas</option>
+            ${POSITIONS.map(p=>`<option value="${p}" ${m.posFilter===p?'selected':''}>${p}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Raridade</label>
+          <select onchange="state.modal.tierFilter=this.value;render();">
+            <option value="ALL" ${(!m.tierFilter||m.tierFilter==='ALL')?'selected':''}>Todas</option>
+            ${TIERS.map(tr=>`<option value="${tr.key}" ${m.tierFilter===tr.key?'selected':''}>${tr.label}</option>`).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>Nacionalidade</label>
+          <select onchange="state.modal.natFilter=this.value;render();">
+            ${nationalityOptionsHTML(m.natFilter||'ALL')}
+          </select>
+        </div>
       </div>
     </div>
     <p class="hint" style="margin-bottom:8px;">Mostrando ${list.length} de ${state.freeAgents.length} agente(s) livre(s).</p>
@@ -2818,15 +3186,18 @@ function valuesTabHTML(){
     <h4 style="margin:0 0 10px;color:var(--gold);font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;letter-spacing:.5px;">Elencos mais valiosos</h4>
     ${squads.map((x,i)=>`<div class="tr-row" style="margin-bottom:6px;"><div class="tr-badge new">${i+1}º</div><div class="tr-main"><b>${escHtml(x.t.name)}</b></div><div class="tr-side"><div class="tr-value">${formatValue(x.sum)}</div></div></div>`).join('')}
   </div>
-  <div class="catalog-controls">
-    <div class="field search"><label>Buscar jogador ou clube</label>
-      <input type="text" placeholder="Ex: Silva" value="${escHtml(state.marketSearch)}" oninput="onMarketSearch(this.value)"></div>
-    <div class="field"><label>Mostrar</label>
-      <select onchange="state.marketScope=this.value;render();">
-        <option value="all" ${state.marketScope==='all'?'selected':''}>Todos</option>
-        <option value="teams" ${state.marketScope==='teams'?'selected':''}>Só em times</option>
-        <option value="free" ${state.marketScope==='free'?'selected':''}>Só agentes livres</option>
-      </select></div>
+  <div class="filter-panel">
+    <div class="filter-head"><h4 class="settings-panel-title" style="margin:0;">🔍 Filtros</h4></div>
+    <div class="filter-grid">
+      <div class="field search"><label>Buscar jogador ou clube</label>
+        <input type="text" placeholder="Ex: Silva" value="${escHtml(state.marketSearch)}" oninput="onMarketSearch(this.value)"></div>
+      <div class="field"><label>Mostrar</label>
+        <select onchange="state.marketScope=this.value;render();">
+          <option value="all" ${state.marketScope==='all'?'selected':''}>Todos</option>
+          <option value="teams" ${state.marketScope==='teams'?'selected':''}>Só em times</option>
+          <option value="free" ${state.marketScope==='free'?'selected':''}>Só agentes livres</option>
+        </select></div>
+    </div>
   </div>
   <div id="market-values-list">${marketValuesListHTML()}</div>`;
 }
