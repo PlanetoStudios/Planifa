@@ -265,29 +265,31 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
   border:1px solid var(--line);
 }
 .pitch.match-pitch{height:270px;}
+.pitch.match-pitch2{height:480px;}
 .pitch.lineup{height:500px;}
-.midline{position:absolute;left:50%;top:0;bottom:0;width:2px;background:rgba(255,255,255,.25);}
-.circle{position:absolute;left:50%;top:50%;width:80px;height:80px;margin:-40px 0 0 -40px;border:2px solid rgba(255,255,255,.25);border-radius:50%;}
-.goal-net{position:absolute;top:22%;bottom:22%;width:9px;background:repeating-linear-gradient(0deg, rgba(255,255,255,.55) 0 4px, transparent 4px 9px);}
-.goal-net.left{left:0;}
-.goal-net.right{right:0;}
-.ball{position:absolute;width:12px;height:12px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);
-  box-shadow:0 0 8px rgba(255,255,255,.8);z-index:3;
-  transition:left .9s ease-in-out, top .9s ease-in-out;}
-.dot{position:absolute;width:10px;height:10px;border-radius:50%;transform:translate(-50%,-50%);
-  box-shadow:0 0 5px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.5);z-index:2;
-  transition:left .9s ease-in-out, top .9s ease-in-out;}
-.flash{position:absolute;top:0;bottom:0;width:32%;opacity:0;pointer-events:none;transition:opacity .3s;}
-.flash.side-left{left:0;background:radial-gradient(ellipse at left, rgba(232,179,74,.55), transparent 70%);}
-.flash.side-right{right:0;background:radial-gradient(ellipse at right, rgba(232,179,74,.55), transparent 70%);}
-.flash.on{opacity:1;}
 .goal-banner{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%) scale(.6);
-  font-family:'Big Shoulders Display',sans-serif;font-size:38px;font-weight:800;color:var(--gold);
-  text-shadow:0 0 20px rgba(232,179,74,.9);opacity:0;pointer-events:none;letter-spacing:1px;
-  transition:opacity .25s, transform .25s;text-align:center;z-index:4;text-transform:uppercase;
+  font-family:'Big Shoulders Display',sans-serif;font-size:26px;font-weight:800;color:var(--gold);
+  text-shadow:0 0 20px rgba(232,179,74,.9);opacity:0;pointer-events:none;letter-spacing:.5px;
+  transition:opacity .25s, transform .25s;text-align:center;z-index:9;text-transform:uppercase;
+  padding:0 16px;white-space:nowrap;
 }
 .goal-banner.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+
+/* ---- escalação dos dois times na partida ---- */
+.m-slot{position:absolute;transform:translate(-50%,-50%);width:56px;text-align:center;z-index:2;}
+.ms-card{width:34px;height:34px;border-radius:50%;margin:0 auto;display:flex;align-items:center;justify-content:center;
+  font-family:'JetBrains Mono',monospace;font-weight:800;font-size:11.5px;border:2px solid rgba(255,255,255,.55);
+  box-shadow:0 3px 6px rgba(0,0,0,.4);transition:transform .25s ease, box-shadow .25s ease;}
+.ms-name{display:block;margin-top:3px;font-size:8.5px;font-weight:700;color:#eef2ee;text-shadow:0 1px 3px rgba(0,0,0,.85);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:56px;}
+.ms-pos{display:block;font-size:7px;color:rgba(255,255,255,.55);margin-top:1px;}
+.ms-empty{width:30px;height:30px;border-radius:50%;margin:0 auto;border:2px dashed rgba(255,255,255,.3);background:rgba(255,255,255,.05);}
+.ms-card.scored{transform:scale(1.55);z-index:6;border-color:var(--accent);
+  box-shadow:0 0 0 6px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.45), 0 0 22px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.95);}
+.scorer-line{padding:6px 0;border-bottom:1px dashed var(--line);font-size:13.5px;color:var(--sub);}
+.scorer-line:last-child{border-bottom:none;}
+.scorer-line b{color:var(--text);}
 
 .empty-slot{
   border:1.5px dashed var(--line);border-radius:14px;min-height:190px;
@@ -915,6 +917,8 @@ const TEAM_COLORS = [
   '#e8b34a','#29d398','#a25bff','#e2544a','#4a90e2','#f2a65a','#5ad1c9','#d65fa0','#c9d15a','#7b8cff',
   '#ff6b6b','#1fbf75','#3f51b5','#ff9f43','#2ec4b6','#c0392b','#8e44ad','#16a085','#e67e22','#34495e',
   '#ff4d8d','#6ab04c','#487eb0','#eccc68','#30336b','#ff7675','#00b894','#fdcb6e','#6c5ce7','#b33939',
+  '#14b8a6','#0f3460','#6b1d2e','#c9a227','#9d7fe0','#4ade80','#ff8a65','#808000','#f06292','#ffb300',
+  '#3f0d99','#5d4037','#37474f','#8e24aa','#00838f',
 ];
 
 const FORMATIONS = {
@@ -1295,51 +1299,95 @@ function crestHTML(t,size,fs){
 
 /* ============================= ESCUDOS PERSONALIZADOS ============================= */
 const CREST_SHAPE_LIST = [
-  {key:'shield',  label:'Escudo clássico'},
-  {key:'circle',  label:'Círculo'},
-  {key:'hex',     label:'Hexágono'},
-  {key:'pentagon',label:'Pentágono'},
-  {key:'banner',  label:'Bandeira'},
+  {key:'shield',     label:'Escudo clássico'},
+  {key:'circle',     label:'Círculo'},
+  {key:'hex',        label:'Hexágono'},
+  {key:'pentagon',   label:'Pentágono'},
+  {key:'banner',     label:'Bandeira'},
+  {key:'diamond',    label:'Losango'},
+  {key:'oval',       label:'Oval'},
+  {key:'roundSquare',label:'Quadrado arredondado'},
+  {key:'arch',       label:'Arco'},
+  {key:'star',       label:'Estrela'},
 ];
 const CREST_PATTERN_LIST = [
   {key:'solid',    label:'Sólido'},
   {key:'split',    label:'Diagonal'},
+  {key:'gradient', label:'Degradê'},
   {key:'stripes',  label:'Listras'},
   {key:'quarters', label:'Quadrantes'},
+  {key:'cross',    label:'Cruz'},
+  {key:'dots',     label:'Bolinhas'},
+  {key:'chevron',  label:'Chevron'},
   {key:'border',   label:'Borda'},
 ];
 const CREST_SYMBOLS = [
-  {key:'none',    emoji:'',  label:'Nenhum'},
-  {key:'star',    emoji:'⭐', label:'Estrela'},
-  {key:'ball',    emoji:'⚽', label:'Bola'},
-  {key:'lion',    emoji:'🦁', label:'Leão'},
-  {key:'wolf',    emoji:'🐺', label:'Lobo'},
-  {key:'eagle',   emoji:'🦅', label:'Águia'},
-  {key:'fire',    emoji:'🔥', label:'Fogo'},
-  {key:'bolt',    emoji:'⚡', label:'Raio'},
-  {key:'crown',   emoji:'👑', label:'Coroa'},
-  {key:'shield',  emoji:'🛡️', label:'Escudo'},
-  {key:'moon',    emoji:'🌙', label:'Lua'},
-  {key:'sun',     emoji:'☀️', label:'Sol'},
-  {key:'clover',  emoji:'🍀', label:'Trevo'},
-  {key:'dragon',  emoji:'🐉', label:'Dragão'},
-  {key:'swords',  emoji:'⚔️', label:'Espadas'},
-  {key:'bull',    emoji:'🐂', label:'Touro'},
-  {key:'wave',    emoji:'🌊', label:'Onda'},
-  {key:'mountain',emoji:'🏔️', label:'Montanha'},
+  {key:'none',     emoji:'',  label:'Nenhum'},
+  {key:'star',     emoji:'⭐', label:'Estrela'},
+  {key:'ball',     emoji:'⚽', label:'Bola'},
+  {key:'lion',     emoji:'🦁', label:'Leão'},
+  {key:'tiger',    emoji:'🐯', label:'Tigre'},
+  {key:'wolf',     emoji:'🐺', label:'Lobo'},
+  {key:'bear',     emoji:'🐻', label:'Urso'},
+  {key:'eagle',    emoji:'🦅', label:'Águia'},
+  {key:'owl',      emoji:'🦉', label:'Coruja'},
+  {key:'fox',      emoji:'🦊', label:'Raposa'},
+  {key:'shark',    emoji:'🦈', label:'Tubarão'},
+  {key:'horse',    emoji:'🐴', label:'Cavalo'},
+  {key:'scorpion', emoji:'🦂', label:'Escorpião'},
+  {key:'spider',   emoji:'🕷️', label:'Aranha'},
+  {key:'snake',    emoji:'🐍', label:'Serpente'},
+  {key:'bull',     emoji:'🐂', label:'Touro'},
+  {key:'dragon',   emoji:'🐉', label:'Dragão'},
+  {key:'fire',     emoji:'🔥', label:'Fogo'},
+  {key:'bolt',     emoji:'⚡', label:'Raio'},
+  {key:'crown',    emoji:'👑', label:'Coroa'},
+  {key:'shield',   emoji:'🛡️', label:'Escudo'},
+  {key:'swords',   emoji:'⚔️', label:'Espadas'},
+  {key:'moon',     emoji:'🌙', label:'Lua'},
+  {key:'sun',      emoji:'☀️', label:'Sol'},
+  {key:'rainbow',  emoji:'🌈', label:'Arco-íris'},
+  {key:'snowflake',emoji:'❄️', label:'Neve'},
+  {key:'comet',    emoji:'☄️', label:'Cometa'},
+  {key:'clover',   emoji:'🍀', label:'Trevo'},
+  {key:'tree',     emoji:'🌳', label:'Árvore'},
+  {key:'rose',     emoji:'🌹', label:'Rosa'},
+  {key:'cactus',   emoji:'🌵', label:'Cacto'},
+  {key:'wave',     emoji:'🌊', label:'Onda'},
+  {key:'mountain', emoji:'🏔️', label:'Montanha'},
+  {key:'globe',    emoji:'🌍', label:'Globo'},
+  {key:'trophy',   emoji:'🏆', label:'Troféu'},
+  {key:'medal',    emoji:'🥇', label:'Medalha'},
+  {key:'gem',      emoji:'💎', label:'Gema'},
+  {key:'anchor',   emoji:'⚓', label:'Âncora'},
+  {key:'compass',  emoji:'🧭', label:'Bússola'},
+  {key:'target',   emoji:'🎯', label:'Alvo'},
+  {key:'key',      emoji:'🔑', label:'Chave'},
+  {key:'hammer',   emoji:'🔨', label:'Martelo'},
+  {key:'rocket',   emoji:'🚀', label:'Foguete'},
+  {key:'skull',    emoji:'💀', label:'Caveira'},
+  {key:'ghost',    emoji:'👻', label:'Fantasma'},
+  {key:'heart',    emoji:'❤️', label:'Coração'},
+  {key:'infinity', emoji:'♾️', label:'Infinito'},
+  {key:'flag',     emoji:'🚩', label:'Bandeira'},
 ];
 function crestShapeClip(shape){
   switch(shape){
-    case 'circle':   return '<ellipse cx="50" cy="55" rx="47" ry="52"/>';
-    case 'hex':      return '<polygon points="50,2 95,27 95,83 50,108 5,83 5,27"/>';
-    case 'pentagon': return '<polygon points="50,2 97,40 79,105 21,105 3,40"/>';
-    case 'banner':   return '<polygon points="4,4 96,4 96,92 75,102 50,92 25,102 4,92"/>';
+    case 'circle':      return '<ellipse cx="50" cy="55" rx="47" ry="52"/>';
+    case 'hex':         return '<polygon points="50,2 95,27 95,83 50,108 5,83 5,27"/>';
+    case 'pentagon':    return '<polygon points="50,2 97,40 79,105 21,105 3,40"/>';
+    case 'banner':      return '<polygon points="4,4 96,4 96,92 75,102 50,92 25,102 4,92"/>';
+    case 'diamond':     return '<polygon points="50,2 97,55 50,108 3,55"/>';
+    case 'oval':        return '<ellipse cx="50" cy="55" rx="36" ry="53"/>';
+    case 'roundSquare': return '<path d="M18,4 H82 Q96,4 96,18 V92 Q96,106 82,106 H18 Q4,106 4,92 V18 Q4,4 18,4 Z"/>';
+    case 'arch':        return '<path d="M4,42 C4,8 96,8 96,42 V68 C96,90 76,99 50,109 C24,99 4,90 4,68 Z"/>';
+    case 'star':        return '<polygon points="50,8 61,40 95,40 68,61 78,93 50,74 22,93 32,61 5,40 39,40"/>';
     case 'shield':
-    default:         return '<path d="M4,4 H96 V62 C96,86 76,96 50,109 C24,96 4,86 4,62 Z"/>';
+    default:            return '<path d="M4,4 H96 V62 C96,86 76,96 50,109 C24,96 4,86 4,62 Z"/>';
   }
 }
 function defaultCrestFor(t){
-  return {shape:'shield', pattern:'solid', base:t.color, accent:shade(t.color,-42), symbol:'none', text:crestLetters(t.name), stars:0};
+  return {shape:'shield', pattern:'solid', base:t.color, accent:shade(t.color,-42), symbol:'none', text:crestLetters(t.name), stars:0, textPos:'bottom'};
 }
 /* Monta o SVG do escudo a partir da configuração (usado tanto na prévia do editor quanto nas telas do jogo). */
 function crestSVGFromConfig(cfg, size, idSeed){
@@ -1349,9 +1397,13 @@ function crestSVGFromConfig(cfg, size, idSeed){
   const base = cfg.base || '#29d398';
   const accent = cfg.accent || shade(base,-42);
   const clip = crestShapeClip(shape);
+  let defsExtra = '';
   let fill = `<rect width="100" height="110" fill="${base}"/>`;
   if(pattern==='split'){
     fill = `<rect width="100" height="110" fill="${base}"/><polygon points="0,110 100,0 100,110" fill="${accent}"/>`;
+  } else if(pattern==='gradient'){
+    defsExtra += `<linearGradient id="gr${idSeed}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${base}"/><stop offset="1" stop-color="${accent}"/></linearGradient>`;
+    fill = `<rect width="100" height="110" fill="url(#gr${idSeed})"/>`;
   } else if(pattern==='stripes'){
     let st=''; const n=5, w=100/n;
     for(let i=0;i<n;i++) st += `<rect x="${i*w}" y="0" width="${w}" height="110" fill="${i%2 ? accent : base}"/>`;
@@ -1359,22 +1411,33 @@ function crestSVGFromConfig(cfg, size, idSeed){
   } else if(pattern==='quarters'){
     fill = `<rect x="0" y="0" width="50" height="55" fill="${base}"/><rect x="50" y="0" width="50" height="55" fill="${accent}"/>`+
            `<rect x="0" y="55" width="50" height="55" fill="${accent}"/><rect x="50" y="55" width="50" height="55" fill="${base}"/>`;
+  } else if(pattern==='cross'){
+    fill = `<rect width="100" height="110" fill="${base}"/><rect x="40" y="0" width="20" height="110" fill="${accent}"/><rect x="0" y="45" width="100" height="20" fill="${accent}"/>`;
+  } else if(pattern==='dots'){
+    defsExtra += `<pattern id="dp${idSeed}" width="22" height="22" patternUnits="userSpaceOnUse"><rect width="22" height="22" fill="${base}"/><circle cx="11" cy="11" r="5.5" fill="${accent}"/></pattern>`;
+    fill = `<rect width="100" height="110" fill="url(#dp${idSeed})"/>`;
+  } else if(pattern==='chevron'){
+    fill = `<rect width="100" height="110" fill="${base}"/><polygon points="0,0 50,52 100,0 100,22 50,74 0,22" fill="${accent}"/>`;
   }
   const symbolMeta = CREST_SYMBOLS.find(sy=>sy.key===cfg.symbol) || CREST_SYMBOLS[0];
   const hasSymbol = symbolMeta.key!=='none';
   const hasText = !!(cfg.text && String(cfg.text).trim());
-  const symbolEl = hasSymbol ? `<text x="50" y="${hasText?50:58}" font-size="38" text-anchor="middle" dominant-baseline="central">${symbolMeta.emoji}</text>` : '';
+  const textOnTop = cfg.textPos==='top';
+  let symbolY, textY;
+  if(hasSymbol && hasText){ symbolY = textOnTop ? 80 : 50; textY = textOnTop ? 28 : 90; }
+  else { symbolY = 58; textY = 58; }
+  const symbolEl = hasSymbol ? `<text x="50" y="${symbolY}" font-size="38" text-anchor="middle" dominant-baseline="central">${symbolMeta.emoji}</text>` : '';
   const textColor = contrastText(base);
-  const textEl = hasText ? `<text x="50" y="${hasSymbol?90:58}" font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="${hasSymbol?17:27}" letter-spacing="1" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escHtml(String(cfg.text).toUpperCase().slice(0,5))}</text>` : '';
+  const textEl = hasText ? `<text x="50" y="${textY}" font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="${hasSymbol?17:27}" letter-spacing="1" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escHtml(String(cfg.text).toUpperCase().slice(0,5))}</text>` : '';
   const borderEl = pattern==='border' ? `<g fill="none" stroke="${accent}" stroke-width="7">${clip}</g>` : '';
-  const starsN = Math.max(0, Math.min(3, cfg.stars||0));
+  const starsN = Math.max(0, Math.min(5, cfg.stars||0));
   let starsEl = '';
   if(starsN>0){
     const startX = 50 - (starsN-1)*7;
     for(let i=0;i<starsN;i++) starsEl += `<text x="${startX+i*14}" y="-2" font-size="13" text-anchor="middle">⭐</text>`;
   }
   return `<svg viewBox="0 -16 100 126" width="${size}" height="${Math.round(size*1.26)}" style="display:block;overflow:visible;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));">
-    <defs><clipPath id="cc${idSeed}">${clip}</clipPath></defs>
+    <defs><clipPath id="cc${idSeed}">${clip}</clipPath>${defsExtra}</defs>
     ${starsEl}
     <g clip-path="url(#cc${idSeed})">
       ${fill}
@@ -1496,11 +1559,19 @@ function editCrestView(){
       <div class="panel">
         <h4 class="settings-panel-title">Texto (até 5 letras)</h4>
         <input type="text" maxlength="5" value="${escHtml(c.text||'')}" placeholder="Ex: ${crestLetters(t.name)}" oninput="updateCrestText(this.value)">
+        <div class="field" style="margin:14px 0 0;">
+          <label>Posição do texto</label>
+          <div class="seg-control">
+            <button class="${(c.textPos||'bottom')==='bottom'?'active':''}" onclick="setCrestField('textPos','bottom')">Embaixo</button>
+            <button class="${c.textPos==='top'?'active':''}" onclick="setCrestField('textPos','top')">Em cima</button>
+          </div>
+          <p class="hint" style="margin-top:6px;">Só faz diferença quando tem símbolo e texto ao mesmo tempo.</p>
+        </div>
       </div>
       <div class="panel">
         <h4 class="settings-panel-title">Estrelas</h4>
         <div class="seg-control">
-          ${[0,1,2,3].map(n=>`<button class="${(c.stars||0)===n?'active':''}" onclick="setCrestField('stars',${n})">${n===0?'Nenhuma':'★'.repeat(n)}</button>`).join('')}
+          ${[0,1,2,3,4,5].map(n=>`<button class="${(c.stars||0)===n?'active':''}" onclick="setCrestField('stars',${n})">${n===0?'Nenhuma':'★'.repeat(n)}</button>`).join('')}
         </div>
       </div>
     </div>
@@ -3265,18 +3336,38 @@ function openMatchGeneric(aId, bId, source){
   state.matchCtx = {
     source, teamA:ta, teamB:tb,
     scoreA:0, scoreB:0, minute:0, events:[], finished:false,
-    ballX:50, ballY:50, speed:(state.settings && state.settings.defaultSpeed) || 1, timerId:null, tickFn:null, tickBaseMs:220,
-    dotsA:Array.from({length:5},()=>({x:rnd(6,58),y:rnd(10,90)})),
-    dotsB:Array.from({length:5},()=>({x:rnd(42,94),y:rnd(10,90)})),
+    speed:(state.settings && state.settings.defaultSpeed) || 1, timerId:null, tickFn:null, tickBaseMs:220,
     strA: teamStrength(ta), strB: teamStrength(tb),
+    scorers:{A:[], B:[]}, matchTab:'events',
   };
   setView('match');
   runMatchSimulation();
+}
+/* Posições da escalação de cada time na partida: time A fica embaixo (goleiro na base,
+   atacantes perto do meio), time B fica em cima espelhado — as duas equipes de frente
+   uma pra outra num único campo, sem bolinha nem jogadores se movendo sozinhos. */
+function matchFormationSlots(team, side){
+  const base = buildFormationSlots(team.formation);
+  return base.map(sl => side==='A' ? {...sl, y: 50 + sl.y*0.46} : {...sl, y: 50 - sl.y*0.46});
+}
+function matchSlotHTML(p, slot, side, idx){
+  if(!p){
+    return `<div class="m-slot" style="left:${slot.x}%; top:${slot.y}%;"><div class="ms-empty"></div><span class="ms-pos">${slot.label}</span></div>`;
+  }
+  const tier = getTier(p.ovr);
+  return `<div class="m-slot" style="left:${slot.x}%; top:${slot.y}%;">
+    <div class="ms-card tier-${tier.key}" id="ms-${side}-${idx}"><span class="ms-ovr">${p.ovr}</span></div>
+    <span class="ms-name">${escHtml(p.name.split(' ')[0])}</span>
+  </div>`;
 }
 function matchView(){
   const c = state.matchCtx;
   if(!c) return '';
   const speeds = [0.5,1,2,4];
+  const slotsA = matchFormationSlots(c.teamA, 'A');
+  const slotsB = matchFormationSlots(c.teamB, 'B');
+  const pitchA = slotsA.map((sl,i)=>matchSlotHTML(c.teamA.players[i], sl, 'A', i)).join('');
+  const pitchB = slotsB.map((sl,i)=>matchSlotHTML(c.teamB.players[i], sl, 'B', i)).join('');
   return `
   <h2 class="section-title">Simulação de Partida</h2>
   <div class="scoreboard">
@@ -3289,23 +3380,34 @@ function matchView(){
   </div>
   <div class="speed-row">
     <span class="hint">Velocidade da simulação:</span>
-    ${speeds.map(s=>`<button class="speed-btn ${c.speed===s?'active':''}" onclick="changeSpeed(${s})">${s}x</button>`).join('')}
+    ${speeds.map(sp=>`<button class="speed-btn ${c.speed===sp?'active':''}" onclick="changeSpeed(${sp})">${sp}x</button>`).join('')}
   </div>
-  <div class="pitch match-pitch" id="pitchEl">
-    <div class="mp-out"></div><div class="mp-box left"></div><div class="mp-box right"></div>
-    <div class="midline"></div><div class="circle"></div>
-    <div class="goal-net left"></div><div class="goal-net right"></div>
-    <div class="flash side-left" id="flashLeft"></div>
-    <div class="flash side-right" id="flashRight"></div>
+  <div class="pitch match-pitch2" id="pitchEl">
+    <div class="pl-out"></div><div class="pl-mid"></div><div class="pl-circle"></div>
+    <div class="pl-box top"></div><div class="pl-box bottom"></div><div class="pl-six top"></div><div class="pl-six bottom"></div>
     <div class="goal-banner" id="goalBanner"></div>
-    ${c.dotsA.map((d,i)=>`<div class="dot" id="dotA${i}" style="left:${d.x}%;top:${d.y}%;background:${c.teamA.color};"></div>`).join('')}
-    ${c.dotsB.map((d,i)=>`<div class="dot" id="dotB${i}" style="left:${d.x}%;top:${d.y}%;background:${c.teamB.color};"></div>`).join('')}
-    <div class="ball" id="ballEl" style="left:${c.ballX}%; top:${c.ballY}%;"></div>
+    ${pitchB}${pitchA}
   </div>
-  <div class="ticker" id="tickerEl">${renderTickerEvents(c)}</div>
+  <div class="tabs-mini">
+    <button class="${c.matchTab==='events'?'active':''}" onclick="state.matchCtx.matchTab='events';render();">📋 Eventos</button>
+    <button class="${c.matchTab==='scorers'?'active':''}" onclick="state.matchCtx.matchTab='scorers';render();">⚽ Artilheiros</button>
+  </div>
+  ${c.matchTab==='events'
+    ? `<div class="ticker" id="tickerEl">${renderTickerEvents(c)}</div>`
+    : `<div id="scorersEl">${scorersTabHTML(c)}</div>`}
   <div class="btn-row" id="matchBtnRow" style="margin-top:14px;justify-content:center;">
     ${c.finished ? `<button class="btn gold" onclick="finishMatch()">Confirmar resultado e voltar</button>` : `<span class="hint">Simulando... aguarde o apito final.</span>`}
   </div>`;
+}
+function scorerLineHTML(entry){
+  return `<div class="scorer-line"><b>${escHtml(entry.name)}</b> ${entry.minutes.map(m=>m+'’').join(' ')}</div>`;
+}
+function scorersTabHTML(c){
+  const sideHTML = (team, list)=>`<div class="panel" style="margin-bottom:10px;">
+    <h4 class="settings-panel-title">${escHtml(team.name)}</h4>
+    ${list.length ? list.map(scorerLineHTML).join('') : '<p class="hint" style="margin:0;">Nenhum gol ainda.</p>'}
+  </div>`;
+  return sideHTML(c.teamA, c.scorers.A) + sideHTML(c.teamB, c.scorers.B);
 }
 function renderTickerEvents(c){
   return c.events.slice().reverse().map(e=>`<div class="ev ${e.goal?'goal':''}">${e.min}' — ${e.goal?'⚽ <b>GOL!</b> ':''}${e.text}</div>`).join('');
@@ -3321,31 +3423,56 @@ function changeSpeed(spd){
   if(c.timerId && c.tickFn){ clearInterval(c.timerId); c.timerId = setInterval(c.tickFn, c.tickBaseMs / c.speed); }
   render();
 }
-function updateDom(c){
-  const ballEl = document.getElementById('ballEl');
-  if(ballEl){ ballEl.style.left=c.ballX+'%'; ballEl.style.top=c.ballY+'%'; }
-  c.dotsA.forEach((d,i)=>{ const el=document.getElementById('dotA'+i); if(el){el.style.left=d.x+'%';el.style.top=d.y+'%';} });
-  c.dotsB.forEach((d,i)=>{ const el=document.getElementById('dotB'+i); if(el){el.style.left=d.x+'%';el.style.top=d.y+'%';} });
-  const clockEl = document.getElementById('clockDisplay');
-  if(clockEl) clockEl.textContent = c.minute+"'";
-  const sb = document.querySelector('.score-big');
-  if(sb) sb.textContent = `${c.scoreA} - ${c.scoreB}`;
-  updateTicker(c);
-}
 function updateTicker(c){
+  if(c.matchTab!=='events') return;
   const t = document.getElementById('tickerEl');
   if(t) t.innerHTML = renderTickerEvents(c);
+}
+function updateScorersPanel(c){
+  if(c.matchTab!=='scorers') return;
+  const el = document.getElementById('scorersEl');
+  if(el) el.innerHTML = scorersTabHTML(c);
 }
 function showFinishButton(){
   const holder = document.getElementById('matchBtnRow');
   if(holder) holder.innerHTML = `<button class="btn gold" onclick="finishMatch()">Confirmar resultado e voltar</button>`;
 }
-function flashGoal(side, text){
-  const el = document.getElementById(side==='A' ? 'flashRight' : 'flashLeft');
-  if(el){ el.classList.add('on'); setTimeout(()=>el.classList.remove('on'), 550); }
+/* Sorteia qual jogador do time marcou, com viés realista: atacantes e pontas
+   marcam bem mais que zagueiros e goleiro. */
+function pickScorerSlot(team){
+  const idxs = [];
+  team.players.forEach((p,i)=>{ if(p) idxs.push(i); });
+  if(!idxs.length) return null;
+  const weightFor = (pos)=>{
+    if(pos==='ATA') return 6;
+    if(pos==='PON') return 4;
+    if(pos==='MEI') return 2;
+    if(pos==='VOL') return 1;
+    if(pos==='LAT') return 1;
+    if(pos==='ZAG') return 0.4;
+    if(pos==='GOL') return 0.05;
+    return 1;
+  };
+  const bag = [];
+  idxs.forEach(i=>{ const w = Math.max(1, Math.round(weightFor(team.players[i].pos)*3)); for(let k=0;k<w;k++) bag.push(i); });
+  return pick(bag);
+}
+function recordGoal(c, side, player, minute){
+  const list = c.scorers[side];
+  let entry = list.find(e=>e.playerId===player.id);
+  if(!entry){ entry = {playerId:player.id, name:player.name, minutes:[]}; list.push(entry); }
+  entry.minutes.push(minute);
+}
+/* Destaca por 1 segundo o jogador que marcou (sem mover ninguém pelo campo) e mostra
+   um aviso rápido de gol — nada de bolinha "chegando" num lugar que não bate com o resultado. */
+function flashGoalPlayer(side, slotIdx, teamName, playerName){
+  if(slotIdx!==null && slotIdx!==undefined){
+    const el = document.getElementById(`ms-${side}-${slotIdx}`);
+    if(el){ el.classList.add('scored'); setTimeout(()=>{ el.classList.remove('scored'); }, 1000); }
+  }
   const banner = document.getElementById('goalBanner');
   if(banner){
-    banner.textContent = text;
+    banner.textContent = `⚽ GOL! ${playerName} (${teamName})`;
     banner.classList.add('show');
     setTimeout(()=>banner.classList.remove('show'), 1300);
   }
@@ -3357,10 +3484,8 @@ function runMatchSimulation(){
   const tick = ()=>{
     if(!state.matchCtx || state.matchCtx!==c){ clearInterval(c.timerId); return; }
     c.minute += 2;
-    c.ballX = rnd(8,92); c.ballY = rnd(12,88);
-    c.dotsA = c.dotsA.map(()=>({x:rnd(5,60),y:rnd(8,92)}));
-    c.dotsB = c.dotsB.map(()=>({x:rnd(40,95),y:rnd(8,92)}));
-    updateDom(c);
+    const clockEl = document.getElementById('clockDisplay');
+    if(clockEl) clockEl.textContent = c.minute+"'";
 
     const baseChance = 0.05;
     const chanceA = baseChance + Math.max(0, diff)/900 + (c.strA/4000);
@@ -3372,13 +3497,16 @@ function runMatchSimulation(){
 
     if(scored){
       const scorerTeam = scored==='A' ? c.teamA : c.teamB;
-      const roster = teamFilled(scorerTeam);
-      const scorer = roster.length ? roster[rnd(0,roster.length-1)] : {name:'Artilheiro'};
+      const slotIdx = pickScorerSlot(scorerTeam);
+      const scorer = (slotIdx!==null) ? scorerTeam.players[slotIdx] : {id:'anon-'+c.minute, name:'Artilheiro'};
       if(scored==='A') c.scoreA++; else c.scoreB++;
+      recordGoal(c, scored, scorer, c.minute);
       c.events.push({min:c.minute, goal:true, text:`${scorer.name} (${scorerTeam.name}) balança as redes!`});
-      c.ballX = scored==='A' ? 96 : 4; c.ballY = 50;
-      updateDom(c);
-      flashGoal(scored, `⚽ GOL DE ${scorerTeam.name.toUpperCase()}!`);
+      updateTicker(c);
+      updateScorersPanel(c);
+      const sb = document.querySelector('.score-big');
+      if(sb) sb.textContent = `${c.scoreA} - ${c.scoreB}`;
+      flashGoalPlayer(scored, slotIdx, scorerTeam.name, scorer.name);
     } else if(Math.random() < 0.12){
       const msgs = ['chute para fora','boa defesa do goleiro','cartão amarelo aplicado','cobrança de escanteio','falta perigosa perto da área','substituição tática'];
       c.events.push({min:c.minute, goal:false, text:pick(msgs)});
