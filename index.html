@@ -199,6 +199,18 @@ p.section-sub{color:var(--sub);margin:-10px 0 20px;font-size:14px;}
   50%{background-position:100% 50%;}
   100%{background-position:0% 50%;}
 }
+.tier-darkblue{background:linear-gradient(160deg,#2f5fe0,#050b24);color:#eaf2ff;box-shadow:0 0 20px rgba(47,95,224,.65);}
+.tier-ruby{background:linear-gradient(160deg,#ff1f4d,#3a0012);color:#fff;box-shadow:0 0 22px rgba(255,31,77,.65);}
+.tier-emerald{background:linear-gradient(160deg,#14e08a,#01371f);color:#02150c;box-shadow:0 0 22px rgba(20,224,138,.6);}
+.tier-brightorange{background:linear-gradient(135deg,#ffb100,#b33d00);color:#2c1200;
+  animation:neon-pulse-orange 1.6s ease-in-out infinite;}
+.tier-black{position:relative;background:linear-gradient(160deg,#2b2b2b,#000000);color:#f3d98a;
+  box-shadow:0 0 26px rgba(0,0,0,.85),0 0 14px rgba(243,217,138,.45);}
+.tier-black::after{content:"";position:absolute;inset:0;border-radius:14px;border:1.5px solid rgba(243,217,138,.55);pointer-events:none;}
+@keyframes neon-pulse-orange{
+  0%,100%{box-shadow:0 0 12px rgba(255,149,0,.65);}
+  50%{box-shadow:0 0 24px rgba(255,149,0,1);}
+}
 
 /* ---- mercado de transferências ---- */
 .tr-row{display:flex;align-items:center;gap:12px;background:var(--ink);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin-bottom:8px;}
@@ -525,6 +537,37 @@ p.section-sub{padding-left:16px;}
 .hero::after{content:"";position:absolute;right:20px;top:-20px;width:170px;height:170px;border:2px solid rgba(255,255,255,.06);border-radius:50%;}
 .hero-text{flex:1;min-width:250px;position:relative;z-index:2;}
 .hero-kicker{display:inline-block;padding:5px 13px;border-radius:999px;background:rgba(232,179,74,.15);border:1px solid rgba(232,179,74,.35);color:var(--gold);font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;}
+
+/* ---- tela de entrada e tela de carregamento ---- */
+.splash-screen{
+  min-height:100vh;display:flex;align-items:stretch;overflow:hidden;position:relative;
+  background:
+    radial-gradient(ellipse 700px 500px at 85% 20%, rgba(41,211,152,.16), transparent 60%),
+    radial-gradient(ellipse 600px 500px at 10% 90%, rgba(232,179,74,.12), transparent 55%),
+    linear-gradient(135deg,#0a1812 0%,#0f2a1f 55%,#0a1812 100%);
+}
+.splash-left{flex:1 1 50%;display:flex;flex-direction:column;justify-content:center;padding:60px 54px;position:relative;z-index:2;min-width:280px;}
+.splash-title{font-family:'Big Shoulders Display',sans-serif;font-weight:800;font-size:min(13vw,104px);
+  line-height:.85;text-transform:uppercase;margin:16px 0 6px;letter-spacing:.5px;color:var(--text);}
+.splash-title span{color:var(--gold);}
+.splash-credit{color:var(--sub);font-size:14px;margin:0 0 34px;letter-spacing:.8px;}
+.splash-play-btn{font-size:17px;padding:16px 42px;align-self:flex-start;box-shadow:0 10px 26px rgba(var(--accent-r),var(--accent-g),var(--accent-b),.35);}
+/* tela de entrada sem ilustração: tudo centralizado numa coluna só */
+.splash-screen-solo{align-items:center;justify-content:center;}
+.splash-left-solo{flex:0 1 auto;align-items:center;text-align:center;padding:40px;}
+.splash-left-solo .splash-title{font-size:min(11vw,96px);}
+.splash-left-solo .splash-play-btn{align-self:center;}
+@media (max-width:860px){
+  .splash-screen{flex-direction:column;}
+  .splash-left{padding:48px 26px 8px;text-align:center;align-items:center;}
+  .splash-play-btn{align-self:center;}
+  .splash-title{font-size:16vw;}
+}
+.loading-screen{align-items:center;justify-content:center;}
+.loading-box{text-align:center;position:relative;z-index:2;}
+.loading-box h2{font-family:'Big Shoulders Display',sans-serif;text-transform:uppercase;font-size:28px;margin:0 0 8px;}
+.logo-spin{font-size:52px;display:inline-block;margin-bottom:18px;animation:splashSpin 1.3s linear infinite;}
+@keyframes splashSpin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 .hero h2{font-family:'Big Shoulders Display',sans-serif;font-size:46px;line-height:.98;margin:12px 0 10px;text-transform:uppercase;}
 .hero h2 span{color:var(--gold);}
 .hero p{color:#b9cdc2;max-width:470px;margin:0 0 18px;font-size:14px;line-height:1.6;}
@@ -568,6 +611,15 @@ p.section-sub{padding-left:16px;}
   75%{filter:drop-shadow(0 0 14px rgba(122,0,255,.8)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
   100%{filter:drop-shadow(0 0 14px rgba(255,0,76,.8)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
 }
+.glow-darkblue{filter:drop-shadow(0 0 12px rgba(47,95,224,.65)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-ruby{filter:drop-shadow(0 0 14px rgba(255,31,77,.75)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-emerald{filter:drop-shadow(0 0 14px rgba(20,224,138,.75)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+.glow-brightorange{animation:neonGlowOrange 1.6s ease-in-out infinite;}
+.glow-black{filter:drop-shadow(0 0 16px rgba(243,217,138,.55)) drop-shadow(0 10px 14px rgba(0,0,0,.7));}
+@keyframes neonGlowOrange{
+  0%,100%{filter:drop-shadow(0 0 10px rgba(255,149,0,.75)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+  50%{filter:drop-shadow(0 0 20px rgba(255,149,0,1)) drop-shadow(0 10px 12px rgba(0,0,0,.5));}
+}
 .card{position:relative;width:100%;aspect-ratio:150/218;min-height:200px;cursor:pointer;box-shadow:none !important;animation-name:none;
   clip-path:polygon(0 5%,7% 0,93% 0,100% 5%,100% 89%,50% 100%,0 89%);}
 .tier-rainbow.card{animation:rainbow-shift 5s linear infinite;}
@@ -607,7 +659,8 @@ p.section-sub{padding-left:16px;}
 .card .tier-label{font-size:7.5px;letter-spacing:1.2px;text-transform:uppercase;font-weight:700;opacity:.85;white-space:nowrap;}
 .card .value-tag{padding:2px 7px;border-radius:999px;background:rgba(0,0,0,.34);font-size:9.5px;font-family:'JetBrains Mono',monospace;font-weight:800;white-space:nowrap;margin:0;}
 .card.tier-bronze .value-tag,.card.tier-silver .value-tag,.card.tier-gold .value-tag,
-.card.tier-diamond .value-tag,.card.tier-white .value-tag,.card.tier-neon .value-tag{background:rgba(255,255,255,.45);}
+.card.tier-diamond .value-tag,.card.tier-white .value-tag,.card.tier-neon .value-tag,
+.card.tier-emerald .value-tag,.card.tier-brightorange .value-tag{background:rgba(255,255,255,.45);}
 .card .card-actions{position:absolute;top:12px;right:10px;display:flex;gap:6px;z-index:6;}
 .card .rm{background:rgba(0,0,0,.5);border:1.5px solid rgba(255,255,255,.35);color:#fff;border-radius:50%;width:32px;height:32px;min-width:32px;min-height:32px;font-size:15px;line-height:1;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .12s ease, background .12s ease;}
 .card .rm:hover{background:rgba(0,0,0,.78);transform:scale(1.12);}
@@ -766,7 +819,8 @@ body.perf-mode .ps-wrap{filter:none !important;}
 .card.card-lite .tier-label{font-size:8px;letter-spacing:1px;text-transform:uppercase;opacity:.8;}
 .card.card-lite .value-tag{display:inline-block;margin-top:3px;padding:1px 7px;border-radius:999px;background:rgba(0,0,0,.3);font-size:8.5px;font-family:'JetBrains Mono',monospace;font-weight:800;}
 .card.card-lite.tier-bronze .value-tag,.card.card-lite.tier-silver .value-tag,.card.card-lite.tier-gold .value-tag,
-.card.card-lite.tier-diamond .value-tag,.card.card-lite.tier-white .value-tag,.card.card-lite.tier-neon .value-tag{background:rgba(255,255,255,.4);}
+.card.card-lite.tier-diamond .value-tag,.card.card-lite.tier-white .value-tag,.card.card-lite.tier-neon .value-tag,
+.card.card-lite.tier-emerald .value-tag,.card.card-lite.tier-brightorange .value-tag{background:rgba(255,255,255,.4);}
 
 /* slot de formação, versão enxuta (modo de desempenho) */
 .ps-lite{width:100%;aspect-ratio:62/84;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
@@ -828,7 +882,7 @@ body.device-mobile .crest-preview-col{position:static;flex:1 1 100%;}
 
 <script>
 /* ============================= DATA / CONSTANTS ============================= */
-const MAX_OVR = 500;
+const MAX_OVR = 750;
 const TIERS = [
   {max:29,  key:'brown',   label:'Marrom Escuro'},
   {max:69,  key:'bronze',  label:'Bronze'},
@@ -840,6 +894,11 @@ const TIERS = [
   {max:400, key:'wine',    label:'Vinho'},
   {max:450, key:'neon',    label:'Neon'},
   {max:500, key:'rainbow', label:'Arco-Íris'},
+  {max:550, key:'darkblue',     label:'Azul Escuro'},
+  {max:600, key:'ruby',         label:'Rubi'},
+  {max:650, key:'emerald',      label:'Esmeralda'},
+  {max:700, key:'brightorange', label:'Laranja Brilhante'},
+  {max:750, key:'black',        label:'Preto'},
 ];
 function getTier(ovr){
   ovr = Math.max(0, Math.min(MAX_OVR, ovr));
@@ -951,42 +1010,45 @@ function buildFormationSlots(key){
   return slots;
 }
 
-const FIRST_NAMES = [
-  // Brasil / Portugal
-  'Lucas','Thiago','Gabriel','Rafael','Bruno','Diego','Enzo','Kaique','Matheus','Vitor','André','Caio','Igor','Leo','Rian','Yuri','Davi','Nicolas','Pedro','Otávio',
-  'Gustavo','Felipe','Renato','Wesley','Anderson','Everton','Douglas','Jefferson','Robson','Cristiano','Rodrigo','Fábio','Hugo','João','Miguel','Tomás','Afonso','Duarte','Bernardo','Gonçalo',
-  // Espanha / América Latina
-  'Marco','Mateo','Iker','Xavi','Diego','Santiago','Emiliano','Alejandro','Nicolás','Joaquín','Sebastián','Agustín','Franco','Matías','Lautaro','Gonzalo','Ezequiel','Facundo','Maximiliano','Ramiro',
-  // Europa (geral)
-  'Milan','Kevin','Sven','Jonas','Erik','Ivo','Adrian','Nikola','Luca','Marco','Giovanni','Matteo','Alessandro','Lorenzo','Antoine','Hugo','Lucas','Pierre','Maxime','Julien',
-  'Lukas','Felix','Maximilian','Niklas','Jakob','Oskar','Viktor','Anders','Magnus','Henrik','Olivier','Mathieu','Dimitri','Stefan','Tomasz','Piotr','Wojciech','Marek','Boris','Andrei',
-  // África
-  'Amir','Karim','Sadio','Kwame','Femi','Chidi','Yusuf','Mamadou','Ibrahima','Ousmane','Moussa','Abdoulaye','Bakary','Aliou','Cheikh','Idris','Tendai','Kofi','Kwabena','Emeka',
-  // Oriente Médio
-  'Ali','Hassan','Omar','Tariq','Rashid','Zayd','Faisal','Khalid','Samir','Walid',
-  // Ásia
-  'Haruto','Ren','Kaito','Yuto','Minho','Jisung','Daiki','Shota','Wei','Jian','Feng','Hiroshi','Kenji','Takeshi','Yuki','Sora',
-  // EUA / Reino Unido
-  'Jack','Harry','Oliver','George','Noah','Ethan','Liam','Mason','Jayden','Tyler','Connor','Aaron','Dylan','Marcus','Jordan','Trevor',
-];
-const LAST_NAMES = [
-  // Brasil / Portugal
-  'Silva','Souza','Costa','Pereira','Oliveira','Ramos','Nascimento','Barbosa','Cardoso','Teixeira','Moraes','Farias','Aguiar','Rocha','Vidal','Almeida','Santana','Carvalho','Monteiro','Pinto',
-  'Fonseca','Correia','Martins','Gonçalves','Figueiredo','Esteves','Nogueira','Azevedo','Lopes','Marques','Coelho','Dias','Freitas','Guerreiro','Mendes','Tavares','Brito','Cunha','Araújo','Borges',
-  // Espanha / América Latina
-  'Reyes','Herrera','Vega','Morales','Ibáñez','Delgado','Castillo','Salazar','Navarro','Cabrera','Gutiérrez','Fuentes','Valdez','Cordero','Rojas','Paredes','Medina','Rivas','Campos','Contreras',
-  // Europa (geral)
-  'Novak','Keller','Petrov','Ferrara','Moretti','Dubois','Lefevre','Fischer','Bauer','Van Dijk','De Boer','Bergkamp','Jansen','Visser','Kowalski','Nowak','Wójcik','Horvat','Kovač','Novotný',
-  'Dvořák','Lindqvist','Karlsson','Eriksson','Andersen','Nilsen','Johansen','Lemaire','Girard','Rousseau','Baptiste','Rinaldi','Conti','Bianchi','Romano','Marino','Greco','Leone','Fabbri',
-  // África
-  'Diallo','Traoré','Mensah','Okafor','Haddad','Nasser','Keita','Coulibaly','Sangaré','Toure','Diop','Ndiaye','Camara','Bamba','Adeyemi','Okonkwo','Chukwu','Abara','Mwangi','Kamau',
-  // Oriente Médio
-  'Al-Farsi','Al-Amin','El-Masri','Al-Rashid','Nasrallah','Barakat','Khalil','Saleh',
-  // Ásia
-  'Tanaka','Suzuki','Watanabe','Sato','Kim','Park','Lee','Choi','Zhang','Wang','Liu','Chen','Yamamoto','Nakamura','Kobayashi','Inoue',
-  // EUA / Reino Unido
-  'Johnson','Mitchell','Thompson','Parker','Collins','Bennett','Stewart','Morgan','Bailey','Foster','Hamilton','Wallace','Gordon','Reid','Cross','Sharpe',
-];
+/* Nomes agrupados por região, pra sortear sempre junto com uma nacionalidade compatível
+   (em vez de misturar tudo num pool só, o que gerava coisas como "brasileiro chamado Connor"). */
+const NAME_POOLS = {
+  brpt: {
+    first: ['Lucas','Thiago','Gabriel','Rafael','Bruno','Diego','Enzo','Kaique','Matheus','Vitor','André','Caio','Igor','Leo','Rian','Yuri','Davi','Nicolas','Pedro','Otávio',
+      'Gustavo','Felipe','Renato','Wesley','Anderson','Everton','Douglas','Jefferson','Robson','Cristiano','Rodrigo','Fábio','Hugo','João','Miguel','Tomás','Afonso','Duarte','Bernardo','Gonçalo'],
+    last: ['Silva','Souza','Costa','Pereira','Oliveira','Ramos','Nascimento','Barbosa','Cardoso','Teixeira','Moraes','Farias','Aguiar','Rocha','Vidal','Almeida','Santana','Carvalho','Monteiro','Pinto',
+      'Fonseca','Correia','Martins','Gonçalves','Figueiredo','Esteves','Nogueira','Azevedo','Lopes','Marques','Coelho','Dias','Freitas','Guerreiro','Mendes','Tavares','Brito','Cunha','Araújo','Borges'],
+  },
+  latam: {
+    first: ['Marco','Mateo','Iker','Xavi','Diego','Santiago','Emiliano','Alejandro','Nicolás','Joaquín','Sebastián','Agustín','Franco','Matías','Lautaro','Gonzalo','Ezequiel','Facundo','Maximiliano','Ramiro'],
+    last: ['Reyes','Herrera','Vega','Morales','Ibáñez','Delgado','Castillo','Salazar','Navarro','Cabrera','Gutiérrez','Fuentes','Valdez','Cordero','Rojas','Paredes','Medina','Rivas','Campos','Contreras'],
+  },
+  europe: {
+    first: ['Milan','Kevin','Sven','Jonas','Erik','Ivo','Adrian','Nikola','Luca','Marco','Giovanni','Matteo','Alessandro','Lorenzo','Antoine','Hugo','Lucas','Pierre','Maxime','Julien',
+      'Lukas','Felix','Maximilian','Niklas','Jakob','Oskar','Viktor','Anders','Magnus','Henrik','Olivier','Mathieu','Dimitri','Stefan','Tomasz','Piotr','Wojciech','Marek','Boris','Andrei'],
+    last: ['Novak','Keller','Petrov','Ferrara','Moretti','Dubois','Lefevre','Fischer','Bauer','Van Dijk','De Boer','Bergkamp','Jansen','Visser','Kowalski','Nowak','Wójcik','Horvat','Kovač','Novotný',
+      'Dvořák','Lindqvist','Karlsson','Eriksson','Andersen','Nilsen','Johansen','Lemaire','Girard','Rousseau','Baptiste','Rinaldi','Conti','Bianchi','Romano','Marino','Greco','Leone','Fabbri'],
+  },
+  africa: {
+    first: ['Amir','Karim','Sadio','Kwame','Femi','Chidi','Yusuf','Mamadou','Ibrahima','Ousmane','Moussa','Abdoulaye','Bakary','Aliou','Cheikh','Idris','Tendai','Kofi','Kwabena','Emeka'],
+    last: ['Diallo','Traoré','Mensah','Okafor','Haddad','Nasser','Keita','Coulibaly','Sangaré','Toure','Diop','Ndiaye','Camara','Bamba','Adeyemi','Okonkwo','Chukwu','Abara','Mwangi','Kamau'],
+  },
+  mideast: {
+    first: ['Ali','Hassan','Omar','Tariq','Rashid','Zayd','Faisal','Khalid','Samir','Walid'],
+    last: ['Al-Farsi','Al-Amin','El-Masri','Al-Rashid','Nasrallah','Barakat','Khalil','Saleh'],
+  },
+  asia: {
+    first: ['Haruto','Ren','Kaito','Yuto','Minho','Jisung','Daiki','Shota','Wei','Jian','Feng','Hiroshi','Kenji','Takeshi','Yuki','Sora'],
+    last: ['Tanaka','Suzuki','Watanabe','Sato','Kim','Park','Lee','Choi','Zhang','Wang','Liu','Chen','Yamamoto','Nakamura','Kobayashi','Inoue'],
+  },
+  anglo: {
+    first: ['Jack','Harry','Oliver','George','Noah','Ethan','Liam','Mason','Jayden','Tyler','Connor','Aaron','Dylan','Marcus','Jordan','Trevor'],
+    last: ['Johnson','Mitchell','Thompson','Parker','Collins','Bennett','Stewart','Morgan','Bailey','Foster','Hamilton','Wallace','Gordon','Reid','Cross','Sharpe'],
+  },
+};
+/* Todos os nomes juntos (usado só quando não há nacionalidade envolvida, ex: busca genérica). */
+const FIRST_NAMES = Object.values(NAME_POOLS).flatMap(p=>p.first);
+const LAST_NAMES = Object.values(NAME_POOLS).flatMap(p=>p.last);
 function rnd(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rnd(0,arr.length-1)];}
 function randomName(){return pick(FIRST_NAMES)+' '+pick(LAST_NAMES);}
@@ -1015,6 +1077,26 @@ function nationalityCode(name){
   const n = NATIONALITIES.find(x=>x.name===name);
   return n ? n.code : 'BR';
 }
+const NATION_NAME_GROUP = {
+  'Brasil':'brpt', 'Portugal':'brpt',
+  'Argentina':'latam', 'Espanha':'latam', 'México':'latam', 'Colômbia':'latam', 'Uruguai':'latam', 'Chile':'latam', 'Paraguai':'latam', 'Peru':'latam', 'Equador':'latam',
+  'França':'europe', 'Alemanha':'europe', 'Itália':'europe', 'Holanda':'europe', 'Bélgica':'europe', 'Suécia':'europe', 'Noruega':'europe', 'Dinamarca':'europe',
+  'Polônia':'europe', 'Croácia':'europe', 'Sérvia':'europe', 'República Tcheca':'europe', 'Áustria':'europe', 'Suíça':'europe', 'Rússia':'europe', 'Ucrânia':'europe',
+  'Marrocos':'africa', 'Senegal':'africa', 'Nigéria':'africa', 'Gana':'africa', 'Costa do Marfim':'africa', 'Camarões':'africa', 'Egito':'africa', 'Argélia':'africa',
+  'Turquia':'mideast', 'Arábia Saudita':'mideast', 'Catar':'mideast', 'Irã':'mideast',
+  'Japão':'asia', 'Coreia do Sul':'asia', 'China':'asia',
+  'Inglaterra':'anglo', 'Estados Unidos':'anglo', 'Canadá':'anglo', 'Austrália':'anglo',
+};
+function randomNameForNationality(nationalityName){
+  const group = NATION_NAME_GROUP[nationalityName] || 'europe';
+  const pool = NAME_POOLS[group] || NAME_POOLS.europe;
+  return pick(pool.first)+' '+pick(pool.last);
+}
+/* Sorteia a nacionalidade e já devolve um nome compatível com ela. */
+function randomPlayerIdentity(){
+  const nat = pick(NATIONALITIES);
+  return {name: randomNameForNationality(nat.name), nationality: nat.name};
+}
 const NATIONALITIES_SORTED = [...NATIONALITIES].sort((a,b)=>a.name.localeCompare(b.name,'pt-BR'));
 function nationalityOptionsHTML(selected){
   return `<option value="ALL" ${selected==='ALL'?'selected':''}>🌐 Todas</option>` +
@@ -1034,6 +1116,11 @@ const VALUE_ANCHORS = [
   {ovr:400, value:30000000000},
   {ovr:450, value:150000000000},
   {ovr:500, value:1000000000000},
+  {ovr:550, value:6000000000000},
+  {ovr:600, value:30000000000000},
+  {ovr:650, value:120000000000000},
+  {ovr:700, value:450000000000000},
+  {ovr:750, value:1500000000000000},
 ];
 function baseValueForOvr(ovr){
   ovr = Math.max(0, Math.min(MAX_OVR, ovr));
@@ -1059,6 +1146,7 @@ function formatValue(v){
     if(s.endsWith('.0')) s = s.slice(0,-2);
     return '€'+s+suffix;
   };
+  if(v>=1e15) return fmt(v/1e15, 'quad', 1e16/1e15);
   if(v>=1e12) return fmt(v/1e12, 'tri', 1e13/1e12);
   if(v>=1e9)  return fmt(v/1e9,  'bi',  1e10/1e9);
   if(v>=1e6)  return fmt(v/1e6,  'mi',  1e7/1e6);
@@ -1079,15 +1167,18 @@ function ensurePlayerExtras(p){
   if(!p.nationality) p.nationality = pick(NATIONALITIES).name;
   return p;
 }
-function randomPlayer(qualityBias){
+function randomPlayer(qualityBias, fixedPos){
   let base = 45 + qualityBias*40;
   let ovr = base + rnd(-10,10);
   let roll = Math.random();
-  if(roll>0.998) ovr = rnd(251,500);     // card lendária raríssima (Branco a Arco-Íris)
+  if(roll>0.9995) ovr = rnd(501,750);    // card mítica (Azul Escuro a Preto) — raríssima mesmo
+  else if(roll>0.998) ovr = rnd(251,500);// card lendária (Branco a Arco-Íris)
   else if(roll>0.985) ovr = rnd(96,130); // Roxo
   else if(roll>0.93) ovr = rnd(90,95);   // Diamante
   else if(roll>0.75) ovr = rnd(81,89);   // Ouro
-  return makePlayer(randomName(), pick(POSITIONS), ovr);
+  const pos = fixedPos || pick(POSITIONS);
+  const id = randomPlayerIdentity();
+  return makePlayer(id.name, pos, ovr, {nationality:id.nationality});
 }
 
 const CATALOG_TEAM_NAMES = [
@@ -1101,10 +1192,9 @@ function randomTeamName(){ return pick(CLUB_PREFIXES)+' '+pick(CLUB_SUFFIXES); }
 function generateRandomTeamObject(){
   const fKeys = Object.keys(FORMATIONS);
   const formation = pick(fKeys);
-  const total = buildFormationSlots(formation).length;
+  const slots = buildFormationSlots(formation);
   const bias = Math.random();
-  const players = [];
-  for(let i=0;i<total;i++) players.push(randomPlayer(bias));
+  const players = slots.map(sl => randomPlayer(bias, sl.label));
   const color = pick(TEAM_COLORS);
   const name = randomTeamName();
   const crest = {
@@ -1117,7 +1207,7 @@ function generateRandomTeamObject(){
 
 /* ============================= STATE ============================= */
 let state = {
-  view:'loading',
+  view:'splash',
   teams: [],
   freeAgents: [],
   categories: [],
@@ -1144,10 +1234,11 @@ function seedData(){
   state.teams = CATALOG_TEAM_NAMES.map((name,i)=>{
     const bias = 0.5 + (i%3)*0.2;
     const formation = fKeys[i % fKeys.length];
-    const total = buildFormationSlots(formation).length;
-    const players = [];
-    for(let k=0;k<total;k++) players.push(randomPlayer(bias));
-    players[Math.floor(total/2)] = makePlayer(randomName(), 'ATA', rnd(84,97));
+    const slots = buildFormationSlots(formation);
+    const players = slots.map(sl => randomPlayer(bias, sl.label));
+    const starIdx = Math.floor(players.length/2);
+    const starId = randomPlayerIdentity();
+    players[starIdx] = makePlayer(starId.name, slots[starIdx].label, rnd(84,97), {nationality:starId.nationality});
     const color = TEAM_COLORS[i%TEAM_COLORS.length];
     const cc = CATALOG_CRESTS[i] || {};
     const crest = {shape:cc.shape||'shield', pattern:cc.pattern||'solid', base:color, accent:shade(color,-42),
@@ -1210,8 +1301,11 @@ async function loadState(){
   state.teams.forEach(t=>{ if(!t.crest) t.crest = defaultCrestFor(t); });
   if(!state.settings) state.settings = defaultSettings();
   applyTheme();
-  state.view = state.device ? 'home' : 'devicePick';
-  render();
+  bootTargetView = state.device ? 'home' : 'devicePick';
+  bootReady = true;
+  // Não troca de tela sozinho: quem decide quando sair do "Carregando..." é o
+  // startGame() (ele garante um tempo mínimo de tela, mesmo que os dados
+  // já estejam prontos na hora — senão a tela de carregamento nem aparece).
 }
 let saveTimer=null;
 async function saveState(){
@@ -1686,9 +1780,54 @@ function legendHTML(){
   return `<div class="legend">${chips}</div>`;
 }
 
+
+/* ============================= TELA DE ENTRADA ============================= */
+let bootReady = false;
+let bootTargetView = null;
+function splashView(){
+  return `<div class="splash-screen splash-screen-solo">
+    <div class="splash-left splash-left-solo">
+      <span class="hero-kicker">⚽ SANDBOX DE CARTAS DE FUTEBOL</span>
+      <h1 class="splash-title">PLANI<span>FA</span> 1</h1>
+      <p class="splash-credit">Por PlanetoK11</p>
+      <button class="btn gold splash-play-btn" onclick="startGame()">▶ Jogar</button>
+    </div>
+  </div>`;
+}
+function loadingView(){
+  return `<div class="splash-screen loading-screen">
+    <div class="loading-box">
+      <div class="logo-spin">⚽</div>
+      <h2>Carregando Planifa 1...</h2>
+      <p class="hint">Preparando seus times, jogadores e partidas.</p>
+    </div>
+  </div>`;
+}
+function startGame(){
+  state.view = 'loading';
+  render();
+  const MIN_MS = 700;
+  const begin = Date.now();
+  const go = ()=>{
+    state.view = bootTargetView || (state.device ? 'home' : 'devicePick');
+    render();
+  };
+  const tryFinish = ()=>{
+    if(!bootReady){ setTimeout(tryFinish, 50); return; }
+    const wait = Math.max(0, MIN_MS - (Date.now()-begin));
+    setTimeout(go, wait);
+  };
+  tryFinish();
+}
+
 /* ============================= RENDER ROOT ============================= */
 function render(){
   const app = document.getElementById('app');
+  if(state.view==='splash' || state.view==='loading'){
+    app.innerHTML = state.view==='splash' ? splashView() : loadingView();
+    applyTheme();
+    return;
+  }
   const anim = state._animate; state._animate = false;
   app.innerHTML = topbarHTML() + subNavHTML() + `<div class="${anim?'view-enter':''}">${viewHTML()}</div>` + (state.modal ? modalHTML() : '');
   if(document.body && document.body.classList){
@@ -2207,7 +2346,8 @@ function defaultDraftPlayer(ovr){
 let draftPlayer = defaultDraftPlayer(75);
 function randomizeDraftPlayer(){
   const ovr = rnd(0,99);
-  draftPlayer = {name:randomName(), pos:pick(POSITIONS), ovr, ovrWarning:false, value:computePlayerValue(ovr), nationality:pick(NATIONALITIES).name};
+  const dId = randomPlayerIdentity();
+  draftPlayer = {name:dId.name, pos:pick(POSITIONS), ovr, ovrWarning:false, value:computePlayerValue(ovr), nationality:dId.nationality};
   render();
 }
 function createPlayerView(){
