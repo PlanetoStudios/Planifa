@@ -1,4 +1,4 @@
-const CACHE_NAME = 'planifa-1-v11';
+const CACHE_NAME = 'planifa-1-v12';
 
 const FILES_TO_CACHE = [
   './',
