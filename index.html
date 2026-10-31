@@ -1198,9 +1198,9 @@ function generateRandomTeamObject(){
   const color = pick(TEAM_COLORS);
   const name = randomTeamName();
   const crest = {
-    shape: pick(CREST_SHAPE_LIST).key, pattern: pick(CREST_PATTERN_LIST).key,
-    base: color, accent: shade(color,-42),
-    symbol: pick(CREST_SYMBOLS.filter(s=>s.key!=='none')).key, text: crestLetters(name), stars: rnd(0,2)
+    shape: pick(CREST_SHAPE_LIST).key, patterns: [pick(CREST_PATTERN_LIST).key],
+    base: color, accent: shade(color,-42), color3: color, color4: shade(color,-42),
+    symbol: pick(CREST_SYMBOLS.filter(s=>s.key!=='none')).key, text: crestLetters(name), stars: rnd(0,2), textPos:'bottom'
   };
   return {id:uid(), name, color, custom:true, formation, players, crest};
 }
@@ -1221,6 +1221,8 @@ let state = {
   matchCtx:null,
   device:null, // 'mobile' | 'desktop' — escolhido na tela inicial, ajusta o layout
   sidebarOpen:false,
+  careers:[],
+  currentCareerId:null,
   settings:null, // {theme, performanceMode, defaultSpeed} — ver defaultSettings()
   transfers:[],
   marketTab:'transfers',
@@ -1241,8 +1243,8 @@ function seedData(){
     players[starIdx] = makePlayer(starId.name, slots[starIdx].label, rnd(84,97), {nationality:starId.nationality});
     const color = TEAM_COLORS[i%TEAM_COLORS.length];
     const cc = CATALOG_CRESTS[i] || {};
-    const crest = {shape:cc.shape||'shield', pattern:cc.pattern||'solid', base:color, accent:shade(color,-42),
-      symbol:cc.symbol||'none', text:crestLetters(name), stars:cc.stars||0};
+    const crest = {shape:cc.shape||'shield', patterns:[cc.pattern||'solid'], base:color, accent:shade(color,-42),
+      color3:color, color4:shade(color,-42), symbol:cc.symbol||'none', text:crestLetters(name), stars:cc.stars||0, textPos:'bottom'};
     return {id:'t'+i, name, color, custom:false, formation, players, crest};
   });
   state.freeAgents = [];
@@ -1286,6 +1288,7 @@ async function loadState(){
       state.worldCup = data.worldCup || null;
       state.league = data.league || null;
       state.device = data.device || null;
+      state.careers = Array.isArray(data.careers) ? data.careers : [];
       state.transfers = Array.isArray(data.transfers) ? data.transfers : [];
       state.settings = Object.assign(defaultSettings(), data.settings||{});
       if(!state.teams.length && !state.freeAgents.length) seedData();
@@ -1318,6 +1321,7 @@ async function saveState(){
       worldCup: (state.worldCup && state.worldCup.rounds) ? state.worldCup : null,
       league: (state.league && state.league.matches) ? state.league : null,
       device: state.device,
+      careers: state.careers,
       transfers: state.transfers,
       settings: state.settings,
     };
@@ -1481,22 +1485,17 @@ function crestShapeClip(shape){
   }
 }
 function defaultCrestFor(t){
-  return {shape:'shield', pattern:'solid', base:t.color, accent:shade(t.color,-42), symbol:'none', text:crestLetters(t.name), stars:0, textPos:'bottom'};
+  return {shape:'shield', patterns:['solid'], base:t.color, accent:shade(t.color,-42), color3:t.color, color4:shade(t.color,-42),
+    symbol:'none', text:crestLetters(t.name), stars:0, textPos:'bottom'};
 }
-/* Monta o SVG do escudo a partir da configuração (usado tanto na prévia do editor quanto nas telas do jogo). */
-function crestSVGFromConfig(cfg, size, idSeed){
-  size = size || 48;
-  const shape = cfg.shape || 'shield';
-  const pattern = cfg.pattern || 'solid';
-  const base = cfg.base || '#29d398';
-  const accent = cfg.accent || shade(base,-42);
-  const clip = crestShapeClip(shape);
-  let defsExtra = '';
+/* Gera o preenchimento de UM estilo (sem recortar pra coluna nenhuma ainda — isso é feito por fora). */
+function buildPatternFill(pattern, base, accent, idSeed){
+  let defs = '';
   let fill = `<rect width="100" height="110" fill="${base}"/>`;
   if(pattern==='split'){
     fill = `<rect width="100" height="110" fill="${base}"/><polygon points="0,110 100,0 100,110" fill="${accent}"/>`;
   } else if(pattern==='gradient'){
-    defsExtra += `<linearGradient id="gr${idSeed}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${base}"/><stop offset="1" stop-color="${accent}"/></linearGradient>`;
+    defs += `<linearGradient id="gr${idSeed}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${base}"/><stop offset="1" stop-color="${accent}"/></linearGradient>`;
     fill = `<rect width="100" height="110" fill="url(#gr${idSeed})"/>`;
   } else if(pattern==='stripes'){
     let st=''; const n=5, w=100/n;
@@ -1508,11 +1507,39 @@ function crestSVGFromConfig(cfg, size, idSeed){
   } else if(pattern==='cross'){
     fill = `<rect width="100" height="110" fill="${base}"/><rect x="40" y="0" width="20" height="110" fill="${accent}"/><rect x="0" y="45" width="100" height="20" fill="${accent}"/>`;
   } else if(pattern==='dots'){
-    defsExtra += `<pattern id="dp${idSeed}" width="22" height="22" patternUnits="userSpaceOnUse"><rect width="22" height="22" fill="${base}"/><circle cx="11" cy="11" r="5.5" fill="${accent}"/></pattern>`;
+    defs += `<pattern id="dp${idSeed}" width="22" height="22" patternUnits="userSpaceOnUse"><rect width="22" height="22" fill="${base}"/><circle cx="11" cy="11" r="5.5" fill="${accent}"/></pattern>`;
     fill = `<rect width="100" height="110" fill="url(#dp${idSeed})"/>`;
   } else if(pattern==='chevron'){
     fill = `<rect width="100" height="110" fill="${base}"/><polygon points="0,0 50,52 100,0 100,22 50,74 0,22" fill="${accent}"/>`;
   }
+  return {fill, defs};
+}
+/* Monta o SVG do escudo a partir da configuração (usado tanto na prévia do editor quanto nas telas do jogo).
+   Aceita até 3 estilos de uma vez (cfg.patterns) — cada um vira uma faixa vertical do escudo, com a
+   própria cor principal (1ª, 3ª e 4ª cor) e a cor secundária (2ª cor) compartilhada entre todas as faixas. */
+function crestSVGFromConfig(cfg, size, idSeed){
+  size = size || 48;
+  const shape = cfg.shape || 'shield';
+  const patterns = (Array.isArray(cfg.patterns) && cfg.patterns.length) ? cfg.patterns.slice(0,3) : [cfg.pattern || 'solid'];
+  const base = cfg.base || '#29d398';
+  const accent = cfg.accent || shade(base,-42);
+  const colors = [base, accent, cfg.color3 || base, cfg.color4 || accent];
+  const clip = crestShapeClip(shape);
+  let defsExtra = '';
+  let fill = '';
+  const n = patterns.length;
+  patterns.forEach((pat,i)=>{
+    const primary = i===0 ? colors[0] : (colors[i+1] || colors[0]);
+    const {fill:bandFill, defs:bandDefs} = buildPatternFill(pat, primary, colors[1], idSeed+'_b'+i);
+    defsExtra += bandDefs;
+    if(n===1){
+      fill += bandFill;
+    } else {
+      const w = 100/n, x0 = w*i;
+      defsExtra += `<clipPath id="col${idSeed}_${i}"><rect x="${x0}" y="0" width="${w}" height="110"/></clipPath>`;
+      fill += `<g clip-path="url(#col${idSeed}_${i})">${bandFill}</g>`;
+    }
+  });
   const symbolMeta = CREST_SYMBOLS.find(sy=>sy.key===cfg.symbol) || CREST_SYMBOLS[0];
   const hasSymbol = symbolMeta.key!=='none';
   const hasText = !!(cfg.text && String(cfg.text).trim());
@@ -1523,7 +1550,7 @@ function crestSVGFromConfig(cfg, size, idSeed){
   const symbolEl = hasSymbol ? `<text x="50" y="${symbolY}" font-size="38" text-anchor="middle" dominant-baseline="central">${symbolMeta.emoji}</text>` : '';
   const textColor = contrastText(base);
   const textEl = hasText ? `<text x="50" y="${textY}" font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="${hasSymbol?17:27}" letter-spacing="1" fill="${textColor}" text-anchor="middle" dominant-baseline="central">${escHtml(String(cfg.text).toUpperCase().slice(0,5))}</text>` : '';
-  const borderEl = pattern==='border' ? `<g fill="none" stroke="${accent}" stroke-width="7">${clip}</g>` : '';
+  const borderEl = patterns.includes('border') ? `<g fill="none" stroke="${accent}" stroke-width="7">${clip}</g>` : '';
   const starsN = Math.max(0, Math.min(5, cfg.stars||0));
   let starsEl = '';
   if(starsN>0){
@@ -1570,11 +1597,34 @@ function openCrestEditor(teamId){
   if(!t) return;
   if(!t.crest) t.crest = defaultCrestFor(t);
   draftCrest = Object.assign({}, t.crest);
+  normalizeDraftCrest();
   setView('editCrest', {currentTeamId: teamId});
+}
+/* Compatibilidade com escudos salvos antes de existir múltiplos estilos/cores
+   (eles só tinham "pattern" no singular e nenhuma 3ª/4ª cor). */
+function normalizeDraftCrest(){
+  if(!draftCrest) return;
+  if(!Array.isArray(draftCrest.patterns) || !draftCrest.patterns.length) draftCrest.patterns = [draftCrest.pattern || 'solid'];
+  if(!draftCrest.color3) draftCrest.color3 = draftCrest.base || '#29d398';
+  if(!draftCrest.color4) draftCrest.color4 = draftCrest.accent || '#1b7a52';
 }
 function setCrestField(key, value){
   if(!draftCrest) return;
   draftCrest[key] = value;
+  render();
+}
+/* Liga/desliga um estilo (até 3 de uma vez). Desligar o último não é permitido —
+   sempre sobra pelo menos 1 estilo escolhido. */
+function toggleCrestPattern(key){
+  if(!draftCrest) return;
+  normalizeDraftCrest();
+  const idx = draftCrest.patterns.indexOf(key);
+  if(idx>-1){
+    if(draftCrest.patterns.length>1) draftCrest.patterns.splice(idx,1);
+  } else {
+    if(draftCrest.patterns.length>=3){ showAlert('Você pode combinar até 3 estilos no mesmo escudo.'); return; }
+    draftCrest.patterns.push(key);
+  }
   render();
 }
 function updateCrestText(val){
@@ -1606,11 +1656,13 @@ function editCrestView(){
   const t = findTeam(state.currentTeamId);
   if(!t) return `<p>Time não encontrado.</p>`;
   if(!draftCrest) draftCrest = Object.assign({}, t.crest || defaultCrestFor(t));
+  normalizeDraftCrest();
   const c = draftCrest;
+  const patCount = c.patterns.length;
   return `
   <div class="btn-row" style="margin-bottom:12px;"><button class="btn secondary" onclick="cancelCrestEdit()">← Voltar</button></div>
   <h2 class="section-title">Editar Escudo</h2>
-  <p class="section-sub">Monte o escudo de <b>${escHtml(t.name)}</b>: formato, cores, padrão, símbolo e texto.</p>
+  <p class="section-sub">Monte o escudo de <b>${escHtml(t.name)}</b>: formato, cores, estilos, símbolo e texto.</p>
   <div class="crest-editor">
     <div class="crest-preview-col">
       <div id="crest-preview">${crestSVGFromConfig(c, 160, 'draft')}</div>
@@ -1628,10 +1680,11 @@ function editCrestView(){
         </div>
       </div>
       <div class="panel">
-        <h4 class="settings-panel-title">Padrão</h4>
+        <h4 class="settings-panel-title">Estilos (até 3, combináveis)</h4>
         <div class="seg-control">
-          ${CREST_PATTERN_LIST.map(p=>`<button class="${c.pattern===p.key?'active':''}" onclick="setCrestField('pattern','${p.key}')">${p.label}</button>`).join('')}
+          ${CREST_PATTERN_LIST.map(p=>`<button class="${c.patterns.includes(p.key)?'active':''}" onclick="toggleCrestPattern('${p.key}')">${p.label}</button>`).join('')}
         </div>
+        <p class="hint" style="margin-top:8px;">Escolha de 1 a 3 — cada estilo escolhido vira uma faixa no escudo, com sua própria cor.</p>
       </div>
       <div class="panel">
         <h4 class="settings-panel-title">Cores</h4>
@@ -1639,10 +1692,18 @@ function editCrestView(){
           <label>Cor principal</label>
           <div class="color-swatches">${TEAM_COLORS.map(col=>`<div style="background:${col};" class="${c.base===col?'sel':''}" onclick="setCrestField('base','${col}')"></div>`).join('')}</div>
         </div>
-        <div class="field" style="margin-bottom:0;">
+        <div class="field" style="margin-bottom:${patCount>=2?'14px':'0'};">
           <label>Cor secundária</label>
           <div class="color-swatches">${TEAM_COLORS.map(col=>`<div style="background:${col};" class="${c.accent===col?'sel':''}" onclick="setCrestField('accent','${col}')"></div>`).join('')}</div>
         </div>
+        ${patCount>=2 ? `<div class="field" style="margin-bottom:${patCount>=3?'14px':'0'};">
+          <label>Terceira cor <span class="hint">(desbloqueada com 2 estilos)</span></label>
+          <div class="color-swatches">${TEAM_COLORS.map(col=>`<div style="background:${col};" class="${c.color3===col?'sel':''}" onclick="setCrestField('color3','${col}')"></div>`).join('')}</div>
+        </div>` : ''}
+        ${patCount>=3 ? `<div class="field" style="margin-bottom:0;">
+          <label>Quarta cor <span class="hint">(desbloqueada com 3 estilos)</span></label>
+          <div class="color-swatches">${TEAM_COLORS.map(col=>`<div style="background:${col};" class="${c.color4===col?'sel':''}" onclick="setCrestField('color4','${col}')"></div>`).join('')}</div>
+        </div>` : ''}
       </div>
       <div class="panel">
         <h4 class="settings-panel-title">Símbolo</h4>
@@ -1845,17 +1906,20 @@ const NAV_ITEMS = [
   ['home','Início','🏠'],['teams','Times','⚽'],['catalog','Catálogo','📇'],
   ['categories','Categorias','🗂️'],['createPlayer','Criar Jogador','➕'],['createTeam','Criar Time','🛠️'],
   ['worldcup','Copa do Mundo','🏆'],['league','Liga','📊'],['friendly','Amistoso','🤝'],['market','Mercado','💶'],
+  ['career','Carreira','🎽'],
   ['settings','Configurações','⚙️'],
 ];
 const NAV_GROUPS = [
   ['Times e Jogadores',['teams','catalog','categories','createTeam','createPlayer']],
   ['Competições',['worldcup','league','friendly']],
   ['Economia',['market']],
+  ['Carreira',['career']],
 ];
 const GROUP_TITLE_HTML = {
   'Times e Jogadores':'Times e <span>Jogadores</span>',
   'Competições':'<span>Competições</span>',
   'Economia':'<span>Economia</span>',
+  'Carreira':'Modo <span>Carreira</span>',
 };
 /* Barra de abas com as páginas "irmãs" da página atual — ajuda a navegar
    dentro de um mesmo assunto sem precisar abrir o menu lateral toda hora. */
@@ -1868,7 +1932,7 @@ function subNavHTML(){
     return `<button class="${state.view===k?'active':''}" onclick="setView('${k}')">${icon} ${label}</button>`;
   }).join('')}</div>`;
 }
-const VIEW_LABEL = {teamDetail:'Times',categoryDetail:'Categorias',createCategory:'Categorias',match:'Partida',devicePick:'Configuração',loading:'Carregando'};
+const VIEW_LABEL = {teamDetail:'Times',categoryDetail:'Categorias',createCategory:'Categorias',match:'Partida',devicePick:'Configuração',loading:'Carregando',careerDetail:'Carreira',createCareerPlayer:'Carreira',editCrest:'Times'};
 function currentPageLabel(){
   const it = NAV_ITEMS.find(x=>x[0]===state.view);
   return it ? it[1] : (VIEW_LABEL[state.view] || 'Planifa 1');
@@ -1926,6 +1990,9 @@ function viewHTML(){
     case 'worldcup': return worldCupView();
     case 'league': return leagueView();
     case 'market': return marketView();
+    case 'career': return careerView();
+    case 'createCareerPlayer': return createCareerPlayerView();
+    case 'careerDetail': return careerDetailView();
     case 'settings': return settingsView();
     case 'editCrest': return editCrestView();
     case 'categories': return categoriesView();
@@ -2051,7 +2118,7 @@ function settingsView(){
 }
 
 /* ============================= HOME ============================= */
-const QC_ACCENT = {teams:'#29d398',catalog:'#4a90e2',createPlayer:'#e8b34a',createTeam:'#f2a65a',worldcup:'#ffd067',league:'#7b8cff',market:'#2ec4b6',friendly:'#ff6b6b',categories:'#a25bff'};
+const QC_ACCENT = {teams:'#29d398',catalog:'#4a90e2',createPlayer:'#e8b34a',createTeam:'#f2a65a',worldcup:'#ffd067',league:'#7b8cff',market:'#2ec4b6',friendly:'#ff6b6b',categories:'#a25bff',career:'#ffb300'};
 const QC_META = {
   teams:       {desc:(_)=>`${state.teams.length} times salvos — veja escalações e formações.`, meta:()=> state.teams.length+' times'},
   catalog:     {desc:()=>'Jogadores livres prontos para entrar em qualquer time.', meta:()=> state.freeAgents.length+' agentes livres'},
@@ -2062,6 +2129,7 @@ const QC_META = {
   league:      {desc:()=>'Pontos corridos entre até 8 times, depois mata-mata entre os melhores.', meta:()=>'Máx. 8 times'},
   friendly:    {desc:()=>'Escolha dois times quaisquer e simule um jogo avulso na hora.', meta:()=>'Jogo rápido'},
   market:      {desc:()=>'Acompanhe transferências e os jogadores mais valiosos do seu universo.', meta:()=> state.transfers.length+' movimentações'},
+  career:      {desc:()=>'Crie até 5 jogadores e viva a carreira deles, dos 17 aos 40 anos.', meta:()=> state.careers.length+'/5 jogadores'},
 };
 function homeView(){
   const totalPlayers = state.teams.reduce((a,t)=>a+teamFilled(t).length,0) + state.freeAgents.length;
@@ -3411,6 +3479,317 @@ function valuesTabHTML(){
     </div>
   </div>
   <div id="market-values-list">${marketValuesListHTML()}</div>`;
+}
+
+
+/* ============================= MODO CARREIRA ============================= */
+/* Cada jogador de carreira começa aos 17 e se aposenta aos 40. A cada temporada ele joga a liga do
+   clube, pode ser convocado pra Copa do Mundo (a cada 4 temporadas), evolui (ou declina) com a idade,
+   recebe propostas de transferência e disputa a Bola de Ouro. A temporada é resolvida na hora, em
+   forma de resumo — não é partida a partida como nas competições normais do jogo. */
+const MAX_CAREERS = 5;
+const CAREER_RETIRE_AGE = 40;
+function shuffleArr(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j=rnd(0,i); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function createCareerPlayer(name, nationality, pos, clubId){
+  const ovr = rnd(48,62);
+  return {
+    id: uid(), name, nationality, pos, age:17, ovr,
+    potential: Math.max(ovr+12, rnd(65,99)),
+    value: computePlayerValue(ovr), clubId, season:1, retired:false, trainingUsesLeft:2,
+    stats:{goals:0, apps:0, ballonDor:0, leagueTitles:0, worldCups:0, trophies:[]},
+    history:[], pendingOffer:null, lastSeasonSummary:null,
+  };
+}
+function goalChancePerGame(cp){
+  const posFactor = {ATA:0.55, PON:0.4, MEI:0.22, VOL:0.1, LAT:0.08, ZAG:0.04, GOL:0.01}[cp.pos] || 0.2;
+  const ovrFactor = Math.max(0.3, Math.min(1.6, cp.ovr/80));
+  return Math.min(0.85, posFactor*ovrFactor);
+}
+function simulateCareerLeagueSeason(cp, club){
+  if(!club) return {text:`Temporada ${cp.season}: sem clube, nenhuma partida disputada.`, goals:0, apps:0, champion:false};
+  const rivals = shuffleArr(state.teams.filter(t=>t.id!==club.id)).slice(0,7);
+  const participants = [club, ...rivals];
+  const ranked = participants.map(t=>{
+    const strength = t.id===club.id ? teamStrength(t)*0.7 + cp.ovr*0.3 : teamStrength(t);
+    return {t, score: strength + rnd(-8,8)};
+  }).sort((a,b)=>b.score-a.score);
+  const position = ranked.findIndex(r=>r.t.id===club.id) + 1;
+  const champion = position===1;
+  if(champion){ cp.stats.leagueTitles++; cp.stats.trophies.push(`Campeão da Liga (Temporada ${cp.season})`); }
+  const matches = (participants.length-1)*2;
+  const apps = Math.max(0, matches - rnd(0,3));
+  const chance = goalChancePerGame(cp);
+  let goals = 0;
+  for(let i=0;i<apps;i++){ if(Math.random()<chance) goals += (Math.random()<0.15 ? 2 : 1); }
+  cp.stats.goals += goals; cp.stats.apps += apps;
+  return {
+    text:`⚽ Temporada ${cp.season} pelo ${club.name}: ${position}º lugar na liga, ${apps} jogos e ${goals} gol(s).${champion?' 🏆 Campeão!':''}`,
+    goals, apps, champion
+  };
+}
+function simulateCareerWorldCup(cp){
+  const winChance = Math.max(0.03, Math.min(0.4, (cp.ovr-70)/100));
+  const champion = Math.random() < winChance;
+  const goals = Math.round(rnd(0,6) * (cp.ovr/100));
+  cp.stats.goals += goals;
+  return {
+    text:`🌍 Copa do Mundo (Temporada ${cp.season}): ${cp.name} marcou ${goals} gol(s) pela seleção.${champion?' 🏆 CAMPEÃO DO MUNDO!':''}`,
+    champion, goals
+  };
+}
+function applyAgeProgression(cp){
+  let delta;
+  if(cp.age < 23) delta = rnd(2,5);
+  else if(cp.age < 27) delta = rnd(1,3);
+  else if(cp.age <= 31) delta = rnd(-1,2);
+  else if(cp.age <= 35) delta = rnd(-4,-1);
+  else delta = rnd(-8,-3);
+  let next = cp.ovr + delta;
+  if(delta>0 && cp.age<31) next = Math.min(next, cp.potential);
+  cp.ovr = Math.max(30, Math.min(MAX_OVR, Math.round(next)));
+}
+function ballonDorChance(cp, seasonGoals, wonLeague){
+  const score = cp.ovr + seasonGoals*1.5 + (wonLeague?10:0);
+  return Math.max(0, Math.min(0.35, (score-90)/120));
+}
+function maybeGenerateTransferOffer(cp){
+  if(Math.random() > 0.3) return null;
+  const candidates = state.teams.filter(t=>t.id!==cp.clubId && teamStrength(t) >= cp.ovr-15);
+  if(!candidates.length) return null;
+  return {fromClubId:cp.clubId, toClubId:pick(candidates).id};
+}
+function trainCareerPlayer(careerId){
+  const cp = state.careers.find(c=>c.id===careerId);
+  if(!cp || cp.retired) return;
+  if(cp.trainingUsesLeft<=0){ showAlert('Você já treinou o máximo nesta temporada.'); return; }
+  const gain = cp.age<24 ? rnd(1,3) : cp.age<30 ? rnd(0,2) : rnd(0,1);
+  const ceiling = cp.age>=31 ? cp.potential+10 : cp.potential;
+  cp.ovr = Math.min(MAX_OVR, Math.min(ceiling, cp.ovr + gain));
+  cp.trainingUsesLeft--;
+  cp.value = computePlayerValue(cp.ovr);
+  saveState();
+  render();
+}
+function advanceCareerSeason(careerId){
+  const cp = state.careers.find(c=>c.id===careerId);
+  if(!cp || cp.retired) return;
+  const club = findTeam(cp.clubId);
+  const summary = [];
+  const league = simulateCareerLeagueSeason(cp, club);
+  summary.push(league.text);
+  if(cp.season % 4 === 0 && cp.ovr >= 78){
+    const wc = simulateCareerWorldCup(cp);
+    summary.push(wc.text);
+    if(wc.champion){ cp.stats.worldCups++; cp.stats.trophies.push(`Campeão do Mundo (Temporada ${cp.season})`); }
+  }
+  const histEntry = {season:cp.season, age:cp.age, club:club?club.name:'Sem clube', ovr:cp.ovr, goals:league.goals, apps:league.apps};
+  applyAgeProgression(cp);
+  if(Math.random() < ballonDorChance(cp, league.goals, league.champion)){
+    cp.stats.ballonDor++;
+    cp.stats.trophies.push(`Bola de Ouro (Temporada ${cp.season})`);
+    summary.push(`🏅 ${cp.name} venceu a Bola de Ouro da temporada!`);
+  }
+  cp.pendingOffer = maybeGenerateTransferOffer(cp);
+  if(cp.pendingOffer){
+    const to = findTeam(cp.pendingOffer.toClubId);
+    if(to) summary.push(`📩 Proposta de transferência do ${to.name}!`);
+  }
+  cp.history.push(histEntry);
+  cp.age++; cp.season++; cp.trainingUsesLeft = 2;
+  cp.value = computePlayerValue(cp.ovr);
+  if(cp.age >= CAREER_RETIRE_AGE){
+    cp.retired = true; cp.pendingOffer = null;
+    summary.push('🎉 Fim de carreira! Hora da aposentadoria aos 40 anos.');
+  }
+  cp.lastSeasonSummary = summary;
+  saveState();
+  render();
+}
+function acceptCareerTransfer(careerId){
+  const cp = state.careers.find(c=>c.id===careerId);
+  if(!cp || !cp.pendingOffer) return;
+  const from = findTeam(cp.pendingOffer.fromClubId), to = findTeam(cp.pendingOffer.toClubId);
+  if(to){
+    cp.clubId = to.id;
+    logTransfer('signing', {id:cp.id, name:cp.name, pos:cp.pos, ovr:cp.ovr, value:cp.value, nationality:cp.nationality}, from?from.name:FREE_LABEL, to.name);
+  }
+  cp.pendingOffer = null;
+  saveState();
+  render();
+}
+function declineCareerTransfer(careerId){
+  const cp = state.careers.find(c=>c.id===careerId);
+  if(cp) cp.pendingOffer = null;
+  saveState();
+  render();
+}
+function requestRetireCareerPlayer(careerId){
+  showConfirm('Tem certeza que quer aposentar esse jogador agora? Essa ação não pode ser desfeita.', ()=>{
+    const cp = state.careers.find(c=>c.id===careerId);
+    if(cp){ cp.retired = true; cp.pendingOffer = null; }
+    saveState();
+  });
+}
+function requestDeleteCareerPlayer(careerId){
+  showConfirm('Excluir esse jogador de carreira? Todo o histórico dele será perdido.', ()=>{
+    state.careers = state.careers.filter(c=>c.id!==careerId);
+    saveState();
+    setView('career');
+  });
+}
+
+let draftCareer = {name:'', nationality:'Brasil', pos:'ATA', clubId:null};
+function careerView(){
+  const canCreate = state.careers.length < MAX_CAREERS;
+  return `
+  <h2 class="section-title">Modo Carreira</h2>
+  <p class="section-sub">Crie até ${MAX_CAREERS} jogadores e viva a carreira deles: treino, temporadas, ligas, Copa do Mundo, transferências e Bola de Ouro, dos 17 aos ${CAREER_RETIRE_AGE} anos.</p>
+  <div class="grid teams">
+    ${state.careers.map(careerSlotTileHTML).join('')}
+    ${canCreate ? `<div class="team-tile" style="display:flex;align-items:center;justify-content:center;min-height:200px;" onclick="setView('createCareerPlayer')">
+      <div style="text-align:center;"><div style="font-size:34px;">➕</div><div class="hint" style="margin-top:8px;">Criar jogador de carreira</div></div>
+    </div>` : ''}
+  </div>
+  ${!canCreate ? `<p class="hint" style="margin-top:12px;">Você atingiu o limite de ${MAX_CAREERS} jogadores. Exclua um pra criar outro.</p>` : ''}`;
+}
+function careerSlotTileHTML(cp){
+  const club = findTeam(cp.clubId);
+  return `<div class="team-tile tt" style="--tc:var(--gold);" onclick="setView('careerDetail',{currentCareerId:'${cp.id}'})">
+    <div class="tt-banner"></div>
+    <div class="tt-crest">${club ? crestHTML(club,58,21) : '<div style="height:66px;"></div>'}</div>
+    <h3>${escHtml(cp.name)}</h3>
+    <div class="tt-chips"><span>${cp.pos}</span><span>${cp.retired ? 'Aposentado' : cp.age+' anos'}</span></div>
+    <div class="tt-stats">
+      <div><b>${cp.ovr}</b><small>OVR</small></div>
+      <div><b>${cp.stats.goals}</b><small>Gols</small></div>
+    </div>
+    <div class="tt-star">${club ? escHtml(club.name) : 'Sem clube'}${cp.stats.ballonDor ? ` · 🏅 x${cp.stats.ballonDor}` : ''}</div>
+  </div>`;
+}
+function createCareerPlayerView(){
+  if(!state.teams.length){
+    return `<h2 class="section-title">Modo Carreira</h2><p class="hint">Crie pelo menos um time antes de começar uma carreira.</p>`;
+  }
+  const d = draftCareer;
+  if(!d.clubId || !findTeam(d.clubId)) d.clubId = state.teams[0].id;
+  return `
+  <div class="btn-row" style="margin-bottom:12px;"><button class="btn secondary" onclick="setView('career')">← Voltar</button></div>
+  <h2 class="section-title">Criar Jogador de Carreira</h2>
+  <p class="section-sub">Ele começa aos 17 anos. Escolha nome, nacionalidade, posição e o clube inicial.</p>
+  <div class="panel">
+    <div class="field"><label>Nome</label><input type="text" value="${escHtml(d.name)}" placeholder="Ex: Fulano Beltrano" oninput="draftCareer.name=this.value"></div>
+    <div class="row">
+      <div class="field"><label>Nacionalidade</label>
+        <select onchange="draftCareer.nationality=this.value">
+          ${NATIONALITIES_SORTED.map(n=>`<option value="${n.name}" ${d.nationality===n.name?'selected':''}>${flagEmoji(n.code)} ${n.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>Posição</label>
+        <select onchange="draftCareer.pos=this.value">
+          ${POSITIONS.map(p=>`<option value="${p}" ${d.pos===p?'selected':''}>${p}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Clube inicial</label>
+      <select onchange="draftCareer.clubId=this.value">
+        ${state.teams.map(t=>`<option value="${t.id}" ${d.clubId===t.id?'selected':''}>${escHtml(t.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="btn-row"><button class="btn gold" onclick="confirmCreateCareerPlayer()">Começar carreira (17 anos)</button></div>
+  </div>`;
+}
+function confirmCreateCareerPlayer(){
+  if(!draftCareer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
+  if(state.careers.length >= MAX_CAREERS){ showAlert(`Você já tem ${MAX_CAREERS} jogadores de carreira. Exclua um pra criar outro.`); return; }
+  const cp = createCareerPlayer(draftCareer.name.trim(), draftCareer.nationality, draftCareer.pos, draftCareer.clubId);
+  state.careers.push(cp);
+  draftCareer = {name:'', nationality:'Brasil', pos:'ATA', clubId:null};
+  saveState();
+  setView('careerDetail', {currentCareerId: cp.id});
+}
+function transferOfferHTML(cp){
+  const to = findTeam(cp.pendingOffer.toClubId);
+  if(!to) return '';
+  return `<div class="panel" style="margin-bottom:16px;border:1.5px solid var(--gold);">
+    <h4 class="settings-panel-title">📩 Proposta de transferência</h4>
+    <p class="hint" style="margin:0 0 12px;">O <b style="color:var(--text);">${escHtml(to.name)}</b> quer contratar ${escHtml(cp.name)}!</p>
+    <div class="btn-row">
+      <button class="btn gold" onclick="acceptCareerTransfer('${cp.id}')">Aceitar</button>
+      <button class="btn secondary" onclick="declineCareerTransfer('${cp.id}')">Recusar</button>
+    </div>
+  </div>`;
+}
+function careerDetailView(){
+  const cp = state.careers.find(c=>c.id===state.currentCareerId);
+  if(!cp) return `<div class="btn-row" style="margin-bottom:12px;"><button class="btn secondary" onclick="setView('career')">← Voltar</button></div><p>Jogador de carreira não encontrado.</p>`;
+  const club = findTeam(cp.clubId);
+  const cardPlayer = {id:cp.id, name:cp.name, pos:cp.pos, ovr:cp.ovr, value:cp.value, nationality:cp.nationality};
+  return `
+  <div class="btn-row" style="margin-bottom:12px;"><button class="btn secondary" onclick="setView('career')">← Voltar</button></div>
+  <div class="team-hero" style="--tc:var(--gold);">
+    <div style="width:150px;flex-shrink:0;">${playerCardHTML(cardPlayer)}</div>
+    <div class="th-info">
+      <h2>${escHtml(cp.name)}</h2>
+      <div class="th-chips">
+        <span>${cp.retired ? 'Aposentado' : cp.age+' anos'}</span>
+        <span>${club ? escHtml(club.name) : 'Sem clube'}</span>
+        <span>Temporada ${cp.season}</span>
+        <span>Potencial ${cp.potential}</span>
+      </div>
+    </div>
+    <div class="th-stats">
+      <div><b>${cp.stats.goals}</b><small>Gols</small></div>
+      <div><b>${cp.stats.apps}</b><small>Jogos</small></div>
+      <div><b>${cp.stats.ballonDor}</b><small>Bola de Ouro</small></div>
+    </div>
+  </div>
+
+  ${cp.pendingOffer ? transferOfferHTML(cp) : ''}
+
+  ${cp.lastSeasonSummary ? `<div class="panel" style="margin-bottom:16px;">
+    <h4 class="settings-panel-title">📋 Resumo da última temporada</h4>
+    ${cp.lastSeasonSummary.map(l=>`<p class="hint" style="margin:5px 0;color:var(--text);">${escHtml(l)}</p>`).join('')}
+  </div>` : ''}
+
+  ${cp.retired ? `
+    <div class="champion-banner" style="margin-bottom:16px;">
+      <div class="trophy">🎉</div>
+      <div>CARREIRA ENCERRADA</div>
+      <h2>${escHtml(cp.name)}</h2>
+      <div style="opacity:.9;font-size:13px;">${cp.stats.goals} gols em ${cp.stats.apps} jogos · ${cp.stats.ballonDor}x Bola de Ouro · ${cp.stats.leagueTitles} liga(s) · ${cp.stats.worldCups} Copa(s) do Mundo</div>
+    </div>
+  ` : `
+    <div class="panel" style="margin-bottom:16px;">
+      <h4 class="settings-panel-title">Ações da temporada ${cp.season}</h4>
+      <div class="btn-row">
+        <button class="btn secondary" onclick="trainCareerPlayer('${cp.id}')" ${cp.trainingUsesLeft<=0?'disabled':''}>💪 Treinar (${cp.trainingUsesLeft} restante${cp.trainingUsesLeft===1?'':'s'})</button>
+        <button class="btn gold" onclick="advanceCareerSeason('${cp.id}')">⏭️ Avançar temporada</button>
+      </div>
+      <p class="hint" style="margin:10px 0 0;">Treinar melhora o OVR (mais efeito enquanto jovem). Ao avançar, a liga do clube é disputada, o jogador envelhece e pode receber propostas e prêmios.</p>
+    </div>
+  `}
+
+  <div class="panel" style="margin-bottom:16px;">
+    <h4 class="settings-panel-title">🏆 Conquistas</h4>
+    ${cp.stats.trophies.length ? cp.stats.trophies.map(t=>`<div class="scorer-line">${escHtml(t)}</div>`).join('') : '<p class="hint" style="margin:0;">Nenhuma ainda.</p>'}
+  </div>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <h4 class="settings-panel-title">📈 Histórico de temporadas</h4>
+    ${cp.history.length ? `<div class="market-scroll"><table class="standings">
+      <thead><tr><th>Temp.</th><th>Idade</th><th>Clube</th><th>OVR</th><th>Jogos</th><th>Gols</th></tr></thead>
+      <tbody>${cp.history.map(h=>`<tr><td>${h.season}</td><td>${h.age}</td><td>${escHtml(h.club)}</td><td>${h.ovr}</td><td>${h.apps}</td><td>${h.goals}</td></tr>`).join('')}</tbody>
+    </table></div>` : '<p class="hint" style="margin:0;">Ainda não jogou nenhuma temporada.</p>'}
+  </div>
+
+  <div class="btn-row">
+    ${!cp.retired ? `<button class="btn secondary" onclick="requestRetireCareerPlayer('${cp.id}')">Aposentar agora</button>` : ''}
+    <button class="btn danger" onclick="requestDeleteCareerPlayer('${cp.id}')">Excluir carreira</button>
+  </div>`;
 }
 
 /* ============================= AMISTOSO ============================= */
