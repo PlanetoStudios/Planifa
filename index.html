@@ -1842,6 +1842,104 @@ function legendHTML(){
 }
 
 
+
+/* ============================= MÚSICA DE FUNDO ============================= */
+/* Trilha instrumental gerada na hora com Web Audio (nenhum arquivo de áudio): pad suave, baixo,
+   arpejo e uma melodia curta em loop (Lá menor). O navegador só deixa tocar áudio depois de um
+   clique do jogador, então ela começa quando o botão "Jogar" é apertado (ou ao ligar nas Configurações). */
+const MUSIC_VOLUMES = {low:0.07, medium:0.15, high:0.28};
+const Music = {
+  ctx:null, master:null, timer:null, step:0, nextTime:0, playing:false, volume:'medium',
+  BPM:100,
+  chords:[
+    {root:110.00, tones:[220.00,261.63,329.63]},   // Am
+    {root:87.31,  tones:[174.61,220.00,261.63]},   // F
+    {root:130.81, tones:[261.63,329.63,392.00]},   // C
+    {root:98.00,  tones:[196.00,246.94,293.66]},   // G
+  ],
+  melody:[
+    659.25,0,523.25,0,440.00,0,523.25,0,
+    523.25,0,440.00,0,523.25,0,698.46,0,
+    659.25,0,783.99,0,659.25,0,523.25,0,
+    587.33,0,493.88,0,587.33,0,783.99,0,
+  ],
+  ensure(){
+    if(this.ctx) return true;
+    try{
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return false;
+      this.ctx = new AC();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = MUSIC_VOLUMES[this.volume] || 0.15;
+      this.master.connect(this.ctx.destination);
+      return true;
+    }catch(e){ return false; }
+  },
+  note(freq, time, dur, type, peak){
+    const o = this.ctx.createOscillator(), g = this.ctx.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, time);
+    g.gain.linearRampToValueAtTime(peak, time+0.03);
+    g.gain.exponentialRampToValueAtTime(0.0001, time+dur);
+    o.connect(g); g.connect(this.master);
+    o.start(time); o.stop(time+dur+0.05);
+  },
+  playStep(step, t){
+    const barStep = step % 8, chord = this.chords[Math.floor(step/8) % 4];
+    const eighth = 60/this.BPM/2;
+    if(barStep===0){
+      chord.tones.forEach(f=>this.note(f, t, eighth*8, 'sine', 0.05));
+    }
+    if(barStep===0 || barStep===4) this.note(chord.root, t, eighth*3.5, 'triangle', 0.18);
+    const arp = [0,1,2,1,0,1,2,1][barStep];
+    this.note(chord.tones[arp]*2, t, eighth*0.9, 'triangle', 0.05);
+    const m = this.melody[step % 32];
+    if(m) this.note(m, t, eighth*1.8, 'sine', 0.09);
+  },
+  schedule(){
+    const eighth = 60/this.BPM/2;
+    while(this.nextTime < this.ctx.currentTime + 0.6){
+      this.playStep(this.step, this.nextTime);
+      this.nextTime += eighth;
+      this.step++;
+    }
+  },
+  start(){
+    if(!this.ensure()) return;
+    try{ if(this.ctx.state==='suspended') this.ctx.resume(); }catch(e){}
+    if(this.playing) return;
+    this.playing = true;
+    this.nextTime = this.ctx.currentTime + 0.1;
+    this.step = 0;
+    this.timer = setInterval(()=>this.schedule(), 100);
+  },
+  stop(){
+    this.playing = false;
+    if(this.timer){ clearInterval(this.timer); this.timer = null; }
+  },
+  setVolume(level){
+    this.volume = MUSIC_VOLUMES[level] ? level : 'medium';
+    if(this.master && this.ctx){
+      try{ this.master.gain.setTargetAtTime(MUSIC_VOLUMES[this.volume], this.ctx.currentTime, 0.05); }catch(e){}
+    }
+  },
+};
+let musicAllowed = false;
+function applyMusic(){
+  const st = state.settings || defaultSettings();
+  Music.setVolume(st.musicVolume);
+  if(st.music && musicAllowed) Music.start(); else Music.stop();
+}
+if(typeof document!=='undefined' && document.addEventListener){
+  document.addEventListener('visibilitychange', ()=>{
+    if(!Music.ctx) return;
+    try{
+      if(document.hidden) Music.ctx.suspend();
+      else if(Music.playing) Music.ctx.resume();
+    }catch(e){}
+  });
+}
+
 /* ============================= TELA DE ENTRADA ============================= */
 let bootReady = false;
 let bootTargetView = null;
@@ -1865,6 +1963,8 @@ function loadingView(){
   </div>`;
 }
 function startGame(){
+  musicAllowed = true;
+  applyMusic();
   state.view = 'loading';
   render();
   const MIN_MS = 700;
@@ -2038,7 +2138,7 @@ const ACCENT_THEMES = [
   {key:'blue',   label:'Azul',    color:'#4ea1ff'},
   {key:'yellow', label:'Amarelo', color:'#f0c94a'},
 ];
-function defaultSettings(){ return {theme:'dark', accent:'green', performanceMode:false, defaultSpeed:1}; }
+function defaultSettings(){ return {theme:'dark', accent:'green', performanceMode:false, defaultSpeed:1, music:true, musicVolume:'medium'}; }
 function applyTheme(){
   if(!document.body || !document.body.classList) return;
   const s = state.settings || defaultSettings();
@@ -2050,12 +2150,14 @@ function applyTheme(){
 function updateSetting(key, value){
   if(!state.settings) state.settings = defaultSettings();
   state.settings[key] = value;
+  if(key==='musicVolume') applyMusic();
   saveState();
   render();
 }
 function toggleSetting(key){
   if(!state.settings) state.settings = defaultSettings();
   state.settings[key] = !state.settings[key];
+  if(key==='music'){ musicAllowed = true; applyMusic(); }
   saveState();
   render();
 }
@@ -2103,6 +2205,23 @@ function settingsView(){
       </div>
       <div class="switch ${s.performanceMode?'on':''}"><div class="knob"></div></div>
     </label>
+  </div>
+
+  <div class="panel" style="margin-bottom:16px;">
+    <h4 class="settings-panel-title">Áudio</h4>
+    <label class="switch-row" onclick="toggleSetting('music')">
+      <div>
+        <b>Música de fundo</b>
+        <p class="hint" style="margin:5px 0 0;max-width:460px;">Trilha instrumental em loop enquanto você joga. Pode ligar e desligar quando quiser.</p>
+      </div>
+      <div class="switch ${s.music?'on':''}"><div class="knob"></div></div>
+    </label>
+    <div class="field" style="margin:14px 0 0;">
+      <label>Volume da música</label>
+      <div class="seg-control">
+        ${[['low','Baixo'],['medium','Médio'],['high','Alto']].map(([k,l])=>`<button class="${s.musicVolume===k?'active':''}" onclick="updateSetting('musicVolume','${k}')">${l}</button>`).join('')}
+      </div>
+    </div>
   </div>
 
   <div class="panel">
@@ -2282,6 +2401,8 @@ function teamDetailView(){
       <button class="btn danger" onclick="deleteTeam('${t.id}')">Excluir time</button>
     </div>
   </div>
+  ${coachPanelHTML(t)}
+  ${trainingResultsHTML(t)}
   <div class="pitch lineup">
     <div class="pl-out"></div><div class="pl-mid"></div><div class="pl-circle"></div>
     <div class="pl-box top"></div><div class="pl-box bottom"></div><div class="pl-six top"></div><div class="pl-six bottom"></div>
@@ -2290,6 +2411,121 @@ function teamDetailView(){
   <p class="hint">Clique em qualquer posição para escalar, trocar, editar ou remover o jogador.</p>
   ${legendHTML()}
   `;
+}
+/* ============================= TÉCNICO E TREINO DE TIME ============================= */
+function defaultCoachFor(){
+  const nat = pick(NATIONALITIES);
+  return {name: randomNameForNationality(nat.name), nationality: nat.name, ovr: rnd(40,75)};
+}
+function coachTrainChance(coachOvr){ return Math.min(0.85, 0.15 + (coachOvr/100)*0.55); }
+function coachTrainAmountMax(coachOvr){ return 2 + Math.floor(coachOvr/20); }
+function coachPanelHTML(t){
+  const coach = t.coach;
+  const flag = coach ? flagEmoji(nationalityCode(coach.nationality)) : '';
+  const chancePct = Math.round(coachTrainChance(coach ? coach.ovr : 20)*100);
+  return `<div class="panel" style="margin-bottom:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h4 class="settings-panel-title" style="margin-bottom:4px;">👔 Técnico</h4>
+        ${coach
+          ? `<div style="font-size:14px;">${flag} <b style="color:var(--text);">${escHtml(coach.name)}</b> <span class="hint">· OVR ${coach.ovr}</span></div>`
+          : `<p class="hint" style="margin:0;">Nenhum técnico contratado — o treino rende bem menos sem um.</p>`}
+      </div>
+      <div class="btn-row" style="margin:0;">
+        <button class="btn secondary" onclick="openCoachModal('${t.id}')">${coach?'Trocar técnico':'Contratar técnico'}</button>
+        <button class="btn gold" onclick="trainTeam('${t.id}')">🏋️ Treinar time</button>
+      </div>
+    </div>
+    <p class="hint" style="margin:10px 0 0;">Chance de cada jogador evoluir no treino agora: <b style="color:var(--text);">${chancePct}%</b>. Quanto maior o OVR do técnico, maior a chance e maior o ganho de OVR de cada jogador que evoluir.</p>
+  </div>`;
+}
+function trainingResultsHTML(t){
+  if(!t.lastTraining) return '';
+  const up = t.lastTraining.results.filter(r=>r.success);
+  const flat = t.lastTraining.results.filter(r=>!r.success);
+  return `<div class="panel" style="margin-bottom:16px;">
+    <h4 class="settings-panel-title">📋 Resultado do último treino</h4>
+    ${up.map(r=>`<div class="scorer-line">⬆️ <b>${escHtml(r.name)}</b> +${r.gain} OVR</div>`).join('')}
+    ${flat.map(r=>`<div class="scorer-line" style="opacity:.55;">${escHtml(r.name)} — sem evolução</div>`).join('')}
+    ${!up.length && !flat.length ? '<p class="hint" style="margin:0;">Ninguém evoluiu dessa vez.</p>' : ''}
+  </div>`;
+}
+function trainTeam(teamId){
+  const t = findTeam(teamId);
+  if(!t) return;
+  const roster = t.players.filter(Boolean);
+  if(!roster.length){ showAlert('Esse time não tem jogadores escalados pra treinar.'); return; }
+  const coachOvr = t.coach ? t.coach.ovr : 20;
+  const chance = coachTrainChance(coachOvr);
+  const amountMax = coachTrainAmountMax(coachOvr);
+  const results = [];
+  roster.forEach(p=>{
+    if(Math.random() < chance){
+      const gain = rnd(1, amountMax);
+      const before = p.ovr;
+      p.ovr = Math.min(MAX_OVR, p.ovr + gain);
+      p.value = computePlayerValue(p.ovr);
+      results.push({name:p.name, gain: p.ovr-before, success:true});
+    } else {
+      results.push({name:p.name, gain:0, success:false});
+    }
+  });
+  t.lastTraining = {ts:Date.now(), results};
+  saveState();
+  render();
+}
+function openCoachModal(teamId){
+  const t = findTeam(teamId);
+  if(!t) return;
+  const draft = t.coach ? {...t.coach} : defaultCoachFor();
+  state.modal = {type:'coach', teamId, draft};
+  render();
+}
+function updateCoachOvr(raw){
+  if(!state.modal || state.modal.type!=='coach') return;
+  let n = parseInt(raw,10); if(isNaN(n)) n = 1;
+  n = Math.max(1, Math.min(99, n));
+  state.modal.draft.ovr = n;
+  const lab = document.getElementById('coach-ovr-label');
+  if(lab) lab.textContent = n;
+}
+function randomizeCoachDraft(){
+  if(!state.modal || state.modal.type!=='coach') return;
+  state.modal.draft = defaultCoachFor();
+  render();
+}
+function saveCoach(){
+  const m = state.modal;
+  if(!m || m.type!=='coach') return;
+  if(!m.draft.name.trim()){ showAlert('Dê um nome ao técnico.'); return; }
+  const t = findTeam(m.teamId);
+  if(t) t.coach = {...m.draft, name: m.draft.name.trim()};
+  saveState();
+  closeModal();
+}
+function modalCoachHTML(){
+  const m = state.modal;
+  const t = findTeam(m.teamId);
+  const d = m.draft;
+  return `<div class="modal-bg" onclick="if(event.target===this) closeModal();">
+    <div class="modal">
+      <h3>Técnico de ${escHtml(t.name)}</h3>
+      <div class="field"><label>Nome</label><input type="text" value="${escHtml(d.name)}" oninput="state.modal.draft.name=this.value"></div>
+      <div class="field"><label>Nacionalidade</label>
+        <select onchange="state.modal.draft.nationality=this.value">
+          ${NATIONALITIES_SORTED.map(n=>`<option value="${n.name}" ${d.nationality===n.name?'selected':''}>${flagEmoji(n.code)} ${n.name}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field"><label>OVR do técnico (1 a 99): <b id="coach-ovr-label" style="color:var(--gold);">${d.ovr}</b></label>
+        <input type="number" min="1" max="99" class="ovr-number-full" value="${d.ovr}" oninput="updateCoachOvr(this.value)">
+      </div>
+      <p class="hint">Quanto maior o OVR do técnico, maior a chance de cada jogador evoluir no treino — e maior o ganho de OVR quando evolui.</p>
+      <div class="btn-row">
+        <button class="btn" onclick="saveCoach()">Salvar técnico</button>
+        <button class="btn secondary" onclick="randomizeCoachDraft()">🎲 Aleatório</button>
+        <button class="btn secondary" onclick="closeModal()">Cancelar</button>
+      </div>
+    </div></div>`;
 }
 function deleteTeam(id){
   const t = findTeam(id);
@@ -2518,6 +2754,7 @@ function modalHTML(){
   if(m.type==='editPlayer') return modalEditPlayerHTML();
   if(m.type==='confirm') return modalConfirmHTML();
   if(m.type==='alertbox') return modalAlertHTML();
+  if(m.type==='coach') return modalCoachHTML();
   return '';
 }
 /* ---- confirm/alert próprios do app (diálogos nativos do navegador podem ser bloqueados
@@ -3494,11 +3731,12 @@ function shuffleArr(arr){
   for(let i=a.length-1;i>0;i--){ const j=rnd(0,i); [a[i],a[j]]=[a[j],a[i]]; }
   return a;
 }
-function createCareerPlayer(name, nationality, pos, clubId){
-  const ovr = rnd(48,62);
+function createCareerPlayer(name, nationality, pos, clubId, potential){
+  const pot = Math.max(60, Math.min(MAX_OVR, Math.round(potential || rnd(65,99))));
+  const ovr = Math.min(rnd(48,62), pot-5);
   return {
     id: uid(), name, nationality, pos, age:17, ovr,
-    potential: Math.max(ovr+12, rnd(65,99)),
+    potential: pot,
     value: computePlayerValue(ovr), clubId, season:1, retired:false, trainingUsesLeft:2,
     stats:{goals:0, apps:0, ballonDor:0, leagueTitles:0, worldCups:0, trophies:[]},
     history:[], pendingOffer:null, lastSeasonSummary:null,
@@ -3548,6 +3786,10 @@ function applyAgeProgression(cp){
   else if(cp.age <= 31) delta = rnd(-1,2);
   else if(cp.age <= 35) delta = rnd(-4,-1);
   else delta = rnd(-8,-3);
+  // quanto mais longe do potencial escolhido, mais rápido o jogador evolui enquanto é jovem
+  const gap = Math.max(0, cp.potential - cp.ovr);
+  if(cp.age < 27) delta += Math.floor(gap/15);
+  else if(cp.age <= 30 && delta>0) delta += Math.floor(gap/25);
   let next = cp.ovr + delta;
   if(delta>0 && cp.age<31) next = Math.min(next, cp.potential);
   cp.ovr = Math.max(30, Math.min(MAX_OVR, Math.round(next)));
@@ -3642,7 +3884,22 @@ function requestDeleteCareerPlayer(careerId){
   });
 }
 
-let draftCareer = {name:'', nationality:'Brasil', pos:'ATA', clubId:null};
+let draftCareer = {name:'', nationality:'Brasil', pos:'ATA', clubId:null, potential:85, potentialWarning:false};
+/* Campo de potencial: nunca usa render() ao digitar (senão o campo perde o foco a cada tecla). */
+function updateCareerPotential(raw){
+  let n = parseInt(raw,10); if(isNaN(n)) n = 0;
+  draftCareer.potentialWarning = n > MAX_OVR;
+  draftCareer.potential = Math.min(MAX_OVR, Math.max(0,n));
+  const lab = document.getElementById('career-pot-label');
+  if(lab) lab.textContent = draftCareer.potential>=60 ? getTier(draftCareer.potential).label : 'abaixo do mínimo';
+  const warn = document.getElementById('career-pot-warn');
+  if(warn) warn.style.display = draftCareer.potentialWarning ? '' : 'none';
+}
+function randomCareerPotential(){
+  draftCareer.potential = rnd(65,99);
+  draftCareer.potentialWarning = false;
+  render();
+}
 function careerView(){
   const canCreate = state.careers.length < MAX_CAREERS;
   return `
@@ -3699,15 +3956,25 @@ function createCareerPlayerView(){
         ${state.teams.map(t=>`<option value="${t.id}" ${d.clubId===t.id?'selected':''}>${escHtml(t.name)}</option>`).join('')}
       </select>
     </div>
+    <div class="field">
+      <label>Potencial (60 a ${MAX_OVR}) — o teto que ele pode alcançar: <b id="career-pot-label" style="color:var(--gold);">${d.potential>=60 ? getTier(d.potential).label : 'abaixo do mínimo'}</b></label>
+      <div class="value-input-row">
+        <input type="number" min="60" max="${MAX_OVR}" class="ovr-number-full" value="${d.potential}" oninput="updateCareerPotential(this.value)" placeholder="Ex: 90">
+        <button type="button" class="btn secondary" onclick="randomCareerPotential()">🎲 Sortear</button>
+      </div>
+      <p id="career-pot-warn" class="ovr-warning" style="${d.potentialWarning?'':'display:none;'}">⚠ O limite máximo é ${MAX_OVR}. O valor foi ajustado para ${MAX_OVR}.</p>
+      <p class="hint" style="margin-top:6px;">Quanto maior o potencial, mais rápido ele evolui enquanto é jovem (e mais longe pode chegar).</p>
+    </div>
     <div class="btn-row"><button class="btn gold" onclick="confirmCreateCareerPlayer()">Começar carreira (17 anos)</button></div>
   </div>`;
 }
 function confirmCreateCareerPlayer(){
   if(!draftCareer.name.trim()){ showAlert('Dê um nome ao jogador.'); return; }
   if(state.careers.length >= MAX_CAREERS){ showAlert(`Você já tem ${MAX_CAREERS} jogadores de carreira. Exclua um pra criar outro.`); return; }
-  const cp = createCareerPlayer(draftCareer.name.trim(), draftCareer.nationality, draftCareer.pos, draftCareer.clubId);
+  if(!(draftCareer.potential>=60)){ showAlert('O potencial mínimo é 60.'); return; }
+  const cp = createCareerPlayer(draftCareer.name.trim(), draftCareer.nationality, draftCareer.pos, draftCareer.clubId, draftCareer.potential);
   state.careers.push(cp);
-  draftCareer = {name:'', nationality:'Brasil', pos:'ATA', clubId:null};
+  draftCareer = {name:'', nationality:'Brasil', pos:'ATA', clubId:null, potential:85, potentialWarning:false};
   saveState();
   setView('careerDetail', {currentCareerId: cp.id});
 }
