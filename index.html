@@ -1610,6 +1610,7 @@ function buildPatternFill(pattern, base, accent, idSeed){
    própria cor principal (1ª, 3ª e 4ª cor) e a cor secundária (2ª cor) compartilhada entre todas as faixas. */
 function crestSVGFromConfig(cfg, size, idSeed){
   size = size || 48;
+  if(cfg.shape==='doubleRing') return crestSVGDoubleRing(cfg, size, idSeed);
   const shape = cfg.shape || 'shield';
   const patterns = (Array.isArray(cfg.patterns) && cfg.patterns.length) ? cfg.patterns.slice(0,3) : [cfg.pattern || 'solid'];
   const base = cfg.base || '#29d398';
@@ -1648,7 +1649,7 @@ function crestSVGFromConfig(cfg, size, idSeed){
   let starsEl = '';
   if(starsN>0){
     const startX = 50 - (starsN-1)*7;
-    for(let i=0;i<starsN;i++) starsEl += `<text x="${startX+i*14}" y="-2" font-size="13" text-anchor="middle">⭐</text>`;
+    for(let i=0;i<starsN;i++) starsEl += `<text x="${startX+i*14}" y="${cfg.accessory==='crown'?-20:-2}" font-size="13" text-anchor="middle">⭐</text>`;
   }
   return `<svg viewBox="0 -16 100 126" width="${size}" height="${Math.round(size*1.26)}" style="display:block;overflow:visible;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));">
     <defs><clipPath id="cc${idSeed}">${fillClip}</clipPath>${defsExtra}</defs>
@@ -1664,6 +1665,7 @@ function crestSVGFromConfig(cfg, size, idSeed){
     <g fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2.5">${clip}</g>
     ${symbolEl}
     ${textEl}
+    ${crestCrownHTML(cfg)}
   </svg>`;
 }
 /* 16 escudos fixos pros times iniciais — sempre os mesmos, pra todo mundo que abrir o jogo. */
@@ -4370,7 +4372,7 @@ const MatchEngine = (function(){
       if(Math.random() < sotP){
         st.sot++;
         const gkF = clamp(Math.pow(60/Math.max(eff(s, other, 'gk'),12), 0.45), 0.55, 1.5);
-        const gP = clamp(0.25*Math.pow(r,0.85)*gkF, 0.05, 0.6);
+        const gP = clamp(0.285*Math.pow(r,0.85)*gkF, 0.05, 0.62);
         if(Math.random() < gP){
           out.push(...goalScored(s, side, shooter));
         } else {
@@ -4557,7 +4559,7 @@ const MatchEngine = (function(){
     s.stats[side].shots++; playerStatsOf(s,side,shooter.p).shots++; s.stats[side].xg += o.q;
     if(Math.random() < o.sotP){
       s.stats[side].sot++;
-      if(Math.random() < clamp(o.gP,0.04,0.85)) out.push(...goalScored(s, side, shooter));
+      if(Math.random() < clamp(o.gP*1.12,0.04,0.88)) out.push(...goalScored(s, side, shooter));
       else {
         s.stats[other].saves++; if(gk){ const g = playerStatsOf(s,other,gk); if(g) g.saves++; }
         out.push(ev(s,{kind:'save', side:other, text:fill(P(TXT.save),{p:shooter.p.name, g:gk?gk.name:'O goleiro'})}));
@@ -5216,7 +5218,7 @@ EXT_VIEWS.packs = function(){
   ${rev}${dailyHTML()}
   <div class="pack-grid">${PACKS.map(p=>`<div class="pack" style="--pk:${p.color}"><div class="pi">${p.icon}</div><h3>${p.name}</h3><p>${p.desc}</p><button class="btn gold" ${e.coins<p.price?'disabled':''} onclick="buyPack('${p.key}')">${p.price} 🪙</button></div>`).join('')}</div>
   <div class="panel"><h4 class="settings-panel-title">Vender agentes livres</h4><p class="hint">Transforme jogadores fracos do catálogo em moedas (OVR ÷ 2 cada).</p>
-  <div class="btn-row">${[40,60,70,80].map(m=>`<button class="btn secondary" onclick="sellCheap(${m})">OVR até ${m} (${state.freeAgents.filter(p=>p.ovr<=m).length})</button>`).join('')}</div></div>`;
+  <div class="btn-row">${[40,60,70,80,90].map(m=>`<button class="btn secondary" onclick="sellCheap(${m})">OVR até ${m} (${state.freeAgents.filter(p=>p.ovr<=m).length})</button>`).join('')}</div></div>`;
 };
 
 /* ---- estatísticas ---- */
@@ -5474,6 +5476,136 @@ function saveRenameTeam(){
   teamDetailView = function(){
     const h=_td(), t=findTeam(state.currentTeamId); if(!t) return h;
     return h.replace('<button class="btn secondary" onclick="openCrestEditor(', `<button class="btn secondary" onclick="openRenameTeam('${t.id}')">✏️ Renomear</button>\n      <button class="btn secondary" onclick="openCrestEditor(`);
+  };
+})();
+
+
+/* ============================= ESCUDO: mais emojis + ANEL DUPLO v2 ============================= */
+(function(){
+  const more = [
+    ['dog','🐶','Cachorro'],['cat','🐱','Gato'],['panda','🐼','Panda'],['monkey','🐵','Macaco'],['gorilla','🦍','Gorila'],['elephant','🐘','Elefante'],['rhino','🦏','Rinoceronte'],['giraffe','🦒','Girafa'],['zebra','🦓','Zebra'],['deer','🦌','Cervo'],['boar','🐗','Javali'],['bat','🦇','Morcego'],['penguin','🐧','Pinguim'],['parrot','🦜','Papagaio'],['peacock','🦚','Pavão'],['swan','🦢','Cisne'],['rooster','🐓','Galo'],['croc','🐊','Jacaré'],['turtle','🐢','Tartaruga'],['octopus','🐙','Polvo'],['whale','🐋','Baleia'],['dolphin','🐬','Golfinho'],['crab','🦀','Caranguejo'],['bee','🐝','Abelha'],['butterfly','🦋','Borboleta'],['unicorn','🦄','Unicórnio'],['trex','🦖','T-Rex'],['camel','🐪','Camelo'],['goat','🐐','Bode'],['ram','🐏','Carneiro'],['frog','🐸','Sapo'],['lizard','🦎','Lagarto'],
+    ['sparkles','✨','Brilhos'],['star2','🌟','Estrela brilhante'],['dizzy','💫','Estrelas girando'],['volcano','🌋','Vulcão'],['tornado','🌪️','Tornado'],['cloud','☁️','Nuvem'],['storm','🌩️','Tempestade'],['tulip','🌷','Tulipa'],['sunflower','🌻','Girassol'],['palm','🌴','Palmeira'],['maple','🍁','Folha'],['leaf','🍃','Folhas'],['planet','🪐','Planeta'],['ufo','🛸','Disco voador'],['satellite','🛰️','Satélite'],['atom','⚛️','Átomo'],['dna','🧬','DNA'],['magnet','🧲','Ímã'],['bomb','💣','Bomba'],['dagger','🗡️','Adaga'],['bow','🏹','Arco e flecha'],['axe','🪓','Machado'],['pick','⛏️','Picareta'],['wrench','🔧','Chave inglesa'],['gear','⚙️','Engrenagem'],['bell','🔔','Sino'],['lock','🔒','Cadeado'],['crystal','🔮','Cristal'],['ring','💍','Anel'],['trident','🔱','Tridente'],['fleur','⚜️','Flor-de-lis'],['yinyang','☯️','Yin-yang'],
+    ['diamondS','♦️','Ouros'],['spade','♠️','Espadas (naipe)'],['clubS','♣️','Paus'],['heartS','♥️','Copas'],['knight','♞','Cavalo de xadrez'],['pawn','♟️','Peão'],['castle','🏰','Castelo'],['tower','🗼','Torre'],['moai','🗿','Moai'],['robot','🤖','Robô'],['alien','👽','Alienígena'],['ninja','🥷','Ninja'],['wizard','🧙','Mago'],['clown','🤡','Palhaço'],['devil','😈','Diabinho'],['angel','😇','Anjo'],['cool','😎','Descolado'],
+    ['basket','🏀','Basquete'],['tennis','🎾','Tênis'],['football','🏈','Futebol americano'],['rugby','🏉','Rúgbi'],['baseball','⚾','Beisebol'],['volley','🏐','Vôlei'],['golf','⛳','Golfe'],['boxing','🥊','Luva de boxe'],['chequered','🏁','Bandeira quadriculada'],['gloves','🧤','Luvas'],['boot','👟','Chuteira'],['megaphone','📣','Megafone'],['drum','🥁','Tambor'],['guitar','🎸','Guitarra'],['party','🎉','Festa'],['balloon','🎈','Balão'],['dice','🎲','Dado'],['joystick','🕹️','Joystick'],['ticket','🎫','Ingresso'],
+    ['pizza','🍕','Pizza'],['burger','🍔','Hambúrguer'],['banana','🍌','Banana'],['pineapple','🍍','Abacaxi'],['melon','🍉','Melancia'],['lemon','🍋','Limão'],['orange','🍊','Laranja'],['cherry','🍒','Cereja'],['strawberry','🍓','Morango'],['coconut','🥥','Coco'],['chili','🌶️','Pimenta'],['coffee','☕','Café'],['popcorn','🍿','Pipoca'],['cake','🎂','Bolo'],
+  ];
+  const have = new Set(CREST_SYMBOLS.map(s=>s.key));
+  more.forEach(([key,emoji,label])=>{ if(!have.has(key)){ have.add(key); CREST_SYMBOLS.push({key,emoji,label}); } });
+})();
+
+function crestSVGDoubleRing(cfg, size, idSeed){
+  size = size || 48;
+  const patterns = (Array.isArray(cfg.patterns) && cfg.patterns.length) ? cfg.patterns.slice(0,3) : [cfg.pattern || 'solid'];
+  const base = cfg.base || '#29d398', accent = cfg.accent || shade(base,-42);
+  const colors = [base, accent, cfg.color3 || base, cfg.color4 || accent];
+  const IR = 32, OR = 48, CY = 55, SC = 0.44;
+  const innerShape = (cfg.innerShape && cfg.innerShape!=='none' && cfg.innerShape!=='doubleRing') ? cfg.innerShape : null;
+  const regionClip = innerShape ? crestShapeClip(innerShape) : `<circle cx="50" cy="${CY}" r="${IR}"/>`;
+  const T = innerShape ? `translate(50 ${CY}) scale(${SC}) translate(-50 -55)` : '';
+  let defs = '', fill = '';
+  const n = patterns.length;
+  patterns.forEach((pat,i)=>{
+    const primary = i===0 ? colors[0] : (colors[i+1] || colors[0]);
+    const {fill:bf, defs:bd} = buildPatternFill(pat, primary, colors[1], idSeed+'_d'+i);
+    defs += bd;
+    if(n===1) fill += bf;
+    else { const w=100/n, x0=w*i; defs += `<clipPath id="dcol${idSeed}_${i}"><rect x="${x0}" y="0" width="${w}" height="110"/></clipPath>`; fill += `<g clip-path="url(#dcol${idSeed}_${i})">${bf}</g>`; }
+  });
+  const backdrop = shade(base,-55);
+  const sym = CREST_SYMBOLS.find(s=>s.key===cfg.symbol) || CREST_SYMBOLS[0];
+  const hasSym = sym.key!=='none';
+  const txt = String(cfg.text||'').trim().toUpperCase().slice(0,5);
+  const hasTxt = !!txt;
+  const place = cfg.textPlace || 'inner', sz = cfg.textSize || 'm';
+  const top = cfg.textPos==='top';
+  const FS = {ring:{s:8,m:10.5,l:13}, inner:{s:11,m:15,l:20}, shape:{s:9,m:12,l:16}}[place==='ring'?'ring':(place==='shape'?'shape':'inner')][sz] || 12;
+  const nL = txt.length;
+  const fit = (fs,maxW)=>Math.max(4, Math.min(fs, (maxW-(nL-1)*0.8)/(nL*0.64)));
+  const mk = (x,y,fs,bg)=>`<text x="${x}" y="${y}" font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="${fs.toFixed(1)}" letter-spacing="0.8" fill="${contrastText(bg)}" stroke="${bg}" stroke-width="${Math.max(1,fs*0.14).toFixed(1)}" paint-order="stroke" text-anchor="middle" dominant-baseline="central">${escHtml(txt)}</text>`;
+  let symEl = '', txtEl = '', pathDef = '';
+  const regionBg = innerShape ? base : base;
+  if(place==='ring' && hasTxt){
+    const r = top ? 36.5 : 43.5, fs = fit(FS, 68);
+    pathDef = `<path id="rp${idSeed}" d="M ${50-r},${CY} A ${r},${r} 0 0 ${top?1:0} ${50+r},${CY}" fill="none"/>`;
+    txtEl = `<text font-family="'Big Shoulders Display',sans-serif" font-weight="800" font-size="${fs.toFixed(1)}" letter-spacing="1.2" fill="${contrastText(accent)}" text-anchor="middle"><textPath href="#rp${idSeed}" startOffset="50%">${escHtml(txt)}</textPath></text>`;
+    if(hasSym) symEl = `<text x="50" y="${CY}" font-size="${innerShape?22:30}" text-anchor="middle" dominant-baseline="central">${sym.emoji}</text>`;
+  } else if(place==='inner' && innerShape){
+    if(hasSym) symEl = `<text x="50" y="${CY}" font-size="22" text-anchor="middle" dominant-baseline="central">${sym.emoji}</text>`;
+    if(hasTxt) txtEl = mk(50, top?CY-26.5:CY+26.5, fit(FS,32), backdrop);
+  } else if(innerShape){ // dentro do formato interno
+    if(hasSym && hasTxt){ symEl = `<text x="50" y="${top?63:47}" font-size="19" text-anchor="middle" dominant-baseline="central">${sym.emoji}</text>`; txtEl = mk(50, top?44:66, fit(FS,34), base); }
+    else if(hasSym) symEl = `<text x="50" y="${CY}" font-size="24" text-anchor="middle" dominant-baseline="central">${sym.emoji}</text>`;
+    else if(hasTxt) txtEl = mk(50, CY, fit(FS,34), base);
+  } else { // sem formato interno: círculo interno cheio
+    if(hasSym && hasTxt){ symEl = `<text x="50" y="${top?68:45}" font-size="26" text-anchor="middle" dominant-baseline="central">${sym.emoji}</text>`; txtEl = mk(50, top?38:76, fit(FS,46), base); }
+    else if(hasSym) symEl = `<text x="50" y="${CY}" font-size="32" text-anchor="middle" dominant-baseline="central">${sym.emoji}</text>`;
+    else if(hasTxt) txtEl = mk(50, CY, fit(FS,54), base);
+  }
+  const borderEl = patterns.includes('border') ? `<g clip-path="url(#ri${idSeed})"><g fill="none" stroke="${accent}" stroke-width="14">${regionClip}</g></g>` : '';
+  const starsN = Math.max(0, Math.min(5, cfg.stars||0));
+  let starsEl = ''; if(starsN>0){ const sx = 50-(starsN-1)*7; for(let i=0;i<starsN;i++) starsEl += `<text x="${sx+i*14}" y="${cfg.accessory==='crown'?-20:-2}" font-size="13" text-anchor="middle">⭐</text>`; }
+  return `<svg viewBox="0 -16 100 126" width="${size}" height="${Math.round(size*1.26)}" style="display:block;overflow:visible;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45));">
+    <defs><clipPath id="ri${idSeed}">${regionClip}</clipPath>${defs}${pathDef}</defs>
+    ${starsEl}
+    <circle cx="50" cy="${CY}" r="${OR}" fill="${accent}"/>
+    <circle cx="50" cy="${CY}" r="${OR-3}" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="1.3"/>
+    ${innerShape ? `<circle cx="50" cy="${CY}" r="${IR}" fill="${backdrop}"/>` : ''}
+    <g ${T?`transform="${T}"`:''}>
+      <g clip-path="url(#ri${idSeed})">${fill}<rect width="100" height="55" fill="rgba(255,255,255,.16)"/><rect y="55" width="100" height="55" fill="rgba(0,0,0,.1)"/></g>
+      ${borderEl}
+      <g fill="none" stroke="rgba(0,0,0,.4)" stroke-width="${innerShape?5.5:2.5}">${regionClip}</g>
+    </g>
+    <circle cx="50" cy="${CY}" r="${IR+1.2}" fill="none" stroke="rgba(255,255,255,.4)" stroke-width="1.2"/>
+    <circle cx="50" cy="${CY}" r="${OR}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="2.5"/>
+    ${symEl}${txtEl}
+    ${crestCrownHTML(cfg)}
+  </svg>`;
+}
+(function(){
+  const _ec = editCrestView;
+  editCrestView = function(){
+    let h = _ec(); const c = draftCrest; if(!c || c.shape!=='doubleRing') return h;
+    const shapes = [{key:'none',label:'Nenhum (círculo liso)'}].concat(CREST_SHAPE_LIST.filter(s=>s.key!=='doubleRing'));
+    const panel = `<div class="panel"><h4 class="settings-panel-title">Anel duplo</h4>
+      <div class="field"><label>Formato dentro do círculo interno</label><div class="seg-control">${shapes.map(s=>`<button class="${(c.innerShape||'none')===s.key?'active':''}" onclick="setCrestField('innerShape','${s.key}')">${s.label}</button>`).join('')}</div></div>
+      <div class="field"><label>Tamanho do texto</label><div class="seg-control">${[['s','Pequeno'],['m','Médio'],['l','Grande']].map(([k,l])=>`<button class="${(c.textSize||'m')===k?'active':''}" onclick="setCrestField('textSize','${k}')">${l}</button>`).join('')}</div></div>
+      <div class="field" style="margin-bottom:0"><label>Onde fica o texto</label><div class="seg-control">${[['ring','No círculo maior'],['inner','No círculo interno'],['shape','No formato interno']].map(([k,l])=>`<button class="${(c.textPlace||'inner')===k?'active':''}" onclick="setCrestField('textPlace','${k}')">${l}</button>`).join('')}</div>
+      <p class="hint" style="margin-top:6px;">O texto em si você escreve em "Texto". "Em cima/Embaixo" define o lado do texto (no círculo maior, ele curva pelo anel).</p></div></div>`;
+    return h.replace(/<div class="panel">\s*<h4 class="settings-panel-title">Estilos/, panel+'$&');
+  };
+})();
+
+
+/* ---- acessórios do escudo: coroa sobre a borda de cima ---- */
+const CREST_TOP_Y = {shield:4,circle:3,hex:2,pentagon:2,banner:4,diamond:2,oval:2,roundSquare:4,arch:16,star:8,doubleRing:7};
+function crestCrownHTML(cfg){
+  if(cfg.accessory!=='crown') return '';
+  const y = (CREST_TOP_Y[cfg.shape||'shield'] ?? 4) + 2;
+  return `<g transform="translate(0 ${y})" style="filter:drop-shadow(0 1.5px 1.5px rgba(0,0,0,.45))"><path d="M30,3 L33,-14 L41,-6 L50,-19 L59,-6 L67,-14 L70,3 Z" fill="#ffd35a" stroke="#9a6a14" stroke-width="1.6" stroke-linejoin="round"/><rect x="30" y="-1.5" width="40" height="6" rx="1.6" fill="#f0b429" stroke="#9a6a14" stroke-width="1.2"/><circle cx="50" cy="1.5" r="1.9" fill="#e2362b"/><circle cx="40" cy="1.5" r="1.3" fill="#4ea1ff"/><circle cx="60" cy="1.5" r="1.3" fill="#4ea1ff"/><circle cx="33" cy="-14" r="1.7" fill="#fff" stroke="#9a6a14" stroke-width=".6"/><circle cx="50" cy="-19" r="1.9" fill="#fff" stroke="#9a6a14" stroke-width=".6"/><circle cx="67" cy="-14" r="1.7" fill="#fff" stroke="#9a6a14" stroke-width=".6"/></g>`;
+}
+(function(){
+  const _ec2 = editCrestView;
+  editCrestView = function(){
+    const h=_ec2(), c=draftCrest; if(!c) return h;
+    const panel = `<div class="panel"><h4 class="settings-panel-title">Acessórios</h4><div class="seg-control">${[['none','Nenhum'],['crown','👑 Coroa']].map(([k,l])=>`<button class="${(c.accessory||'none')===k?'active':''}" onclick="setCrestField('accessory','${k}')">${l}</button>`).join('')}</div><p class="hint" style="margin-top:8px;">Decorações extras. A coroa fica sobre a borda de cima do escudo (as estrelas sobem para acompanhar).</p></div>`;
+    return h.replace(/<div class="panel">\s*<h4 class="settings-panel-title">Estrelas/, panel+'$&');
+  };
+})();
+
+/* ---- vender um jogador do catálogo (OVR até 90) ---- */
+function sellOne(id){
+  const p=state.freeAgents.find(x=>x.id===id); if(!p) return;
+  if(p.ovr>90){ toast('Só dá para vender jogadores de OVR até 90'); return; }
+  const v=sellPrice(p); state.freeAgents=state.freeAgents.filter(x=>x.id!==id); grantCoins(v); ex().stats.sold++;
+  state.modal=null; saveState(); render(); toast(`+${v} 🪙`, `${p.name} vendido`); SFX.play('coin');
+}
+(function(){
+  const _mh2 = modalHTML;
+  modalHTML = function(){
+    const html=_mh2(), m=state.modal; if(!m || m.type!=='assign') return html;
+    const p=state.freeAgents.find(x=>x.id===m.playerId); if(!p) return html;
+    const btn = p.ovr<=90 ? `<div class="btn-row" style="justify-content:center;margin:0 0 12px"><button class="btn secondary" onclick="sellOne('${p.id}')">💰 Vender por ${sellPrice(p)} 🪙</button></div>` : `<p class="hint" style="text-align:center">Jogadores acima de OVR 90 não podem ser vendidos.</p>`;
+    return html.replace('</h3>','</h3>'+btn);
   };
 })();
 
